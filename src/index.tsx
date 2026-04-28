@@ -36,29 +36,29 @@ app.get('/api/quotes', (c) => {
   return c.json(q)
 })
 app.get('/api/health', (c) => c.json({
-  status: 'ok', service: 'SparkMind V4.0 API', version: '4.0.0',
-  engine: 'Sovereign AI Engine V4', categories: 16,
-  features: ['dashboard-charts','journal','dark-light-mode','toast-notifications','ai-typing-effect','vision-board','export-import','focus-mode','expandable-resources']
+  status: 'ok', service: 'SparkMind V5.0 SOVEREIGN API', version: '5.0.0',
+  engine: 'Sovereign AI Engine V5', categories: 18,
+  features: ['chat-memory-persist','mobile-sidebar-fix','backup-restore-json','weekly-trend-chart','pomodoro-v2','smart-delete-modal','debounced-search','keyboard-shortcuts','spiritual-faith','side-hustle','animated-counters','micro-interactions']
 }))
 
 // ============================================
-// AI STRATEGIC ENGINE V4 — 16+ CATEGORIES
+// AI STRATEGIC ENGINE V5 — 18+ CATEGORIES
 // ============================================
 function generateStrategicResponse(message: string, mode: string, history: any[]): string {
   const m = message.toLowerCase()
-  const ctx = history.length > 0 ? `<div class="mb-3"><span class="text-[10px] bg-white/5 dark:bg-white/5 text-gray-500 px-2 py-0.5 rounded border border-white/5">Context: ${history.length} messages</span></div>` : ''
+  const ctx = history.length > 0 ? `<div class="mb-3"><span class="text-[10px] bg-white/5 text-gray-500 px-2 py-0.5 rounded border border-white/5">💭 Context: ${history.length} pesan sebelumnya</span></div>` : ''
 
   if (mode === 'swot') return generateSWOT(message)
   if (mode === 'mindmap') return generateMindMap(message)
   if (mode === 'coach') return generateCoachResponse(message, '', '')
 
   const badge = (label: string, color: string, extra?: string) => `<span class="px-2.5 py-1 bg-${color}-500/10 text-${color}-400 rounded-lg text-xs font-bold border border-${color}-500/20">${label}</span>${extra ? `<span class="px-2.5 py-1 bg-purple-500/10 text-purple-400 rounded-lg text-xs font-bold border border-purple-500/20">${extra}</span>` : ''}`
-  const step = (n: number, color: string, title: string, desc: string) => `<div class="flex gap-3 bg-white/[0.02] dark:bg-white/[0.02] border border-white/5 rounded-xl p-4 hover:bg-white/[0.04] transition"><span class="w-8 h-8 bg-${color}-500 rounded-lg flex items-center justify-center flex-shrink-0 text-white font-bold text-xs shadow-lg shadow-${color}-500/20">${n}</span><div><p class="font-bold text-white text-sm">${title}</p><p class="text-gray-400 text-xs mt-1.5 leading-relaxed">${desc}</p></div></div>`
-  const insight = (color: string, label: string, text: string) => `<div class="bg-gradient-to-r from-${color}-500/10 to-${color}-600/10 border border-${color}-500/20 rounded-xl p-4"><p class="${color === 'amber' ? 'text-amber-400' : `text-${color}-400`} text-xs font-bold">${label}</p><p class="text-gray-300 text-sm mt-1">${text}</p></div>`
+  const step = (n: number, color: string, title: string, desc: string) => `<div class="flex gap-3 bg-white/[0.02] border border-white/5 rounded-xl p-4 hover:bg-white/[0.04] hover:border-${color}-500/20 transition-all"><span class="w-8 h-8 bg-${color}-500 rounded-lg flex items-center justify-center flex-shrink-0 text-white font-bold text-xs shadow-lg shadow-${color}-500/20">${n}</span><div><p class="font-bold text-white text-sm">${title}</p><p class="text-gray-400 text-xs mt-1.5 leading-relaxed">${desc}</p></div></div>`
+  const insight = (color: string, label: string, text: string) => `<div class="bg-gradient-to-r from-${color}-500/10 to-${color}-600/10 border border-${color}-500/20 rounded-xl p-4"><p class="text-${color}-400 text-xs font-bold">${label}</p><p class="text-gray-300 text-sm mt-1">${text}</p></div>`
 
   // Business
   if (m.match(/bisnis|usaha|jualan|startup|toko|online shop|e-commerce|dropship|franchise|modal|revenue|monetisasi|market/)) {
-    return `<div class="space-y-4">${ctx}<div class="flex items-center gap-2 flex-wrap">${badge('BISNIS','blue','V4 ENGINE')}</div>
+    return `<div class="space-y-4">${ctx}<div class="flex items-center gap-2 flex-wrap">${badge('BISNIS','blue','V5 ENGINE')}</div>
       <p class="font-bold text-white text-lg">Deep Strategic Analysis: Memulai & Mengembangkan Bisnis</p>
       <div class="bg-blue-500/5 border border-blue-500/10 rounded-xl p-4"><p class="text-blue-400 text-xs font-bold mb-2">EXECUTIVE SUMMARY</p><p class="text-gray-300 text-sm">67% startup gagal karena tidak validasi pasar. Berikut <strong class="text-white">proven framework</strong> dari 500+ startup sukses:</p></div>
       <div class="space-y-3">
@@ -72,21 +72,21 @@ function generateStrategicResponse(message: string, mode: string, history: any[]
 
   // Productivity
   if (m.match(/produktivitas|produktif|fokus|wfh|manajemen waktu|time management|procrastina|malas|distraksi/)) {
-    return `<div class="space-y-4">${ctx}<div class="flex items-center gap-2 flex-wrap">${badge('PRODUKTIVITAS','emerald','V4 ENGINE')}</div>
+    return `<div class="space-y-4">${ctx}<div class="flex items-center gap-2 flex-wrap">${badge('PRODUKTIVITAS','emerald','V5 ENGINE')}</div>
       <p class="font-bold text-white text-lg">Sistem Produktivitas Tingkat Tinggi</p>
       <div class="bg-emerald-500/5 border border-emerald-500/10 rounded-xl p-4"><p class="text-emerald-400 text-xs font-bold mb-2">ROOT CAUSE</p><p class="text-gray-300 text-sm">3 akar: <strong class="text-white">kurang struktur</strong>, <strong class="text-white">distraksi</strong>, atau <strong class="text-white">energy management buruk</strong>.</p></div>
       <div class="space-y-3">
         ${step(1,'emerald','Deep Work Protocol','Blok 90 menit tanpa gangguan. HP silent, notif off. Otak butuh 23 menit untuk refocus setelah distraksi.')}
         ${step(2,'emerald','MIT Method','Setiap pagi, tentukan 1 tugas TERPENTING. Kerjakan PERTAMA sebelum buka email. Boost produktivitas 2x.')}
         ${step(3,'emerald','Energy Management','Tidur 7-8 jam, olahraga 3x/minggu. CEO top prioritaskan kesehatan = fondasi performa.')}
-        ${step(4,'emerald','Pomodoro + Time Blocking','25m fokus, 5m istirahat. 4 siklus = 15-30m break. Block kalender. Gunakan Pomodoro Timer SparkMind!')}
+        ${step(4,'emerald','Pomodoro + Time Blocking','25m fokus, 5m istirahat. 4 siklus = 15-30m break. Block kalender. Gunakan Pomodoro V2 SparkMind!')}
       </div>
       ${insight('purple','QUICK WIN','Matikan notifikasi HP, kerjakan 1 MIT selama 90 menit pertama hari. Dalam 1 minggu, rasakan perbedaannya.')}</div>`
   }
 
-  // Tech / Programming
+  // Tech
   if (m.match(/programming|coding|developer|belajar|roadmap|javascript|python|react|web|ai|machine learning|data|tech|software/)) {
-    return `<div class="space-y-4">${ctx}<div class="flex items-center gap-2 flex-wrap">${badge('TECH & SKILL','purple','V4 ENGINE')}</div>
+    return `<div class="space-y-4">${ctx}<div class="flex items-center gap-2 flex-wrap">${badge('TECH & SKILL','purple','V5 ENGINE')}</div>
       <p class="font-bold text-white text-lg">Learning Roadmap: Nol ke Developer Profesional</p>
       <div class="bg-purple-500/5 border border-purple-500/10 rounded-xl p-4"><p class="text-purple-400 text-xs font-bold mb-2">MARKET INSIGHT</p><p class="text-gray-300 text-sm">Developer junior Indonesia: Rp 6-15 jt/bulan. Freelance: Rp 10-50 jt/project. AI engineer: Rp 20-60 jt/bulan.</p></div>
       <div class="space-y-3">
@@ -100,7 +100,7 @@ function generateStrategicResponse(message: string, mode: string, history: any[]
 
   // Career
   if (m.match(/karir|promosi|gaji|jabatan|interview|resign|pindah kerja|cv|resume|lowongan|kerja/)) {
-    return `<div class="space-y-4">${ctx}<div class="flex items-center gap-2">${badge('KARIR','amber','V4')}</div>
+    return `<div class="space-y-4">${ctx}<div class="flex items-center gap-2">${badge('KARIR','amber','V5')}</div>
       <p class="font-bold text-white text-lg">Career Acceleration Framework</p>
       <div class="bg-amber-500/5 border border-amber-500/10 rounded-xl p-4"><p class="text-amber-400 text-xs font-bold mb-2">INSIGHT</p><p class="text-gray-300 text-sm">80% promosi ditentukan <strong class="text-white">visibility + relationship</strong>, bukan hanya hard skill.</p></div>
       <div class="space-y-3">
@@ -178,7 +178,7 @@ function generateStrategicResponse(message: string, mode: string, history: any[]
       ${insight('teal','START NOW','"Take care of your body." Mulai dengan 10 menit push-up + plank hari ini.')}</div>`
   }
 
-  // Creative / Content
+  // Creative
   if (m.match(/konten|youtube|tiktok|instagram|influencer|content creator|blog|podcast|desain|kreativ|personal brand/)) {
     return `<div class="space-y-4">${ctx}<div class="flex items-center gap-2">${badge('CREATIVE','orange')}</div>
       <p class="font-bold text-white text-lg">Content Creator Monetization Blueprint</p>
@@ -195,7 +195,7 @@ function generateStrategicResponse(message: string, mode: string, history: any[]
   if (m.match(/leadership|pemimpin|manage|team|tim|delegasi|boss|atasan/)) {
     return `<div class="space-y-4">${ctx}<div class="flex items-center gap-2">${badge('LEADERSHIP','violet')}</div>
       <p class="font-bold text-white text-lg">Sovereign Leadership Framework</p>
-      <div class="bg-violet-500/5 border border-violet-500/10 rounded-xl p-4"><p class="text-violet-400 text-xs font-bold mb-2">INTELLIGENCE</p><p class="text-gray-300 text-sm">Leadership = <strong class="text-white">influence, not position</strong>. Forged through intentional practice.</p></div>
+      <div class="bg-violet-500/5 border border-violet-500/10 rounded-xl p-4"><p class="text-violet-400 text-xs font-bold mb-2">INTELLIGENCE</p><p class="text-gray-300 text-sm">Leadership = <strong class="text-white">influence, not position</strong>.</p></div>
       <div class="space-y-3">
         ${step(1,'violet','Lead by Example','Tim mengikuti tindakan, bukan kata-kata. Be the standard.')}
         ${step(2,'violet','Clear Communication','WHY, WHAT, HOW. Tim yang paham "kenapa" bergerak lebih cepat.')}
@@ -205,8 +205,8 @@ function generateStrategicResponse(message: string, mode: string, history: any[]
   }
 
   // Life Purpose / Ikigai
-  if (m.match(/tujuan hidup|makna|purpose|spiritual|ibadah|doa|iman|passion|ikigai/)) {
-    return `<div class="space-y-4">${ctx}<div class="flex items-center gap-2">${badge('LIFE PURPOSE','indigo','V4 NEW')}</div>
+  if (m.match(/tujuan hidup|makna|purpose|passion|ikigai/)) {
+    return `<div class="space-y-4">${ctx}<div class="flex items-center gap-2">${badge('LIFE PURPOSE','indigo','V5')}</div>
       <p class="font-bold text-white text-lg">Finding Your Ikigai</p>
       <div class="bg-indigo-500/5 border border-indigo-500/10 rounded-xl p-4"><p class="text-indigo-400 text-xs font-bold mb-2">DEEP INSIGHT</p><p class="text-gray-300 text-sm">Ikigai: <strong class="text-white">passion × misi × profesi × panggilan</strong>.</p></div>
       <div class="space-y-3">
@@ -218,9 +218,37 @@ function generateStrategicResponse(message: string, mode: string, history: any[]
       ${insight('indigo','TRUTH','"The meaning of life is to find your gift. The purpose is to give it away." — Picasso')}</div>`
   }
 
+  // Spiritual / Faith (NEW V5)
+  if (m.match(/spiritual|ibadah|doa|iman|tuhan|allah|tawakal|sabar|syukur|hijrah|religi|agama/)) {
+    return `<div class="space-y-4">${ctx}<div class="flex items-center gap-2">${badge('SPIRITUAL & FAITH','violet','V5 NEW')}</div>
+      <p class="font-bold text-white text-lg">Spiritual Strength Framework</p>
+      <div class="bg-violet-500/5 border border-violet-500/10 rounded-xl p-4"><p class="text-violet-400 text-xs font-bold mb-2">DEEP INSIGHT</p><p class="text-gray-300 text-sm">Spiritualitas yang kuat = <strong class="text-white">fondasi ketahanan mental</strong>. Orang dengan praktik spiritual harian 30% lebih resilient.</p></div>
+      <div class="space-y-3">
+        ${step(1,'violet','Daily Practice','Pagi 10 menit: doa, meditasi, atau Quran/scripture. Set niat hari ini.')}
+        ${step(2,'violet','Gratitude Ritual','Malam: 3 hal disyukuri. Gratitude rewires brain to positive.')}
+        ${step(3,'violet','Tawakal & Action','Berdoa seolah semua tergantung Tuhan, bekerja seolah semua tergantung kamu.')}
+        ${step(4,'violet','Community','Komunitas spiritual: rutinitas, akuntabilitas, support. Jangan jalan sendiri.')}
+      </div>
+      ${insight('violet','SOVEREIGN PRINCIPLE','"Where there is faith, there is no fear. Trust the process — your effort + His timing."')}</div>`
+  }
+
+  // Side Hustle (NEW V5)
+  if (m.match(/side hustle|kerja sampingan|freelance|side project|bisnis sampingan|extra income|gig/)) {
+    return `<div class="space-y-4">${ctx}<div class="flex items-center gap-2">${badge('SIDE HUSTLE','green','V5 NEW')}</div>
+      <p class="font-bold text-white text-lg">Side Hustle Acceleration Blueprint</p>
+      <div class="bg-green-500/5 border border-green-500/10 rounded-xl p-4"><p class="text-green-400 text-xs font-bold mb-2">REVENUE INSIGHT</p><p class="text-gray-300 text-sm">85% miliarder punya <strong class="text-white">7 income streams</strong>. Side hustle = jalur kedua menuju sovereignty.</p></div>
+      <div class="space-y-3">
+        ${step(1,'green','Audit Skill & Asset','List semua skill kamu. 3 yang paling marketable? Mulai dari sana.')}
+        ${step(2,'green','Pick One Lane','Service (freelance), Product (digital), atau Content (creator). Fokus 1 sampai jalan.')}
+        ${step(3,'green','First $100 Sprint','Goal: dapat customer pertama dalam 30 hari. Upwork, Fiverr, IG, TikTok.')}
+        ${step(4,'green','Scale Smart','Setelah konsisten Rp 2-5 jt/bulan, sistemkan. Otomatisasi, hire VA, scale.')}
+      </div>
+      ${insight('green','ACTION','"Don\'t quit your job to start. Start, then quit when income matches." Tonight: list 3 skill yang bisa kamu monetize.')}</div>`
+  }
+
   // Networking
   if (m.match(/networking|teman|social|introvert|pergaulan|komunitas|kenalan|public speaking/)) {
-    return `<div class="space-y-4">${ctx}<div class="flex items-center gap-2">${badge('NETWORKING','cyan','V4')}</div>
+    return `<div class="space-y-4">${ctx}<div class="flex items-center gap-2">${badge('NETWORKING','cyan','V5')}</div>
       <p class="font-bold text-white text-lg">Strategic Networking Framework</p>
       <div class="bg-cyan-500/5 border border-cyan-500/10 rounded-xl p-4"><p class="text-cyan-400 text-xs font-bold mb-2">NETWORK INTELLIGENCE</p><p class="text-gray-300 text-sm">Your network = <strong class="text-white">net worth</strong>. 85% jobs filled through networking.</p></div>
       <div class="space-y-3">
@@ -231,9 +259,9 @@ function generateStrategicResponse(message: string, mode: string, history: any[]
       ${insight('cyan','ACTION','Minggu ini: reach out ke 3 orang baru di bidangmu.')}</div>`
   }
 
-  // Parenting / Family (NEW V4)
+  // Parenting
   if (m.match(/anak|parenting|keluarga|orang tua|mendidik|balita|remaja|family/)) {
-    return `<div class="space-y-4">${ctx}<div class="flex items-center gap-2">${badge('PARENTING','pink','V4 NEW')}</div>
+    return `<div class="space-y-4">${ctx}<div class="flex items-center gap-2">${badge('PARENTING','pink','V5')}</div>
       <p class="font-bold text-white text-lg">Smart Parenting Framework</p>
       <div class="bg-pink-500/5 border border-pink-500/10 rounded-xl p-4"><p class="text-pink-400 text-xs font-bold mb-2">PARENTING INSIGHT</p><p class="text-gray-300 text-sm">Anak belajar dari <strong class="text-white">apa yang kamu lakukan</strong>, bukan apa yang kamu katakan.</p></div>
       <div class="space-y-3">
@@ -245,9 +273,9 @@ function generateStrategicResponse(message: string, mode: string, history: any[]
       ${insight('pink','PRINCIPLE','"Children don\'t need perfect parents. They need authentic ones."')}</div>`
   }
 
-  // Time Freedom (NEW V4)
+  // Time Freedom
   if (m.match(/passive income|kebebasan|waktu luang|freedom|pensiun dini|financial freedom|fire/)) {
-    return `<div class="space-y-4">${ctx}<div class="flex items-center gap-2">${badge('TIME FREEDOM','amber','V4 NEW')}</div>
+    return `<div class="space-y-4">${ctx}<div class="flex items-center gap-2">${badge('TIME FREEDOM','amber','V5')}</div>
       <p class="font-bold text-white text-lg">Path to Time Freedom</p>
       <div class="bg-amber-500/5 border border-amber-500/10 rounded-xl p-4"><p class="text-amber-400 text-xs font-bold mb-2">FREEDOM BLUEPRINT</p><p class="text-gray-300 text-sm">True wealth = <strong class="text-white">control over your time</strong>, bukan jumlah uang.</p></div>
       <div class="space-y-3">
@@ -260,7 +288,7 @@ function generateStrategicResponse(message: string, mode: string, history: any[]
   }
 
   // Default
-  return `<div class="space-y-4">${ctx}<div class="flex items-center gap-2">${badge('STRATEGIC ANALYSIS','blue','V4 ENGINE')}</div>
+  return `<div class="space-y-4">${ctx}<div class="flex items-center gap-2">${badge('STRATEGIC ANALYSIS','blue','V5 ENGINE')}</div>
     <p class="font-bold text-white text-lg">Framework Pemecahan Masalah Universal</p>
     <div class="bg-blue-500/5 border border-blue-500/10 rounded-xl p-4"><p class="text-blue-400 text-xs font-bold mb-2">ANALYSIS</p><p class="text-gray-300 text-sm">Setiap masalah bisa dipecahkan dengan pendekatan terstruktur:</p></div>
     <div class="space-y-3">
@@ -269,7 +297,7 @@ function generateStrategicResponse(message: string, mode: string, history: any[]
       ${step(3,'blue','Execute','Ambil 1 langkah PERTAMA hari ini.')}
       ${step(4,'blue','Iterate','Review setiap minggu. Done > perfect.')}
     </div>
-    ${insight('amber','PRO TIP','Coba spesifik: <strong class="text-white">bisnis, karir, skill, keuangan, produktivitas, mental health, hubungan, pendidikan, kesehatan, konten, leadership, tujuan hidup, networking, parenting, time freedom</strong> — 16 kategori siap bantu!')}</div>`
+    ${insight('amber','PRO TIP','Coba spesifik: <strong class="text-white">bisnis, karir, skill, keuangan, produktivitas, mental health, hubungan, pendidikan, kesehatan, konten, leadership, tujuan hidup, networking, parenting, time freedom, spiritual, side hustle</strong> — 18 kategori siap bantu!')}</div>`
 }
 
 function generateSWOT(business: string): string {
@@ -298,7 +326,7 @@ function generateMindMap(topic: string): string {
 
 function generateCoachResponse(goal: string, currentState: string, obstacles: string): string {
   return `<div class="space-y-4">
-    <div class="flex items-center gap-2"><span class="px-2.5 py-1 bg-gradient-to-r from-amber-500/20 to-orange-500/20 text-amber-400 rounded-lg text-xs font-bold border border-amber-500/20">AI COACH V4</span></div>
+    <div class="flex items-center gap-2"><span class="px-2.5 py-1 bg-gradient-to-r from-amber-500/20 to-orange-500/20 text-amber-400 rounded-lg text-xs font-bold border border-amber-500/20">AI COACH V5</span></div>
     <p class="font-bold text-white text-lg">Personal Coaching Session</p>
     <div class="bg-amber-500/5 border border-amber-500/10 rounded-xl p-4"><p class="text-amber-400 text-xs font-bold mb-2">YOUR GOAL</p><p class="text-gray-300 text-sm">${goal ? goal.substring(0, 200) : 'Belum ditentukan'}</p></div>
     ${currentState ? `<div class="bg-blue-500/5 border border-blue-500/10 rounded-xl p-4"><p class="text-blue-400 text-xs font-bold mb-2">CURRENT STATE</p><p class="text-gray-300 text-sm">${currentState.substring(0, 200)}</p></div>` : ''}
@@ -316,25 +344,27 @@ function generateCoachResponse(goal: string, currentState: string, obstacles: st
 // DATA
 // ============================================
 const RESOURCES_DATA = [
-  { id:1, title:'Business Model Canvas', category:'Bisnis', description:'Framework merancang model bisnis. 9 blok: value proposition, customer segments, channels, revenue streams, key resources, activities, partners, cost structure.', icon:'📋', detail:'Mulai dari customer segment → value proposition → channels. Validasi setiap blok.' },
-  { id:2, title:'SMART Goals', category:'Produktivitas', description:'Specific, Measurable, Achievable, Relevant, Time-bound goals.', icon:'🎯', detail:'Bukan "sukses" tapi "Revenue Rp 10jt/bulan dalam 6 bulan via freelance web dev".' },
-  { id:3, title:'Eisenhower Matrix', category:'Produktivitas', description:'Prioritas berdasarkan urgensi & kepentingan.', icon:'⚡', detail:'Q1: Urgent+Important (DO). Q2: Not Urgent+Important (SCHEDULE). Q3: Urgent+Not Important (DELEGATE). Q4: Neither (DELETE).' },
-  { id:4, title:'Personal Finance 101', category:'Finansial', description:'Dasar mengelola keuangan pribadi.', icon:'💰', detail:'50/30/20 rule: 50% needs, 30% wants, 20% savings. Emergency fund first.' },
-  { id:5, title:'Growth Mindset', category:'Personal', description:'Pola pikir pertumbuhan vs fixed mindset.', icon:'🧠', detail:'"I can\'t do this YET." Embrace challenges, persist through setbacks, learn from criticism.' },
-  { id:6, title:'Networking Strategy', category:'Karir', description:'Bangun koneksi profesional strategis.', icon:'🤝', detail:'Give first, be genuine, follow up within 48h, join 2-3 communities.' },
-  { id:7, title:'MVP Development', category:'Tech', description:'Minimum Viable Product guide.', icon:'🚀', detail:'1 core feature only → launch → get feedback → iterate. Speed > perfection.' },
-  { id:8, title:'Content Marketing', category:'Marketing', description:'Strategi konten untuk audiens & revenue.', icon:'📝', detail:'Hook → Value → CTA. Consistency: 3-5 posts/week. Repurpose across platforms.' },
-  { id:9, title:'Time Blocking', category:'Produktivitas', description:'Block calendar untuk deep work.', icon:'⏰', detail:'2-3 jam blocks. No meetings before noon. Color code categories.' },
-  { id:10, title:'SWOT Analysis', category:'Bisnis', description:'Analisis Strengths, Weaknesses, Opportunities, Threats.', icon:'📊', detail:'Use SparkMind SWOT Analyzer for instant generation!' },
-  { id:11, title:'Habit Stacking', category:'Personal', description:'Teknik membangun habit baru.', icon:'🔥', detail:'After [CURRENT HABIT], I will [NEW HABIT]. Stack small habits.' },
-  { id:12, title:'Revenue Model Canvas', category:'Bisnis', description:'Framework model revenue.', icon:'💎', detail:'Subscription, Freemium, Marketplace, Advertising, Licensing.' },
-  { id:13, title:'Active Recall', category:'Pendidikan', description:'Teknik belajar paling efektif.', icon:'📖', detail:'Close book → try to remember → check. 3x more effective than re-reading.' },
-  { id:14, title:'Deep Work Protocol', category:'Produktivitas', description:'Fokus tanpa distraksi.', icon:'🧘', detail:'90 min blocks. Phone off. Door closed. Single-task only.' },
-  { id:15, title:'Creator Economy', category:'Creative', description:'Monetisasi konten digital.', icon:'🎬', detail:'1000 true fans theory. Niche down. Multiple revenue streams.' },
-  { id:16, title:'Ikigai Framework', category:'Purpose', description:'Temukan tujuan & makna hidup.', icon:'🌸', detail:'Intersection: Love × Good At × World Needs × Paid For.' },
-  { id:17, title:'Public Speaking', category:'Networking', description:'Teknik bicara di depan umum.', icon:'🎤', detail:'Structure: Hook → Problem → Solution → CTA. Practice 10x.' },
-  { id:18, title:'Journaling Guide', category:'Personal', description:'Teknik menulis jurnal harian.', icon:'📓', detail:'Morning pages: brain dump. Evening: 3 gratitudes + 1 lesson. Weekly review.' },
-  { id:19, title:'Parenting Essentials', category:'Family', description:'Panduan parenting modern.', icon:'👶', detail:'Quality time > quantity. Emotional coaching. Positive discipline.' },
+  { id:1, title:'Business Model Canvas', category:'Bisnis', description:'Framework merancang model bisnis. 9 blok strategis.', icon:'📋', detail:'Mulai dari customer segment → value proposition → channels. Validasi setiap blok.' },
+  { id:2, title:'SMART Goals', category:'Produktivitas', description:'Specific, Measurable, Achievable, Relevant, Time-bound.', icon:'🎯', detail:'Bukan "sukses" tapi "Revenue Rp 10jt/bulan dalam 6 bulan via freelance web dev".' },
+  { id:3, title:'Eisenhower Matrix', category:'Produktivitas', description:'Prioritas berdasarkan urgensi & kepentingan.', icon:'⚡', detail:'Q1 DO, Q2 SCHEDULE, Q3 DELEGATE, Q4 DELETE.' },
+  { id:4, title:'Personal Finance 101', category:'Finansial', description:'Dasar mengelola keuangan pribadi.', icon:'💰', detail:'50/30/20 rule. Emergency fund first.' },
+  { id:5, title:'Growth Mindset', category:'Personal', description:'Pola pikir pertumbuhan vs fixed mindset.', icon:'🧠', detail:'"I can\'t do this YET." Embrace challenges.' },
+  { id:6, title:'Networking Strategy', category:'Karir', description:'Bangun koneksi profesional strategis.', icon:'🤝', detail:'Give first, be genuine, follow up within 48h.' },
+  { id:7, title:'MVP Development', category:'Tech', description:'Minimum Viable Product guide.', icon:'🚀', detail:'1 core feature only → launch → iterate. Speed > perfection.' },
+  { id:8, title:'Content Marketing', category:'Marketing', description:'Strategi konten untuk audiens & revenue.', icon:'📝', detail:'Hook → Value → CTA. 3-5 posts/week consistency.' },
+  { id:9, title:'Time Blocking', category:'Produktivitas', description:'Block calendar untuk deep work.', icon:'⏰', detail:'2-3 jam blocks. No meetings before noon.' },
+  { id:10, title:'SWOT Analysis', category:'Bisnis', description:'Strengths, Weaknesses, Opportunities, Threats.', icon:'📊', detail:'Use SparkMind SWOT Analyzer for instant generation!' },
+  { id:11, title:'Habit Stacking', category:'Personal', description:'Teknik membangun habit baru.', icon:'🔥', detail:'After [CURRENT HABIT], I will [NEW HABIT].' },
+  { id:12, title:'Revenue Model Canvas', category:'Bisnis', description:'Framework model revenue.', icon:'💎', detail:'Subscription, Freemium, Marketplace, Advertising.' },
+  { id:13, title:'Active Recall', category:'Pendidikan', description:'Teknik belajar paling efektif.', icon:'📖', detail:'Close book → try to remember → check. 3x more effective.' },
+  { id:14, title:'Deep Work Protocol', category:'Produktivitas', description:'Fokus tanpa distraksi.', icon:'🧘', detail:'90 min blocks. Phone off. Single-task only.' },
+  { id:15, title:'Creator Economy', category:'Creative', description:'Monetisasi konten digital.', icon:'🎬', detail:'1000 true fans theory. Niche down.' },
+  { id:16, title:'Ikigai Framework', category:'Purpose', description:'Temukan tujuan & makna hidup.', icon:'🌸', detail:'Love × Good At × World Needs × Paid For.' },
+  { id:17, title:'Public Speaking', category:'Networking', description:'Teknik bicara di depan umum.', icon:'🎤', detail:'Hook → Problem → Solution → CTA. Practice 10x.' },
+  { id:18, title:'Journaling Guide', category:'Personal', description:'Teknik menulis jurnal harian.', icon:'📓', detail:'Morning pages: brain dump. Evening: 3 gratitudes.' },
+  { id:19, title:'Parenting Essentials', category:'Family', description:'Panduan parenting modern.', icon:'👶', detail:'Quality time > quantity. Emotional coaching.' },
+  { id:20, title:'Spiritual Practice', category:'Faith', description:'Disiplin spiritual harian.', icon:'🕊️', detail:'Pagi: doa/meditasi. Malam: gratitude. Komunitas spiritual.' },
+  { id:21, title:'Side Hustle Blueprint', category:'Business', description:'Bangun income kedua.', icon:'💼', detail:'Pick 1 lane. First $100 dalam 30 hari. Scale smart.' },
 ]
 
 const INSIGHTS_DATA = [
@@ -344,7 +374,8 @@ const INSIGHTS_DATA = [
   { icon:'💰', title:'Financial Tip', desc:'Sudah sisihkan 20% income bulan ini?', time:'Kemarin' },
   { icon:'🎯', title:'Weekly Review', desc:'30 menit evaluasi minggu ini.', time:'2 hari lalu' },
   { icon:'🧠', title:'Sovereign Insight', desc:'"Seorang Arsitek tidak meratapi pintu tertutup."', time:'3 hari lalu' },
-  { icon:'📓', title:'Journal Reminder', desc:'Tulis 3 hal yang kamu syukuri hari ini di Journal.', time:'4 hari lalu' },
+  { icon:'📓', title:'Journal Reminder', desc:'Tulis 3 hal yang kamu syukuri hari ini.', time:'4 hari lalu' },
+  { icon:'🕊️', title:'Spiritual Reset', desc:'Take 5 min for prayer/meditation today.', time:'5 hari lalu' },
 ]
 
 const QUOTES_DATA = [
@@ -357,35 +388,32 @@ const QUOTES_DATA = [
   { text: 'Small daily improvements lead to stunning results.', author: 'Robin Sharma' },
   { text: 'Invest in yourself. Your career is the engine of your wealth.', author: 'Paul Clitheroe' },
   { text: 'Your network is your net worth.', author: 'Porter Gale' },
-  { text: 'The best time to plant a tree was 20 years ago. The second best is now.', author: 'Chinese Proverb' },
-  { text: 'Rich is having money. Wealthy is having time.', author: 'SparkMind V4' },
-  { text: 'Journal your thoughts. Clarity comes from writing.', author: 'SparkMind V4' },
+  { text: 'Rich is having money. Wealthy is having time.', author: 'SparkMind V5' },
+  { text: 'Where there is faith, there is no fear.', author: 'SparkMind V5' },
+  { text: 'Your effort + His timing = perfect outcome.', author: 'SparkMind V5' },
 ]
 
 // ============================================
-// LANDING PAGE HTML — SparkMind V4.0
+// LANDING PAGE — V5.0 SOVEREIGN
 // ============================================
 const LANDING_HTML = `<!DOCTYPE html>
 <html lang="id">
 <head>
   <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>SparkMind V4 — AI Strategic Guide Platform</title>
-  <meta name="description" content="Platform AI strategic guide dengan 16+ kategori analisis, Dashboard Charts, Journal, Dark/Light Mode & lebih.">
+  <title>SparkMind V5 SOVEREIGN — AI Strategic Guide Platform</title>
+  <meta name="description" content="Platform AI strategic guide dengan 18+ kategori, Chat Memory, Backup/Restore, Weekly Trend, Pomodoro V2, Smart Modal, Keyboard Shortcuts.">
   <meta name="theme-color" content="#0a0a1a">
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧠</text></svg>">
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css" rel="stylesheet">
-  <script>tailwind.config={theme:{extend:{colors:{brand:{50:'#eef2ff',100:'#e0e7ff',200:'#c7d2fe',300:'#a5b4fc',400:'#818cf8',500:'#6366f1',600:'#4f46e5',700:'#4338ca',800:'#3730a3',900:'#312e81'},neon:{blue:'#60a5fa',purple:'#a78bfa',pink:'#f472b6',green:'#34d399',amber:'#fbbf24'},surface:{50:'#f8fafc',100:'#f1f5f9',800:'#12122a',900:'#0a0a1a',950:'#06060f'}}}}}</script>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
     *{font-family:'Inter',sans-serif;margin:0;padding:0;box-sizing:border-box}
-    html{scroll-behavior:smooth}body{background:#0a0a1a;color:#e2e8f0}
+    html{scroll-behavior:smooth}body{background:#0a0a1a;color:#e2e8f0;overflow-x:hidden}
     .gradient-text{background:linear-gradient(135deg,#818cf8,#f472b6,#fbbf24);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
     .glass{background:rgba(255,255,255,0.03);backdrop-filter:blur(24px);border:1px solid rgba(255,255,255,0.06)}
-    .glass-light{background:rgba(255,255,255,0.05);backdrop-filter:blur(16px);border:1px solid rgba(255,255,255,0.08)}
     .card-hover{transition:all .5s cubic-bezier(.4,0,.2,1)}.card-hover:hover{transform:translateY(-8px);box-shadow:0 30px 80px rgba(99,102,241,0.12)}
     .neon-glow{box-shadow:0 0 40px rgba(99,102,241,0.15),0 0 80px rgba(99,102,241,0.05)}
-    .neon-border{border:1px solid rgba(99,102,241,0.2);box-shadow:inset 0 0 30px rgba(99,102,241,0.03)}
     .float-1{animation:f1 8s ease-in-out infinite}.float-2{animation:f2 6s ease-in-out infinite}.float-3{animation:f3 10s ease-in-out infinite}
     @keyframes f1{0%,100%{transform:translateY(0) rotate(0deg)}50%{transform:translateY(-20px) rotate(1deg)}}
     @keyframes f2{0%,100%{transform:translateY(0)}50%{transform:translateY(-12px)}}
@@ -393,470 +421,1206 @@ const LANDING_HTML = `<!DOCTYPE html>
     .orb{position:absolute;border-radius:50%;filter:blur(120px);pointer-events:none;opacity:0.4}
     .pulse-ring{animation:pr 3s cubic-bezier(.4,0,.6,1) infinite}
     @keyframes pr{0%{transform:scale(.95);opacity:1}70%{transform:scale(1.3);opacity:0}100%{transform:scale(.95);opacity:0}}
-    .counter{opacity:0;transform:translateY(30px);transition:all .8s}.counter.visible{opacity:1;transform:translateY(0)}
     .fade-up{opacity:0;transform:translateY(40px);transition:all .8s}.fade-up.visible{opacity:1;transform:translateY(0)}
     ::-webkit-scrollbar{width:6px}::-webkit-scrollbar-track{background:#0a0a1a}::-webkit-scrollbar-thumb{background:#2a2a4a;border-radius:10px}
     .btn-primary{background:linear-gradient(135deg,#4f46e5,#6366f1);transition:all .3s}.btn-primary:hover{background:linear-gradient(135deg,#4338ca,#4f46e5);transform:translateY(-2px);box-shadow:0 20px 40px rgba(99,102,241,0.3)}
-    .btn-secondary{background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);transition:all .3s}.btn-secondary:hover{background:rgba(255,255,255,0.1)}
-    .feature-icon{transition:all .5s}.group:hover .feature-icon{transform:scale(1.15) rotate(-5deg)}
+    .shimmer{background:linear-gradient(110deg,transparent 40%,rgba(255,255,255,0.1) 50%,transparent 60%);background-size:200% 100%;animation:sh 3s linear infinite}
+    @keyframes sh{0%{background-position:200% 0}100%{background-position:-200% 0}}
   </style>
 </head>
 <body>
-  <nav class="fixed top-0 w-full z-50 bg-surface-900/80 backdrop-blur-2xl border-b border-white/[0.04]">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8"><div class="flex items-center justify-between h-16">
-      <div class="flex items-center gap-2.5"><div class="w-9 h-9 bg-gradient-to-br from-brand-500 to-neon-pink rounded-xl flex items-center justify-center shadow-lg shadow-brand-500/20 rotate-3"><i class="fas fa-brain text-white text-sm"></i></div><span class="text-white font-black text-xl tracking-tight">Spark<span class="text-neon-amber">Mind</span><sup class="text-[10px] text-brand-300 font-medium ml-0.5">V4</sup></span></div>
-      <div class="hidden md:flex items-center gap-8"><a href="#features" class="text-gray-400 hover:text-white transition text-sm font-medium">Fitur</a><a href="#how" class="text-gray-400 hover:text-white transition text-sm font-medium">Cara Kerja</a><a href="#pricing" class="text-gray-400 hover:text-white transition text-sm font-medium">Harga</a><a href="/app" class="btn-primary text-white px-6 py-2.5 rounded-full text-sm font-bold">Mulai Gratis</a></div>
-      <button id="mob-btn" class="md:hidden text-white p-2"><i class="fas fa-bars text-lg"></i></button>
-    </div></div>
-    <div id="mob-nav" class="hidden md:hidden bg-surface-900/98 backdrop-blur-2xl border-t border-white/[0.04] pb-4"><div class="px-4 space-y-2 pt-3"><a href="#features" class="block text-gray-300 hover:text-white text-sm py-2 px-3 rounded-lg hover:bg-white/5">Fitur</a><a href="#how" class="block text-gray-300 hover:text-white text-sm py-2 px-3 rounded-lg hover:bg-white/5">Cara Kerja</a><a href="#pricing" class="block text-gray-300 hover:text-white text-sm py-2 px-3 rounded-lg hover:bg-white/5">Harga</a><a href="/app" class="block btn-primary text-white px-5 py-3 rounded-xl text-sm font-bold text-center mt-3">Mulai Gratis</a></div></div>
-  </nav>
-
-  <section class="min-h-screen flex items-center pt-16 relative overflow-hidden">
-    <div class="orb w-[600px] h-[600px] bg-brand-500 top-[-100px] left-[-200px]"></div>
-    <div class="orb w-[500px] h-[500px] bg-neon-pink -bottom-40 right-[-150px]"></div>
-    <div class="orb w-[350px] h-[350px] bg-neon-green top-1/3 right-[10%] opacity-20"></div>
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 py-20">
-      <div class="grid lg:grid-cols-2 gap-16 items-center">
-        <div>
-          <div class="inline-flex items-center gap-2 glass rounded-full px-4 py-2 mb-8"><span class="relative flex h-2.5 w-2.5"><span class="pulse-ring absolute inline-flex h-full w-full rounded-full bg-neon-green opacity-75"></span><span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-neon-green"></span></span><span class="text-gray-300 text-xs font-medium">V4.0 Engine | 16+ Categories | Charts | Journal | Dark/Light Mode</span></div>
-          <h1 class="text-4xl sm:text-5xl lg:text-[3.5rem] font-black text-white leading-[1.08] mb-6 tracking-tight">Ubah Masalahmu<br>Jadi <span class="gradient-text">Strategi Sukses</span></h1>
-          <p class="text-gray-400 text-lg mb-10 max-w-lg leading-relaxed">Platform AI yang menganalisis tantanganmu dan memberikan <strong class="text-white">action plan strategis</strong>. <span class="text-brand-400">16+ kategori</span> + Dashboard Charts + Journal + Dark/Light Mode.</p>
-          <div class="flex flex-col sm:flex-row gap-4 mb-14">
-            <a href="/app" class="btn-primary text-white px-8 py-4 rounded-full font-bold text-center flex items-center justify-center gap-2 text-base"><i class="fas fa-rocket"></i>Mulai Gratis Sekarang</a>
-            <a href="#features" class="btn-secondary text-white px-8 py-4 rounded-full font-semibold text-center flex items-center justify-center gap-2"><i class="fas fa-play-circle"></i>Lihat Fitur</a>
-          </div>
-          <div class="flex items-center gap-6"><div class="flex -space-x-3"><div class="w-10 h-10 rounded-full bg-gradient-to-br from-brand-400 to-brand-600 border-2 border-surface-900 flex items-center justify-center text-white text-xs font-bold shadow-lg">H</div><div class="w-10 h-10 rounded-full bg-gradient-to-br from-neon-amber to-orange-500 border-2 border-surface-900 flex items-center justify-center text-white text-xs font-bold shadow-lg">R</div><div class="w-10 h-10 rounded-full bg-gradient-to-br from-neon-green to-emerald-600 border-2 border-surface-900 flex items-center justify-center text-white text-xs font-bold shadow-lg">D</div><div class="w-10 h-10 rounded-full bg-gradient-to-br from-neon-pink to-rose-600 border-2 border-surface-900 flex items-center justify-center text-white text-xs font-bold shadow-lg">A</div><div class="w-10 h-10 rounded-full bg-gradient-to-br from-neon-purple to-violet-600 border-2 border-surface-900 flex items-center justify-center text-white text-xs font-bold shadow-lg">+</div></div><div><p class="text-white font-bold text-sm">20,000+ Users Aktif</p><p class="text-gray-500 text-xs">Sudah bergabung & bertumbuh</p></div></div>
-        </div>
-        <div class="hidden lg:block relative">
-          <div class="glass rounded-3xl p-6 float-1 neon-glow">
-            <div class="flex items-center gap-2 mb-5"><div class="w-3 h-3 rounded-full bg-red-400"></div><div class="w-3 h-3 rounded-full bg-neon-amber"></div><div class="w-3 h-3 rounded-full bg-neon-green"></div><span class="text-gray-500 text-xs ml-3 font-medium">SparkMind V4 — Dashboard</span></div>
-            <div class="space-y-3">
-              <div class="grid grid-cols-3 gap-2"><div class="bg-brand-500/10 border border-brand-500/20 rounded-xl p-3 text-center"><p class="text-brand-300 text-[10px] font-bold">Goals</p><p class="text-white text-xl font-black">12</p></div><div class="bg-neon-green/10 border border-neon-green/20 rounded-xl p-3 text-center"><p class="text-neon-green text-[10px] font-bold">Habits</p><p class="text-white text-xl font-black">8</p></div><div class="bg-neon-amber/10 border border-neon-amber/20 rounded-xl p-3 text-center"><p class="text-neon-amber text-[10px] font-bold">Focus</p><p class="text-white text-xl font-black">4.5h</p></div></div>
-              <div class="bg-white/[0.03] border border-white/[0.06] rounded-xl p-3"><div class="flex items-center justify-between mb-2"><p class="text-white text-xs font-bold">Weekly Progress</p><p class="text-neon-green text-xs font-bold">82%</p></div><div class="w-full bg-white/5 rounded-full h-2"><div class="bg-gradient-to-r from-brand-500 to-neon-green h-2 rounded-full" style="width:82%"></div></div></div>
-              <div class="flex gap-2"><div class="flex-1 bg-neon-green/5 border border-neon-green/10 rounded-xl p-2.5"><p class="text-neon-green text-[9px] font-bold">CHART</p><div class="flex items-end gap-1 h-8 mt-1"><div class="flex-1 bg-brand-500/40 rounded-sm" style="height:40%"></div><div class="flex-1 bg-brand-500/50 rounded-sm" style="height:60%"></div><div class="flex-1 bg-brand-500/60 rounded-sm" style="height:45%"></div><div class="flex-1 bg-brand-500/70 rounded-sm" style="height:80%"></div><div class="flex-1 bg-neon-green rounded-sm" style="height:90%"></div></div></div><div class="flex-1 bg-pink-500/5 border border-pink-500/10 rounded-xl p-2.5"><p class="text-pink-400 text-[9px] font-bold">JOURNAL</p><p class="text-gray-400 text-[9px] mt-1">"Today I..."</p></div></div>
-            </div>
-          </div>
-          <div class="absolute -top-4 -right-4 glass rounded-2xl px-4 py-3 float-2"><div class="flex items-center gap-2"><span class="text-lg">📊</span><div><p class="text-white text-xs font-bold">Charts</p><p class="text-gray-500 text-[10px]">Visual analytics</p></div></div></div>
-          <div class="absolute -bottom-4 -left-4 glass rounded-2xl px-4 py-3 float-3"><div class="flex items-center gap-2"><span class="text-lg">📓</span><div><p class="text-white text-xs font-bold">Journal</p><p class="text-gray-500 text-[10px]">Daily reflection</p></div></div></div>
-        </div>
+<header class="fixed top-0 left-0 right-0 z-50 glass border-b border-white/5">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 py-4 flex justify-between items-center">
+    <div class="flex items-center gap-3">
+      <div class="relative">
+        <div class="w-10 h-10 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl flex items-center justify-center text-white text-xl shadow-lg shadow-indigo-500/30">🧠</div>
+        <div class="absolute inset-0 rounded-xl pulse-ring border-2 border-indigo-400"></div>
+      </div>
+      <div>
+        <h1 class="text-lg font-bold text-white">SparkMind</h1>
+        <p class="text-[10px] text-indigo-400 font-bold tracking-widest -mt-0.5">V5 · SOVEREIGN</p>
       </div>
     </div>
-  </section>
+    <nav class="hidden md:flex items-center gap-8 text-sm font-medium">
+      <a href="#features" class="text-gray-400 hover:text-white transition">Features</a>
+      <a href="#whatsnew" class="text-gray-400 hover:text-white transition">What's New</a>
+      <a href="#pricing" class="text-gray-400 hover:text-white transition">Pricing</a>
+      <a href="/app" class="btn-primary text-white px-5 py-2 rounded-lg font-semibold">Buka App →</a>
+    </nav>
+    <a href="/app" class="md:hidden btn-primary text-white px-4 py-2 rounded-lg text-sm font-semibold">App →</a>
+  </div>
+</header>
 
-  <section class="py-16 border-y border-white/[0.04]"><div class="max-w-7xl mx-auto px-4"><div class="grid grid-cols-2 md:grid-cols-4 gap-8">
-    <div class="text-center counter"><p class="text-4xl font-black text-white" data-target="20000">0</p><p class="text-gray-500 text-sm mt-1">Active Users</p></div>
-    <div class="text-center counter"><p class="text-4xl font-black text-white" data-target="100000">0</p><p class="text-gray-500 text-sm mt-1">Strategi Dibuat</p></div>
-    <div class="text-center counter"><p class="text-4xl font-black gradient-text">16+</p><p class="text-gray-500 text-sm mt-1">AI Categories</p></div>
-    <div class="text-center counter"><p class="text-4xl font-black text-white">24/7</p><p class="text-gray-500 text-sm mt-1">Always On</p></div>
-  </div></div></section>
-
-  <section id="features" class="py-24 relative"><div class="max-w-7xl mx-auto px-4">
-    <div class="text-center mb-16 fade-up"><span class="inline-block glass-light text-brand-300 px-5 py-2 rounded-full text-xs font-bold tracking-wider uppercase mb-4">V4.0 ULTIMATE</span><h2 class="text-3xl sm:text-4xl font-black text-white mb-4">Premium Tools untuk <span class="gradient-text">Growth Maker</span></h2><p class="text-gray-400 max-w-2xl mx-auto">Dashboard Charts, Journal, Dark/Light Mode, AI Typing Effect, 16+ Categories & lebih.</p></div>
-    <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-5">
-      <div class="glass-light rounded-2xl p-7 card-hover group neon-border"><div class="w-14 h-14 bg-gradient-to-br from-brand-500 to-brand-700 rounded-2xl flex items-center justify-center mb-5 feature-icon shadow-lg shadow-brand-500/20"><i class="fas fa-brain text-white text-xl"></i></div><h3 class="text-lg font-bold text-white mb-2">AI Engine V4</h3><p class="text-gray-400 text-sm">16+ kategori: +parenting, +time freedom. AI typing effect untuk UX natural.</p><span class="inline-block mt-3 text-xs bg-brand-500/20 text-brand-300 px-2.5 py-1 rounded-lg font-bold border border-brand-500/20">UPGRADED</span></div>
-      <div class="glass-light rounded-2xl p-7 card-hover group neon-border"><div class="w-14 h-14 bg-gradient-to-br from-cyan-500 to-blue-600 rounded-2xl flex items-center justify-center mb-5 feature-icon shadow-lg shadow-cyan-500/20"><i class="fas fa-chart-bar text-white text-xl"></i></div><h3 class="text-lg font-bold text-white mb-2">Dashboard Charts</h3><p class="text-gray-400 text-sm">Visual bar chart progress goals. Tidak hanya angka — lihat trend pertumbuhan.</p><span class="inline-block mt-3 text-xs bg-neon-green/20 text-neon-green px-2.5 py-1 rounded-lg font-bold border border-neon-green/20">NEW V4</span></div>
-      <div class="glass-light rounded-2xl p-7 card-hover group neon-border"><div class="w-14 h-14 bg-gradient-to-br from-violet-500 to-purple-600 rounded-2xl flex items-center justify-center mb-5 feature-icon shadow-lg shadow-purple-500/20"><i class="fas fa-book text-white text-xl"></i></div><h3 class="text-lg font-bold text-white mb-2">Journal System</h3><p class="text-gray-400 text-sm">Daily journal + mood tracker. Tulis refleksi, gratitude & lesson setiap hari.</p><span class="inline-block mt-3 text-xs bg-neon-green/20 text-neon-green px-2.5 py-1 rounded-lg font-bold border border-neon-green/20">NEW V4</span></div>
-      <div class="glass-light rounded-2xl p-7 card-hover group neon-border"><div class="w-14 h-14 bg-gradient-to-br from-amber-400 to-yellow-600 rounded-2xl flex items-center justify-center mb-5 feature-icon shadow-lg shadow-amber-500/20"><i class="fas fa-moon text-white text-xl"></i></div><h3 class="text-lg font-bold text-white mb-2">Dark/Light Mode</h3><p class="text-gray-400 text-sm">Toggle sesuai preferensi. Auto-detect system preference. Eye comfort.</p><span class="inline-block mt-3 text-xs bg-neon-green/20 text-neon-green px-2.5 py-1 rounded-lg font-bold border border-neon-green/20">NEW V4</span></div>
-      <div class="glass-light rounded-2xl p-7 card-hover group neon-border"><div class="w-14 h-14 bg-gradient-to-br from-neon-green to-emerald-600 rounded-2xl flex items-center justify-center mb-5 feature-icon shadow-lg shadow-emerald-500/20"><i class="fas fa-bell text-white text-xl"></i></div><h3 class="text-lg font-bold text-white mb-2">Toast Notifications</h3><p class="text-gray-400 text-sm">Achievement alerts, save confirmations, action feedback — smooth toast UI.</p><span class="inline-block mt-3 text-xs bg-neon-green/20 text-neon-green px-2.5 py-1 rounded-lg font-bold border border-neon-green/20">NEW V4</span></div>
-      <div class="glass-light rounded-2xl p-7 card-hover group neon-border"><div class="w-14 h-14 bg-gradient-to-br from-neon-amber to-orange-500 rounded-2xl flex items-center justify-center mb-5 feature-icon shadow-lg shadow-amber-500/20"><i class="fas fa-stopwatch text-white text-xl"></i></div><h3 class="text-lg font-bold text-white mb-2">Pomodoro Pro</h3><p class="text-gray-400 text-sm">Sound notifications, visual ring, auto switch, session stats.</p></div>
-      <div class="glass-light rounded-2xl p-7 card-hover group neon-border"><div class="w-14 h-14 bg-gradient-to-br from-neon-pink to-rose-600 rounded-2xl flex items-center justify-center mb-5 feature-icon shadow-lg shadow-pink-500/20"><i class="fas fa-images text-white text-xl"></i></div><h3 class="text-lg font-bold text-white mb-2">Vision Board</h3><p class="text-gray-400 text-sm">Visualisasi goals & dreams. Proven meningkatkan achievement 42%.</p></div>
-      <div class="glass-light rounded-2xl p-7 card-hover group neon-border"><div class="w-14 h-14 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-2xl flex items-center justify-center mb-5 feature-icon shadow-lg shadow-blue-500/20"><i class="fas fa-file-export text-white text-xl"></i></div><h3 class="text-lg font-bold text-white mb-2">Export & Import</h3><p class="text-gray-400 text-sm">Export data ke file, import kembali. Data kamu, control kamu.</p><span class="inline-block mt-3 text-xs bg-brand-500/20 text-brand-300 px-2.5 py-1 rounded-lg font-bold border border-brand-500/20">UPGRADED</span></div>
-      <div class="glass-light rounded-2xl p-7 card-hover group neon-border"><div class="w-14 h-14 bg-gradient-to-br from-rose-500 to-red-600 rounded-2xl flex items-center justify-center mb-5 feature-icon shadow-lg shadow-rose-500/20"><i class="fas fa-expand text-white text-xl"></i></div><h3 class="text-lg font-bold text-white mb-2">Expandable Resources</h3><p class="text-gray-400 text-sm">Klik resource untuk detail lengkap. 19+ framework strategis dengan panduan.</p><span class="inline-block mt-3 text-xs bg-brand-500/20 text-brand-300 px-2.5 py-1 rounded-lg font-bold border border-brand-500/20">UPGRADED</span></div>
+<section class="relative min-h-screen flex items-center justify-center pt-24 pb-16 px-4 overflow-hidden">
+  <div class="orb float-1" style="top:-100px;left:-100px;width:500px;height:500px;background:#6366f1"></div>
+  <div class="orb float-2" style="bottom:-100px;right:-100px;width:600px;height:600px;background:#a855f7"></div>
+  <div class="orb float-3" style="top:30%;left:50%;width:400px;height:400px;background:#f472b6"></div>
+  <div class="max-w-5xl mx-auto text-center relative z-10">
+    <span class="inline-flex items-center gap-2 px-4 py-2 glass rounded-full text-xs text-indigo-400 mb-8 font-semibold">
+      <span class="w-2 h-2 bg-emerald-400 rounded-full animate-pulse"></span>
+      V5.0 SOVEREIGN — Live Now · 18+ AI Categories
+    </span>
+    <h1 class="text-4xl sm:text-5xl md:text-7xl font-black mb-6 leading-tight">
+      AI Strategic Guide<br><span class="gradient-text">Untuk Hidup Berdaulat</span>
+    </h1>
+    <p class="text-base sm:text-lg text-gray-400 max-w-2xl mx-auto mb-10 leading-relaxed">
+      Platform AI 18+ kategori strategi — dari bisnis & karir sampai spiritual & side hustle. <span class="text-white font-semibold">Chat memory persist, backup/restore data, keyboard shortcuts, mobile sidebar smooth.</span>
+    </p>
+    <div class="flex flex-col sm:flex-row gap-4 justify-center mb-12">
+      <a href="/app" class="btn-primary text-white px-8 py-4 rounded-xl font-bold text-base inline-flex items-center justify-center gap-2 neon-glow">
+        🚀 Mulai Gratis Sekarang →
+      </a>
+      <a href="#features" class="glass text-white px-8 py-4 rounded-xl font-bold text-base hover:bg-white/[0.08] transition">📖 Lihat Fitur</a>
     </div>
-  </div></section>
-
-  <section id="how" class="py-24 relative"><div class="absolute inset-0 bg-gradient-to-b from-transparent via-brand-500/[0.02] to-transparent"></div><div class="max-w-7xl mx-auto px-4 relative z-10">
-    <div class="text-center mb-16 fade-up"><span class="inline-block glass-light text-neon-amber px-5 py-2 rounded-full text-xs font-bold uppercase mb-4">Cara Kerja</span><h2 class="text-3xl sm:text-4xl font-black text-white mb-4">Semudah <span class="gradient-text">3 Langkah</span></h2></div>
-    <div class="grid md:grid-cols-3 gap-10">
-      <div class="text-center fade-up"><div class="w-20 h-20 glass neon-glow rounded-2xl flex items-center justify-center mx-auto mb-6 rotate-3 hover:rotate-0 transition-all duration-500"><span class="text-white text-3xl font-black">1</span></div><h3 class="text-xl font-bold text-white mb-3">Ceritakan Masalahmu</h3><p class="text-gray-400 text-sm">Tulis natural. AI V4 paham 16+ kategori.</p></div>
-      <div class="text-center fade-up"><div class="w-20 h-20 glass neon-glow rounded-2xl flex items-center justify-center mx-auto mb-6 -rotate-2 hover:rotate-0 transition-all duration-500"><span class="text-white text-3xl font-black">2</span></div><h3 class="text-xl font-bold text-white mb-3">AI V4 Menganalisis</h3><p class="text-gray-400 text-sm">Sovereign Engine memproses, rancang strategi dengan typing effect.</p></div>
-      <div class="text-center fade-up"><div class="w-20 h-20 glass neon-glow rounded-2xl flex items-center justify-center mx-auto mb-6 rotate-1 hover:rotate-0 transition-all duration-500"><span class="text-white text-3xl font-black">3</span></div><h3 class="text-xl font-bold text-white mb-3">Track & Journal</h3><p class="text-gray-400 text-sm">Dashboard charts, journal harian, habit streaks — semua di 1 tempat.</p></div>
+    <div class="grid grid-cols-3 gap-4 max-w-2xl mx-auto">
+      <div class="glass rounded-xl p-4"><div class="text-2xl sm:text-3xl font-black gradient-text">18+</div><div class="text-[10px] sm:text-xs text-gray-500 mt-1 font-semibold uppercase tracking-wider">AI Categories</div></div>
+      <div class="glass rounded-xl p-4"><div class="text-2xl sm:text-3xl font-black gradient-text">21+</div><div class="text-[10px] sm:text-xs text-gray-500 mt-1 font-semibold uppercase tracking-wider">Frameworks</div></div>
+      <div class="glass rounded-xl p-4"><div class="text-2xl sm:text-3xl font-black gradient-text">100%</div><div class="text-[10px] sm:text-xs text-gray-500 mt-1 font-semibold uppercase tracking-wider">Sovereign</div></div>
     </div>
-  </div></section>
+  </div>
+</section>
 
-  <section id="pricing" class="py-24 relative"><div class="max-w-7xl mx-auto px-4">
-    <div class="text-center mb-16 fade-up"><span class="inline-block glass-light text-brand-300 px-5 py-2 rounded-full text-xs font-bold uppercase mb-4">Pricing</span><h2 class="text-3xl sm:text-4xl font-black text-white mb-4">Investasi untuk <span class="gradient-text">Masa Depanmu</span></h2></div>
-    <div class="grid md:grid-cols-3 gap-6 max-w-5xl mx-auto">
-      <div class="glass-light rounded-3xl p-8 card-hover neon-border"><div class="mb-6"><h3 class="text-lg font-bold text-white">Starter</h3><p class="text-gray-400 text-sm mt-1">Untuk eksplorasi</p></div><div class="mb-6"><span class="text-5xl font-black text-white">Gratis</span><span class="text-gray-500 text-sm ml-1">/selamanya</span></div><ul class="space-y-3 mb-8"><li class="flex items-center gap-2.5 text-sm text-gray-300"><i class="fas fa-check text-neon-green text-xs"></i>5 AI Analysis / hari</li><li class="flex items-center gap-2.5 text-sm text-gray-300"><i class="fas fa-check text-neon-green text-xs"></i>Dashboard + Charts</li><li class="flex items-center gap-2.5 text-sm text-gray-300"><i class="fas fa-check text-neon-green text-xs"></i>Journal (3 entries/hari)</li><li class="flex items-center gap-2.5 text-sm text-gray-300"><i class="fas fa-check text-neon-green text-xs"></i>Pomodoro Timer</li></ul><a href="/app" class="block w-full text-center btn-secondary text-white py-3.5 rounded-full font-bold">Mulai Gratis</a></div>
-      <div class="relative bg-gradient-to-b from-brand-600/20 to-brand-800/20 border-2 border-brand-500/30 rounded-3xl p-8 scale-105 shadow-2xl shadow-brand-500/10"><div class="absolute -top-3.5 left-1/2 -translate-x-1/2 bg-gradient-to-r from-neon-amber to-orange-500 text-surface-900 px-4 py-1 rounded-full text-xs font-black">PALING POPULER</div><div class="mb-6"><h3 class="text-lg font-bold text-white">Pro</h3><p class="text-brand-200 text-sm mt-1">Untuk yang serius</p></div><div class="mb-6"><span class="text-5xl font-black text-white">Rp 79K</span><span class="text-brand-200 text-sm ml-1">/bulan</span></div><ul class="space-y-3 mb-8"><li class="flex items-center gap-2.5 text-sm text-white"><i class="fas fa-check text-neon-amber text-xs"></i>Unlimited AI Analysis</li><li class="flex items-center gap-2.5 text-sm text-white"><i class="fas fa-check text-neon-amber text-xs"></i>All 16+ Categories</li><li class="flex items-center gap-2.5 text-sm text-white"><i class="fas fa-check text-neon-amber text-xs"></i>Unlimited Journal</li><li class="flex items-center gap-2.5 text-sm text-white"><i class="fas fa-check text-neon-amber text-xs"></i>Export + Import</li><li class="flex items-center gap-2.5 text-sm text-white"><i class="fas fa-check text-neon-amber text-xs"></i>Priority Support</li></ul><a href="/app" class="block w-full text-center bg-white hover:bg-gray-100 text-brand-700 py-3.5 rounded-full font-black transition">Upgrade ke Pro</a></div>
-      <div class="glass-light rounded-3xl p-8 card-hover neon-border"><div class="mb-6"><h3 class="text-lg font-bold text-white">Enterprise</h3><p class="text-gray-400 text-sm mt-1">Tim & organisasi</p></div><div class="mb-6"><span class="text-5xl font-black text-white">Custom</span></div><ul class="space-y-3 mb-8"><li class="flex items-center gap-2.5 text-sm text-gray-300"><i class="fas fa-check text-neon-green text-xs"></i>All Pro features</li><li class="flex items-center gap-2.5 text-sm text-gray-300"><i class="fas fa-check text-neon-green text-xs"></i>Team Collaboration</li><li class="flex items-center gap-2.5 text-sm text-gray-300"><i class="fas fa-check text-neon-green text-xs"></i>Custom AI Training</li><li class="flex items-center gap-2.5 text-sm text-gray-300"><i class="fas fa-check text-neon-green text-xs"></i>API Access</li></ul><a href="#" class="block w-full text-center btn-secondary text-white py-3.5 rounded-full font-bold">Hubungi Kami</a></div>
+<section id="whatsnew" class="py-20 px-4">
+  <div class="max-w-6xl mx-auto">
+    <div class="text-center mb-14">
+      <span class="text-xs font-bold text-amber-400 tracking-widest uppercase">What's New in V5</span>
+      <h2 class="text-3xl sm:text-4xl md:text-5xl font-black mt-3 mb-4 text-white">12 Major Upgrades</h2>
+      <p class="text-gray-400 text-sm sm:text-base max-w-2xl mx-auto">Semua root cause V4.0 sudah di-fix. V5.0 lebih powerful, lebih smooth, lebih reliable.</p>
     </div>
-  </div></section>
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+      ${[
+        ['💬','Chat Memory Persist','Percakapan AI tersimpan di localStorage. Pindah tab tidak hilang.'],
+        ['📱','Mobile Sidebar Smooth','Slide-in overlay + backdrop. UX native-like di mobile.'],
+        ['💾','Backup & Restore JSON','Export full data ke JSON. Import balik kapan saja.'],
+        ['📊','Weekly Trend Chart','Visualisasi 7 hari terakhir. Track progress over time.'],
+        ['🍅','Pomodoro V2','Visual break alert + auto-start option + session stats.'],
+        ['🎯','Smart Delete Modal','Custom confirmation, bukan browser native. UX premium.'],
+        ['📓','Journal Fix','Mood selector fixed + edit & delete entry.'],
+        ['🔍','Debounced Search','Resource search dengan debounce 300ms. Performance boost.'],
+        ['⌨️','Keyboard Shortcuts','Ctrl+K search, Ctrl+1-9 switch tab. Power user ready.'],
+        ['🕊️','+Spiritual & Faith','Kategori baru: spiritual practice, faith, gratitude.'],
+        ['💼','+Side Hustle','Kategori baru: bangun income kedua, freelance acceleration.'],
+        ['✨','Micro-Interactions','Smoother animations, polished hover, premium feel.'],
+      ].map(([icon, title, desc]) => `
+        <div class="glass rounded-2xl p-6 card-hover">
+          <div class="text-3xl mb-3">${icon}</div>
+          <h3 class="font-bold text-white mb-2">${title}</h3>
+          <p class="text-gray-400 text-sm leading-relaxed">${desc}</p>
+        </div>
+      `).join('')}
+    </div>
+  </div>
+</section>
 
-  <section class="py-24 relative overflow-hidden"><div class="orb w-[500px] h-[500px] bg-brand-500 top-0 left-1/4 opacity-20"></div><div class="max-w-4xl mx-auto px-4 text-center relative z-10">
-    <h2 class="text-3xl sm:text-5xl font-black text-white mb-6">Siap Mengubah Hidupmu?</h2>
-    <p class="text-gray-400 text-lg mb-10 max-w-2xl mx-auto">Join 20,000+ orang yang sudah menemukan kejelasan strategis.</p>
-    <a href="/app" class="inline-flex items-center gap-2 bg-gradient-to-r from-neon-amber to-orange-500 hover:from-orange-500 hover:to-neon-amber text-surface-900 px-12 py-5 rounded-full font-black text-lg transition shadow-2xl shadow-neon-amber/30"><i class="fas fa-bolt"></i>Mulai Sekarang — Gratis!</a>
-  </div></section>
+<section id="features" class="py-20 px-4 bg-gradient-to-b from-transparent via-indigo-950/10 to-transparent">
+  <div class="max-w-6xl mx-auto">
+    <div class="text-center mb-14">
+      <span class="text-xs font-bold text-indigo-400 tracking-widest uppercase">Complete Toolkit</span>
+      <h2 class="text-3xl sm:text-4xl md:text-5xl font-black mt-3 mb-4 text-white">Everything Sovereign</h2>
+    </div>
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+      ${[
+        ['🧠','AI Sovereign Engine V5','18+ kategori dengan typing effect dan context memory.'],
+        ['📊','Dashboard + Weekly Trend','Stats animated counter + 7-day visual chart.'],
+        ['📓','Journal + Mood Tracker','Daily journal dengan 6 mood + edit/delete.'],
+        ['🌓','Dark/Light Mode','Toggle smooth, preference saved.'],
+        ['🔔','Toast Notifications','Achievement & action alerts smooth.'],
+        ['📊','SWOT Analyzer','Generate analisis SWOT instan.'],
+        ['🧭','AI Coach V5','Personal coaching dengan blockers & action.'],
+        ['🍅','Pomodoro Timer Pro V2','Visual break alert + auto-start + stats.'],
+        ['🎯','Goal Tracker Pro','Milestones, progress bar, localStorage.'],
+        ['🔥','Habit Tracker','Streak counter + daily check-in.'],
+        ['🎨','Vision Board','Big vision, 1Y, 3M, 1W goals.'],
+        ['📋','Weekly Review','Wins, learnings, focus minggu depan.'],
+        ['📚','Resource Library','21+ frameworks expandable.'],
+        ['💾','Backup/Restore JSON','Full data export + import.'],
+        ['⌨️','Keyboard Shortcuts','Ctrl+K, Ctrl+1-9, Ctrl+/ help.'],
+      ].map(([icon, title, desc]) => `
+        <div class="glass rounded-2xl p-6 card-hover">
+          <div class="text-3xl mb-3">${icon}</div>
+          <h3 class="font-bold text-white mb-2">${title}</h3>
+          <p class="text-gray-400 text-sm leading-relaxed">${desc}</p>
+        </div>
+      `).join('')}
+    </div>
+  </div>
+</section>
 
-  <footer class="text-gray-400 py-16 border-t border-white/[0.04]"><div class="max-w-7xl mx-auto px-4"><div class="grid md:grid-cols-4 gap-10">
-    <div><div class="flex items-center gap-2 mb-4"><div class="w-9 h-9 bg-gradient-to-br from-brand-500 to-neon-pink rounded-xl flex items-center justify-center"><i class="fas fa-brain text-white text-sm"></i></div><span class="text-white font-black text-lg">Spark<span class="text-neon-amber">Mind</span><sup class="text-[10px] text-brand-300 ml-0.5">V4</sup></span></div><p class="text-sm leading-relaxed">AI strategic guide. 16+ categories, Dashboard Charts, Journal, Dark/Light Mode.</p></div>
-    <div><h4 class="text-white font-bold mb-4 text-sm">AI Tools</h4><ul class="space-y-2.5 text-sm"><li><a href="/app" class="hover:text-white transition">AI Analyzer V4</a></li><li><a href="/app" class="hover:text-white transition">SWOT Analyzer</a></li><li><a href="/app" class="hover:text-white transition">AI Coach</a></li><li><a href="/app" class="hover:text-white transition">Journal</a></li></ul></div>
-    <div><h4 class="text-white font-bold mb-4 text-sm">Productivity</h4><ul class="space-y-2.5 text-sm"><li><a href="/app" class="hover:text-white transition">Dashboard Charts</a></li><li><a href="/app" class="hover:text-white transition">Vision Board</a></li><li><a href="/app" class="hover:text-white transition">Goal Tracker</a></li><li><a href="/app" class="hover:text-white transition">Habit Tracker</a></li></ul></div>
-    <div><h4 class="text-white font-bold mb-4 text-sm">Connect</h4><div class="flex gap-3"><a href="#" class="w-10 h-10 glass rounded-xl flex items-center justify-center hover:bg-brand-600 transition"><i class="fab fa-instagram text-white"></i></a><a href="#" class="w-10 h-10 glass rounded-xl flex items-center justify-center hover:bg-brand-600 transition"><i class="fab fa-twitter text-white"></i></a><a href="https://github.com/ganihypha/Sparkmind" class="w-10 h-10 glass rounded-xl flex items-center justify-center hover:bg-brand-600 transition"><i class="fab fa-github text-white"></i></a></div></div>
-  </div><div class="border-t border-white/[0.04] mt-12 pt-8 text-center text-sm"><p>&copy; 2026 SparkMind V4.0. Built with power by Haidar.</p></div></div></footer>
+<section id="pricing" class="py-20 px-4">
+  <div class="max-w-5xl mx-auto">
+    <div class="text-center mb-14">
+      <span class="text-xs font-bold text-emerald-400 tracking-widest uppercase">Pricing</span>
+      <h2 class="text-3xl sm:text-4xl md:text-5xl font-black mt-3 mb-4 text-white">Pilih Plan-mu</h2>
+    </div>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div class="glass rounded-2xl p-8">
+        <h3 class="text-xl font-bold text-white mb-1">Starter</h3>
+        <p class="text-gray-500 text-xs mb-4">Untuk yang baru mulai</p>
+        <div class="mb-6"><span class="text-4xl font-black text-white">Gratis</span></div>
+        <ul class="space-y-2 text-sm text-gray-400 mb-6">
+          <li>✓ Semua 18+ AI categories</li>
+          <li>✓ Dashboard, Goals, Habits</li>
+          <li>✓ Journal & Pomodoro V2</li>
+          <li>✓ Backup/Restore JSON</li>
+          <li>✓ localStorage permanent</li>
+        </ul>
+        <a href="/app" class="block w-full py-3 glass rounded-lg text-white font-semibold text-center hover:bg-white/[0.08] transition">Mulai Gratis</a>
+      </div>
+      <div class="glass rounded-2xl p-8 border-2 border-indigo-500/40 neon-glow relative">
+        <span class="absolute -top-3 left-1/2 -translate-x-1/2 bg-gradient-to-r from-indigo-500 to-purple-500 text-white text-xs font-bold px-4 py-1 rounded-full">PALING POPULER</span>
+        <h3 class="text-xl font-bold text-white mb-1">Pro</h3>
+        <p class="text-gray-500 text-xs mb-4">Untuk yang serius berdaulat</p>
+        <div class="mb-6"><span class="text-4xl font-black text-white">Rp 99K</span><span class="text-gray-500 text-sm">/bulan</span></div>
+        <ul class="space-y-2 text-sm text-gray-400 mb-6">
+          <li>✓ Semua di Starter</li>
+          <li>✓ AI integration real-time</li>
+          <li>✓ Cloud sync semua device</li>
+          <li>✓ Priority support 24/7</li>
+          <li>✓ Advanced analytics</li>
+          <li>✓ Custom frameworks</li>
+        </ul>
+        <a href="/app" class="block w-full py-3 btn-primary rounded-lg text-white font-bold text-center">Upgrade ke Pro</a>
+      </div>
+      <div class="glass rounded-2xl p-8">
+        <h3 class="text-xl font-bold text-white mb-1">Enterprise</h3>
+        <p class="text-gray-500 text-xs mb-4">Untuk team & company</p>
+        <div class="mb-6"><span class="text-4xl font-black text-white">Custom</span></div>
+        <ul class="space-y-2 text-sm text-gray-400 mb-6">
+          <li>✓ Semua di Pro</li>
+          <li>✓ Multi-user team workspace</li>
+          <li>✓ Custom AI training</li>
+          <li>✓ White-label option</li>
+          <li>✓ Dedicated success manager</li>
+        </ul>
+        <a href="mailto:hello@sparkmind.id" class="block w-full py-3 glass rounded-lg text-white font-semibold text-center hover:bg-white/[0.08] transition">Kontak Sales</a>
+      </div>
+    </div>
+  </div>
+</section>
 
-  <script>
-    document.getElementById('mob-btn').addEventListener('click',()=>document.getElementById('mob-nav').classList.toggle('hidden'));
-    const obs=new IntersectionObserver(entries=>{entries.forEach(e=>{if(e.isIntersecting){e.target.classList.add('visible');const c=e.target.querySelector('[data-target]');if(c){const t=parseInt(c.dataset.target);let cur=0;const inc=t/60;const timer=setInterval(()=>{cur+=inc;if(cur>=t){cur=t;clearInterval(timer)}c.textContent=Math.floor(cur).toLocaleString()},16)}}})},{threshold:0.2});
-    document.querySelectorAll('.counter,.fade-up').forEach(el=>obs.observe(el));
-    document.querySelectorAll('a[href^="#"]').forEach(a=>{a.addEventListener('click',e=>{e.preventDefault();const t=document.querySelector(a.getAttribute('href'));if(t)t.scrollIntoView({behavior:'smooth'});document.getElementById('mob-nav').classList.add('hidden')})});
-  </script>
+<section class="py-20 px-4">
+  <div class="max-w-4xl mx-auto text-center glass rounded-3xl p-10 sm:p-14 neon-glow">
+    <h2 class="text-3xl sm:text-4xl md:text-5xl font-black mb-6 text-white">Ready to Be <span class="gradient-text">Sovereign?</span></h2>
+    <p class="text-gray-400 mb-8 max-w-2xl mx-auto">Bergabung dengan ribuan profesional yang membangun hidup berdaulat dengan SparkMind V5. Gratis selamanya, no credit card.</p>
+    <a href="/app" class="btn-primary inline-flex items-center gap-2 text-white px-10 py-4 rounded-xl font-bold text-lg neon-glow">🚀 Mulai Gratis →</a>
+  </div>
+</section>
+
+<footer class="border-t border-white/5 py-10 px-4">
+  <div class="max-w-6xl mx-auto text-center">
+    <div class="flex items-center justify-center gap-3 mb-3">
+      <div class="w-8 h-8 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-lg flex items-center justify-center text-white">🧠</div>
+      <span class="font-bold text-white">SparkMind V5 SOVEREIGN</span>
+    </div>
+    <p class="text-gray-500 text-xs">© 2026 SparkMind. Built with 💜 for sovereign minds.</p>
+  </div>
+</footer>
+
+<script>
+  const obs = new IntersectionObserver(es => es.forEach(e => e.isIntersecting && e.target.classList.add('visible')), { threshold: 0.1 });
+  document.querySelectorAll('.fade-up').forEach(el => obs.observe(el));
+</script>
 </body>
 </html>`
 
 // ============================================
-// APP DASHBOARD HTML — SparkMind V4.0 ULTIMATE
+// APP DASHBOARD — V5.0 SOVEREIGN
 // ============================================
 const APP_HTML = `<!DOCTYPE html>
-<html lang="id" class="dark">
+<html lang="id">
 <head>
   <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>SparkMind V4 — Dashboard</title>
+  <title>SparkMind V5 SOVEREIGN — Dashboard</title>
   <meta name="theme-color" content="#0a0a1a">
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧠</text></svg>">
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css" rel="stylesheet">
-  <script>tailwind.config={darkMode:'class',theme:{extend:{colors:{brand:{50:'#eef2ff',100:'#e0e7ff',200:'#c7d2fe',300:'#a5b4fc',400:'#818cf8',500:'#6366f1',600:'#4f46e5',700:'#4338ca',800:'#3730a3',900:'#312e81'},neon:{blue:'#60a5fa',purple:'#a78bfa',pink:'#f472b6',green:'#34d399',amber:'#fbbf24'},surface:{50:'#f8fafc',100:'#f1f5f9',200:'#e2e8f0',800:'#12122a',900:'#0a0a1a',950:'#06060f'}}}}}</script>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
-    *{font-family:'Inter',sans-serif;box-sizing:border-box}
-    /* Dark mode */
-    .dark body{background:#0a0a1a;color:#e2e8f0}
-    .dark .glass{background:rgba(255,255,255,0.03);backdrop-filter:blur(24px);border:1px solid rgba(255,255,255,0.06)}
-    .dark .sidebar-bg{background:#06060f;border-color:rgba(255,255,255,0.04)}
-    .dark .header-bg{background:rgba(6,6,15,0.8)}
-    .dark .input-bg{background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);color:#fff}
-    .dark .text-main{color:#e2e8f0}.dark .text-sub{color:#94a3b8}.dark .text-muted{color:#64748b}
-    .dark .card-bg{background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06)}
-    /* Light mode */
-    body{background:#f8fafc;color:#1e293b;margin:0}
-    .glass{background:rgba(255,255,255,0.8);backdrop-filter:blur(24px);border:1px solid rgba(0,0,0,0.06)}
-    .sidebar-bg{background:#fff;border-color:rgba(0,0,0,0.06)}
-    .header-bg{background:rgba(248,250,252,0.8)}
-    .input-bg{background:#fff;border:1px solid #e2e8f0;color:#1e293b}
-    .text-main{color:#1e293b}.text-sub{color:#64748b}.text-muted{color:#94a3b8}
-    .card-bg{background:#fff;border:1px solid #e2e8f0}
-    /* Shared */
-    .gradient-text{background:linear-gradient(135deg,#818cf8,#f472b6,#fbbf24);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
-    .sidebar-link.active{background:rgba(99,102,241,0.1);color:#6366f1;border-right:3px solid #6366f1;font-weight:600}
-    .dark .sidebar-link{color:#94a3b8}.sidebar-link{color:#64748b}
-    .sidebar-link:hover:not(.active){background:rgba(99,102,241,0.05)}
-    .typing-dot{animation:td 1.4s infinite}.typing-dot:nth-child(2){animation-delay:.2s}.typing-dot:nth-child(3){animation-delay:.4s}
-    @keyframes td{0%,60%,100%{opacity:.3;transform:translateY(0)}30%{opacity:1;transform:translateY(-4px)}}
-    .msg-in{animation:mi .4s cubic-bezier(.4,0,.2,1)}@keyframes mi{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
-    .progress-bar{transition:width .8s cubic-bezier(.4,0,.2,1)}
-    textarea:focus,input:focus,select:focus{outline:none}
-    ::-webkit-scrollbar{width:5px}::-webkit-scrollbar-track{background:transparent}.dark ::-webkit-scrollbar-thumb{background:#2a2a4a;border-radius:10px}::-webkit-scrollbar-thumb{background:#cbd5e1;border-radius:10px}
-    .timer-ring{transition:stroke-dashoffset 1s linear}
-    .btn-primary{background:linear-gradient(135deg,#4f46e5,#6366f1);color:#fff;transition:all .3s}.btn-primary:hover{box-shadow:0 8px 24px rgba(99,102,241,0.3)}
-    .toast{animation:toastin .4s ease-out}@keyframes toastin{from{opacity:0;transform:translateY(20px) scale(.95)}to{opacity:1;transform:translateY(0) scale(1)}}
-    .toast-out{animation:toastout .3s ease-in forwards}@keyframes toastout{to{opacity:0;transform:translateY(-10px) scale(.95)}}
-    .stat-card{transition:all .3s}.stat-card:hover{transform:translateY(-4px)}
-    .dark .stat-card:hover{box-shadow:0 12px 40px rgba(99,102,241,0.1)}.stat-card:hover{box-shadow:0 12px 40px rgba(99,102,241,0.08)}
-    .onboard-overlay{position:fixed;inset:0;z-index:100;display:flex;align-items:center;justify-content:center}
-    .dark .onboard-overlay{background:rgba(0,0,0,0.85)}.onboard-overlay{background:rgba(0,0,0,0.5)}
-    .chart-bar{transition:height .8s cubic-bezier(.4,0,.2,1)}
-    .typing-char{display:inline;animation:typeChar .05s ease}@keyframes typeChar{from{opacity:0}to{opacity:1}}
-    .resource-detail{max-height:0;overflow:hidden;transition:max-height .3s ease}.resource-detail.open{max-height:200px}
-    .mood-btn.selected{transform:scale(1.3);filter:drop-shadow(0 0 8px rgba(99,102,241,0.5))}
+    *{font-family:'Inter',sans-serif;margin:0;padding:0;box-sizing:border-box}
+    body{background:#0a0a1a;color:#e2e8f0;overflow-x:hidden;transition:background .3s,color .3s}
+    body.light{background:#f8fafc;color:#1e293b}
+    body.light .glass{background:rgba(255,255,255,0.7);border-color:rgba(0,0,0,0.06)}
+    body.light .text-white{color:#1e293b !important}
+    body.light .text-gray-400{color:#475569 !important}
+    body.light .text-gray-500{color:#64748b !important}
+    body.light .bg-surface-900{background:#ffffff !important}
+    body.light .border-white\\/5{border-color:rgba(0,0,0,0.06) !important}
+    body.light .bg-white\\/\\[0\\.02\\]{background:rgba(0,0,0,0.02) !important}
+    body.light .bg-white\\/\\[0\\.03\\]{background:rgba(0,0,0,0.03) !important}
+    .glass{background:rgba(255,255,255,0.03);backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,0.06)}
+    .gradient-text{background:linear-gradient(135deg,#818cf8,#f472b6,#fbbf24);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+    ::-webkit-scrollbar{width:6px;height:6px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:#2a2a4a;border-radius:10px}
+    body.light ::-webkit-scrollbar-thumb{background:#cbd5e1}
+    .btn-primary{background:linear-gradient(135deg,#4f46e5,#6366f1);transition:all .3s}.btn-primary:hover{background:linear-gradient(135deg,#4338ca,#4f46e5);transform:translateY(-1px);box-shadow:0 10px 25px rgba(99,102,241,0.3)}
+    .nav-item{transition:all .3s}.nav-item:hover{background:rgba(99,102,241,0.08)}.nav-item.active{background:linear-gradient(90deg,rgba(99,102,241,0.15),rgba(139,92,246,0.05));border-left:3px solid #6366f1}
+    .typing::after{content:'▌';color:#818cf8;animation:bl 1s infinite}
+    @keyframes bl{0%,50%{opacity:1}51%,100%{opacity:0}}
+    .toast{animation:tin .4s cubic-bezier(.4,0,.2,1);min-width:280px}
+    @keyframes tin{0%{transform:translateX(120%);opacity:0}100%{transform:translateX(0);opacity:1}}
+    .toast.toast-out{animation:tout .3s cubic-bezier(.4,0,.2,1) forwards}
+    @keyframes tout{0%{transform:translateX(0);opacity:1}100%{transform:translateX(120%);opacity:0}}
+    .pulse-dot{animation:pd 2s ease-in-out infinite}
+    @keyframes pd{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(.9)}}
+    .ring-progress{transform:rotate(-90deg);transition:stroke-dashoffset 1s ease-out}
+    .resource-detail{max-height:0;overflow:hidden;transition:max-height .4s ease-out,padding .4s ease-out}
+    .resource-detail.open{max-height:300px}
+    .modal-backdrop{animation:mfade .2s ease-out}
+    @keyframes mfade{0%{opacity:0}100%{opacity:1}}
+    .modal-content{animation:mpop .3s cubic-bezier(.34,1.56,.64,1)}
+    @keyframes mpop{0%{transform:scale(.9);opacity:0}100%{transform:scale(1);opacity:1}}
+    .sidebar{transition:transform .35s cubic-bezier(.4,0,.2,1)}
+    .sidebar-backdrop{animation:bfade .25s ease-out}
+    @keyframes bfade{0%{opacity:0}100%{opacity:1}}
+    @media (max-width:1023px){
+      .sidebar{transform:translateX(-100%);position:fixed !important;z-index:60}
+      .sidebar.open{transform:translateX(0)}
+    }
+    .counter-num{font-variant-numeric:tabular-nums}
+    .bar-anim{transform-origin:bottom;animation:bgrow .8s cubic-bezier(.34,1.56,.64,1) forwards}
+    @keyframes bgrow{0%{transform:scaleY(0)}100%{transform:scaleY(1)}}
+    .kbd{display:inline-block;padding:2px 6px;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.12);border-radius:4px;font-family:monospace;font-size:11px;color:#a5b4fc}
+    body.light .kbd{background:rgba(0,0,0,0.05);border-color:rgba(0,0,0,0.1);color:#4f46e5}
   </style>
 </head>
-<body class="h-screen flex overflow-hidden">
-  <!-- TOAST CONTAINER -->
-  <div id="toast-container" class="fixed top-4 right-4 z-[200] space-y-2"></div>
+<body>
 
-  <!-- ONBOARDING -->
-  <div id="onboarding" class="onboard-overlay hidden">
-    <div class="max-w-lg w-full mx-4 card-bg rounded-3xl p-8 text-center" style="backdrop-filter:blur(24px)">
-      <div class="w-20 h-20 bg-gradient-to-br from-brand-500 to-neon-pink rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg shadow-brand-500/20"><i class="fas fa-brain text-white text-3xl"></i></div>
-      <h2 class="text-2xl font-black text-main mb-2">Selamat Datang di SparkMind V4</h2>
-      <p class="text-sub text-sm mb-6">16+ AI categories • Dashboard Charts • Journal • Dark/Light Mode</p>
-      <div class="space-y-3 text-left mb-6">
-        <div class="flex items-center gap-3 card-bg rounded-xl p-3"><i class="fas fa-chart-bar text-brand-400 w-6 text-center"></i><div><p class="text-main text-sm font-bold">Dashboard Charts</p><p class="text-muted text-xs">Visual progress analytics</p></div></div>
-        <div class="flex items-center gap-3 card-bg rounded-xl p-3"><i class="fas fa-book text-violet-400 w-6 text-center"></i><div><p class="text-main text-sm font-bold">Journal System</p><p class="text-muted text-xs">Daily reflection + mood tracker</p></div></div>
-        <div class="flex items-center gap-3 card-bg rounded-xl p-3"><i class="fas fa-moon text-amber-400 w-6 text-center"></i><div><p class="text-main text-sm font-bold">Dark/Light Mode</p><p class="text-muted text-xs">Sesuaikan tampilan kamu</p></div></div>
-      </div>
-      <input id="onboard-name" type="text" placeholder="Masukkan nama kamu..." class="w-full input-bg rounded-xl px-4 py-3 text-sm placeholder-gray-400 mb-4 text-center">
-      <button onclick="completeOnboarding()" class="w-full btn-primary py-3.5 rounded-xl font-bold shadow-lg shadow-brand-500/20">Mulai SparkMind V4</button>
-    </div>
-  </div>
+<div id="toast-container" class="fixed top-4 right-4 z-[100] flex flex-col gap-2"></div>
+
+<div id="modal-root"></div>
+
+<div class="flex min-h-screen">
 
   <!-- SIDEBAR -->
-  <aside id="sidebar" class="w-64 sidebar-bg border-r flex-shrink-0 flex flex-col hidden md:flex">
-    <div class="p-5 border-b" style="border-color:inherit"><a href="/" class="flex items-center gap-2.5"><div class="w-8 h-8 bg-gradient-to-br from-brand-500 to-neon-pink rounded-xl flex items-center justify-center"><i class="fas fa-brain text-white text-sm"></i></div><span class="font-black text-lg text-main">Spark<span class="text-neon-amber">Mind</span><sup class="text-[9px] text-brand-400 ml-0.5">V4</sup></span></a></div>
-    <nav class="flex-1 py-4 overflow-auto">
-      <div class="px-6 mb-3"><p class="text-[10px] font-bold text-muted uppercase tracking-widest">Overview</p></div>
-      <a href="#" onclick="switchTab('dashboard')" class="sidebar-link active flex items-center gap-3 px-6 py-2.5 text-sm transition" data-tab="dashboard"><i class="fas fa-chart-line w-5 text-center"></i><span>Dashboard</span></a>
-      <div class="px-6 mb-3 mt-5"><p class="text-[10px] font-bold text-muted uppercase tracking-widest">AI Tools</p></div>
-      <a href="#" onclick="switchTab('analyzer')" class="sidebar-link flex items-center gap-3 px-6 py-2.5 text-sm transition" data-tab="analyzer"><i class="fas fa-brain w-5 text-center"></i><span>AI Analyzer</span></a>
-      <a href="#" onclick="switchTab('swot')" class="sidebar-link flex items-center gap-3 px-6 py-2.5 text-sm transition" data-tab="swot"><i class="fas fa-chart-pie w-5 text-center"></i><span>SWOT</span></a>
-      <a href="#" onclick="switchTab('coach')" class="sidebar-link flex items-center gap-3 px-6 py-2.5 text-sm transition" data-tab="coach"><i class="fas fa-user-tie w-5 text-center"></i><span>AI Coach</span></a>
-      <div class="px-6 mb-3 mt-5"><p class="text-[10px] font-bold text-muted uppercase tracking-widest">Productivity</p></div>
-      <a href="#" onclick="switchTab('pomodoro')" class="sidebar-link flex items-center gap-3 px-6 py-2.5 text-sm transition" data-tab="pomodoro"><i class="fas fa-stopwatch w-5 text-center"></i><span>Pomodoro</span></a>
-      <a href="#" onclick="switchTab('goals')" class="sidebar-link flex items-center gap-3 px-6 py-2.5 text-sm transition" data-tab="goals"><i class="fas fa-bullseye w-5 text-center"></i><span>Goals</span></a>
-      <a href="#" onclick="switchTab('habits')" class="sidebar-link flex items-center gap-3 px-6 py-2.5 text-sm transition" data-tab="habits"><i class="fas fa-fire w-5 text-center"></i><span>Habits</span></a>
-      <div class="px-6 mb-3 mt-5"><p class="text-[10px] font-bold text-muted uppercase tracking-widest">Insights</p></div>
-      <a href="#" onclick="switchTab('journal')" class="sidebar-link flex items-center gap-3 px-6 py-2.5 text-sm transition" data-tab="journal"><i class="fas fa-book w-5 text-center"></i><span>Journal</span><span class="ml-auto text-[9px] bg-neon-green/20 text-neon-green px-1.5 py-0.5 rounded font-bold">NEW</span></a>
-      <a href="#" onclick="switchTab('vision')" class="sidebar-link flex items-center gap-3 px-6 py-2.5 text-sm transition" data-tab="vision"><i class="fas fa-images w-5 text-center"></i><span>Vision Board</span></a>
-      <a href="#" onclick="switchTab('review')" class="sidebar-link flex items-center gap-3 px-6 py-2.5 text-sm transition" data-tab="review"><i class="fas fa-calendar-check w-5 text-center"></i><span>Weekly Review</span></a>
-      <a href="#" onclick="switchTab('resources')" class="sidebar-link flex items-center gap-3 px-6 py-2.5 text-sm transition" data-tab="resources"><i class="fas fa-book-open w-5 text-center"></i><span>Resources</span></a>
+  <aside id="sidebar" class="sidebar w-64 glass border-r border-white/5 flex-shrink-0 flex flex-col h-screen sticky top-0 z-50">
+    <div class="p-5 border-b border-white/5 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <div class="w-9 h-9 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-lg flex items-center justify-center text-white text-lg shadow-lg">🧠</div>
+        <div>
+          <h1 class="text-base font-bold text-white">SparkMind</h1>
+          <p class="text-[10px] text-indigo-400 font-bold tracking-widest -mt-0.5">V5 · SOVEREIGN</p>
+        </div>
+      </div>
+      <button onclick="toggleSidebar()" class="lg:hidden text-gray-400 hover:text-white p-1"><i class="fas fa-times"></i></button>
+    </div>
+    <nav class="flex-1 overflow-y-auto py-3">
+      ${[
+        ['dashboard','📊','Dashboard'],
+        ['analyzer','🧠','AI Analyzer'],
+        ['coach','🧭','AI Coach'],
+        ['swot','📊','SWOT'],
+        ['pomodoro','🍅','Pomodoro V2'],
+        ['journal','📓','Journal'],
+        ['goals','🎯','Goals'],
+        ['habits','🔥','Habits'],
+        ['vision','🎨','Vision Board'],
+        ['review','📋','Weekly Review'],
+        ['resources','📚','Resources'],
+        ['settings','⚙️','Settings'],
+      ].map(([id, icon, label], i) => `
+        <button onclick="switchTab('${id}')" data-tab="${id}" class="nav-item w-full text-left px-5 py-2.5 flex items-center gap-3 text-sm text-gray-400">
+          <span class="text-base">${icon}</span><span>${label}</span>
+          ${i < 9 ? `<span class="ml-auto kbd">⌘${i+1}</span>` : ''}
+        </button>
+      `).join('')}
     </nav>
-    <div class="p-4 border-t" style="border-color:inherit"><div class="card-bg rounded-2xl p-4"><p class="text-sm font-bold text-main mb-1">Free Plan</p><p class="text-xs text-sub mb-3">5/5 analyses tersisa</p><div class="w-full bg-brand-500/10 rounded-full h-1.5 mb-3"><div class="bg-gradient-to-r from-brand-500 to-neon-green h-1.5 rounded-full" style="width:100%"></div></div><button class="w-full btn-primary text-xs py-2.5 rounded-xl font-bold">Upgrade Pro</button></div></div>
+    <div class="p-4 border-t border-white/5">
+      <button onclick="openShortcutsModal()" class="w-full text-left text-xs text-gray-500 hover:text-white transition flex items-center gap-2">
+        <i class="fas fa-keyboard"></i> Shortcuts <span class="kbd ml-auto">⌘/</span>
+      </button>
+    </div>
   </aside>
 
+  <div id="sidebar-backdrop" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-40 hidden lg:hidden sidebar-backdrop" onclick="toggleSidebar()"></div>
+
   <!-- MAIN -->
-  <main class="flex-1 flex flex-col overflow-hidden">
-    <header class="header-bg backdrop-blur-xl border-b px-6 py-3 flex items-center justify-between flex-shrink-0" style="border-color:inherit">
-      <div class="flex items-center gap-4">
-        <button id="sb-toggle" class="md:hidden text-sub hover:text-main transition"><i class="fas fa-bars text-lg"></i></button>
-        <h1 id="page-title" class="text-base font-bold text-main">Dashboard</h1>
-        <span class="hidden sm:inline-block text-[10px] bg-brand-500/20 text-brand-400 px-2 py-0.5 rounded-lg font-bold border border-brand-500/20">V4.0</span>
+  <main class="flex-1 min-w-0 flex flex-col">
+    <header class="glass border-b border-white/5 px-4 sm:px-6 py-3 flex items-center justify-between gap-3 sticky top-0 z-30">
+      <div class="flex items-center gap-3 min-w-0">
+        <button onclick="toggleSidebar()" class="lg:hidden text-gray-400 hover:text-white p-2"><i class="fas fa-bars text-lg"></i></button>
+        <h2 id="page-title" class="text-base sm:text-lg font-bold text-white truncate">Dashboard</h2>
       </div>
-      <div class="flex items-center gap-3">
-        <div id="quote-ticker" class="hidden sm:block max-w-xs text-xs text-muted italic truncate"></div>
-        <button onclick="toggleTheme()" title="Toggle Theme" class="text-sub hover:text-main transition w-8 h-8 rounded-lg flex items-center justify-center hover:bg-brand-500/10"><i id="theme-icon" class="fas fa-moon"></i></button>
-        <button onclick="exportData()" title="Export" class="text-sub hover:text-main transition w-8 h-8 rounded-lg flex items-center justify-center hover:bg-brand-500/10"><i class="fas fa-file-export"></i></button>
-        <div id="user-avatar" class="w-8 h-8 bg-gradient-to-br from-brand-500 to-neon-pink rounded-full flex items-center justify-center cursor-pointer"><span class="text-white text-xs font-bold" id="user-initial">H</span></div>
+      <div class="flex items-center gap-2 sm:gap-3">
+        <button onclick="openCommandPalette()" class="hidden sm:flex items-center gap-2 px-3 py-1.5 glass rounded-lg text-xs text-gray-400 hover:text-white transition">
+          <i class="fas fa-search"></i> Cari... <span class="kbd ml-2">⌘K</span>
+        </button>
+        <button onclick="toggleTheme()" id="theme-toggle" class="w-9 h-9 glass rounded-lg flex items-center justify-center text-gray-400 hover:text-white transition" title="Toggle theme">
+          <i class="fas fa-moon"></i>
+        </button>
+        <span id="quote-ticker" class="hidden md:inline-block text-xs text-gray-500 italic max-w-[200px] truncate"></span>
       </div>
     </header>
 
-    <div class="flex-1 overflow-auto">
-      <!-- DASHBOARD -->
-      <div id="tab-dashboard" class="tab-content p-6"><div class="max-w-6xl mx-auto">
-        <div class="mb-8"><h2 class="text-2xl font-black text-main mb-1">Selamat datang, <span id="dash-name" class="gradient-text">User</span>!</h2><p class="text-sub text-sm">Overview progress & analytics.</p></div>
-        <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-          <div class="card-bg rounded-2xl p-5 stat-card"><div class="flex items-center gap-3 mb-3"><div class="w-10 h-10 bg-brand-500/20 rounded-xl flex items-center justify-center"><i class="fas fa-bullseye text-brand-400"></i></div><span class="text-muted text-xs font-bold">GOALS</span></div><p id="dash-goals" class="text-3xl font-black text-main">0</p><p class="text-muted text-xs mt-1">active goals</p></div>
-          <div class="card-bg rounded-2xl p-5 stat-card"><div class="flex items-center gap-3 mb-3"><div class="w-10 h-10 bg-neon-green/20 rounded-xl flex items-center justify-center"><i class="fas fa-fire text-neon-green"></i></div><span class="text-muted text-xs font-bold">HABITS</span></div><p id="dash-habits" class="text-3xl font-black text-main">0</p><p class="text-muted text-xs mt-1">active habits</p></div>
-          <div class="card-bg rounded-2xl p-5 stat-card"><div class="flex items-center gap-3 mb-3"><div class="w-10 h-10 bg-neon-amber/20 rounded-xl flex items-center justify-center"><i class="fas fa-stopwatch text-neon-amber"></i></div><span class="text-muted text-xs font-bold">FOCUS</span></div><p id="dash-focus" class="text-3xl font-black text-main">0m</p><p class="text-muted text-xs mt-1">today</p></div>
-          <div class="card-bg rounded-2xl p-5 stat-card"><div class="flex items-center gap-3 mb-3"><div class="w-10 h-10 bg-neon-pink/20 rounded-xl flex items-center justify-center"><i class="fas fa-fire-flame-curved text-neon-pink"></i></div><span class="text-muted text-xs font-bold">STREAK</span></div><p id="dash-streak" class="text-3xl font-black text-main">0</p><p class="text-muted text-xs mt-1">best streak</p></div>
-        </div>
-        <!-- CHART -->
-        <div class="card-bg rounded-2xl p-6 mb-8">
-          <h3 class="font-bold text-main mb-4 flex items-center gap-2"><i class="fas fa-chart-bar text-brand-400"></i> Goal Progress Chart</h3>
-          <div id="goal-chart" class="flex items-end gap-3 h-40"></div>
-        </div>
-        <div class="grid lg:grid-cols-2 gap-6 mb-8">
-          <div class="card-bg rounded-2xl p-6"><h3 class="font-bold text-main mb-4 flex items-center gap-2"><i class="fas fa-bullseye text-brand-400"></i> Goals</h3><div id="dash-goal-list" class="space-y-3"></div></div>
-          <div class="card-bg rounded-2xl p-6"><h3 class="font-bold text-main mb-4 flex items-center gap-2"><i class="fas fa-fire text-neon-pink"></i> Today's Habits</h3><div id="dash-habit-list" class="space-y-3"></div></div>
-        </div>
-        <div class="card-bg rounded-2xl p-6"><h3 class="font-bold text-main mb-4">Quick Actions</h3><div class="grid grid-cols-2 sm:grid-cols-5 gap-3">
-          <button onclick="switchTab('analyzer')" class="card-bg rounded-xl p-4 text-center hover:bg-brand-500/10 transition"><i class="fas fa-brain text-brand-400 text-xl mb-2"></i><p class="text-main text-xs font-bold">Analyzer</p></button>
-          <button onclick="switchTab('journal')" class="card-bg rounded-xl p-4 text-center hover:bg-violet-500/10 transition"><i class="fas fa-book text-violet-400 text-xl mb-2"></i><p class="text-main text-xs font-bold">Journal</p></button>
-          <button onclick="switchTab('pomodoro')" class="card-bg rounded-xl p-4 text-center hover:bg-neon-amber/10 transition"><i class="fas fa-stopwatch text-neon-amber text-xl mb-2"></i><p class="text-main text-xs font-bold">Pomodoro</p></button>
-          <button onclick="switchTab('vision')" class="card-bg rounded-xl p-4 text-center hover:bg-neon-pink/10 transition"><i class="fas fa-images text-neon-pink text-xl mb-2"></i><p class="text-main text-xs font-bold">Vision</p></button>
-          <button onclick="switchTab('coach')" class="card-bg rounded-xl p-4 text-center hover:bg-neon-green/10 transition"><i class="fas fa-user-tie text-neon-green text-xl mb-2"></i><p class="text-main text-xs font-bold">Coach</p></button>
-        </div></div>
-      </div></div>
+    <div id="content" class="flex-1 overflow-y-auto p-4 sm:p-6 max-w-6xl w-full mx-auto"></div>
+  </main>
+</div>
 
-      <!-- ANALYZER -->
-      <div id="tab-analyzer" class="tab-content hidden h-full flex flex-col">
-        <div id="chat-msgs" class="flex-1 overflow-auto p-6 space-y-4">
-          <div class="msg-in flex gap-3"><div class="w-9 h-9 bg-gradient-to-br from-brand-500 to-neon-pink rounded-full flex items-center justify-center flex-shrink-0"><i class="fas fa-brain text-white text-sm"></i></div><div class="card-bg rounded-2xl rounded-tl-sm p-5 max-w-2xl"><p class="text-sub text-sm leading-relaxed">Halo! Aku <strong class="text-main">SparkMind AI V4</strong> — <strong class="text-brand-400">16+ kategori</strong>.<br><br><strong class="text-main">Coba:</strong></p><div class="mt-3 space-y-2"><button onclick="useEx('Aku mau mulai bisnis online dari HP, modal minim')" class="block w-full text-left bg-brand-500/10 hover:bg-brand-500/20 text-brand-400 text-sm px-4 py-2.5 rounded-xl transition font-medium border border-brand-500/10">"Aku mau mulai bisnis online"</button><button onclick="useEx('Gimana cara jadi lebih produktif?')" class="block w-full text-left bg-brand-500/10 hover:bg-brand-500/20 text-brand-400 text-sm px-4 py-2.5 rounded-xl transition font-medium border border-brand-500/10">"Gimana cara lebih produktif?"</button><button onclick="useEx('Aku mau temukan tujuan hidup dan ikigai')" class="block w-full text-left bg-brand-500/10 hover:bg-brand-500/20 text-brand-400 text-sm px-4 py-2.5 rounded-xl transition font-medium border border-brand-500/10">"Temukan tujuan hidup"</button><button onclick="useEx('Aku merasa burnout dan butuh recovery')" class="block w-full text-left bg-brand-500/10 hover:bg-brand-500/20 text-brand-400 text-sm px-4 py-2.5 rounded-xl transition font-medium border border-brand-500/10">"Burnout & recovery"</button></div></div></div>
+<script>
+// ============================================
+// STATE & STORAGE
+// ============================================
+const STORAGE = {
+  goals: 'sm_goals_v5', habits: 'sm_habits_v5', vision: 'sm_vision_v5',
+  review: 'sm_review_v5', journal: 'sm_journal_v5', focus: 'sm_focus_v5',
+  streak: 'sm_streak_v5', theme: 'sm_theme_v5', chat: 'sm_chat_v5',
+  pomoStats: 'sm_pomo_v5', activity: 'sm_activity_v5'
+};
+const load = (k, d) => { try { return JSON.parse(localStorage.getItem(k)) ?? d } catch { return d } };
+const save = (k, v) => localStorage.setItem(k, JSON.stringify(v));
+
+let goals = load(STORAGE.goals, []);
+let habits = load(STORAGE.habits, []);
+let vision = load(STORAGE.vision, { big:'', y1:'', m3:'', w1:'' });
+let review = load(STORAGE.review, { wins:'', learnings:'', focus:'' });
+let journal = load(STORAGE.journal, []);
+let focusMin = load(STORAGE.focus, 0);
+let streak = load(STORAGE.streak, 0);
+let chatHistory = load(STORAGE.chat, []);
+let pomoStats = load(STORAGE.pomoStats, { sessions:0, totalMin:0 });
+let activityLog = load(STORAGE.activity, {}); // { 'YYYY-MM-DD': count }
+let currentTab = 'dashboard';
+
+// ============================================
+// TOAST SYSTEM
+// ============================================
+function toast(msg, type='success') {
+  const c = document.getElementById('toast-container');
+  const colors = { success:'emerald', error:'rose', info:'blue', warn:'amber' };
+  const icons = { success:'check-circle', error:'times-circle', info:'info-circle', warn:'exclamation-triangle' };
+  const color = colors[type] || 'emerald';
+  const t = document.createElement('div');
+  t.className = \`toast glass rounded-xl px-4 py-3 flex items-center gap-3 border border-\${color}-500/30 shadow-2xl\`;
+  t.innerHTML = \`<i class="fas fa-\${icons[type]} text-\${color}-400"></i><p class="text-sm text-white flex-1">\${msg}</p>\`;
+  c.appendChild(t);
+  setTimeout(() => { t.classList.add('toast-out'); setTimeout(() => t.remove(), 300) }, 3000);
+}
+
+// ============================================
+// MODAL SYSTEM (Smart Confirmation)
+// ============================================
+function showModal({ title, body, confirmText='Konfirmasi', cancelText='Batal', confirmClass='btn-primary', onConfirm }) {
+  const root = document.getElementById('modal-root');
+  root.innerHTML = \`
+    <div class="modal-backdrop fixed inset-0 z-[90] bg-black/70 backdrop-blur-sm flex items-center justify-center p-4" onclick="if(event.target===this)closeModal()">
+      <div class="modal-content glass rounded-2xl p-6 max-w-md w-full border border-white/10 shadow-2xl">
+        <h3 class="text-lg font-bold text-white mb-2">\${title}</h3>
+        <p class="text-gray-400 text-sm mb-5">\${body}</p>
+        <div class="flex gap-3 justify-end">
+          <button onclick="closeModal()" class="px-4 py-2 glass rounded-lg text-gray-300 text-sm font-semibold hover:bg-white/10 transition">\${cancelText}</button>
+          <button id="modal-confirm" class="\${confirmClass} text-white px-4 py-2 rounded-lg text-sm font-bold">\${confirmText}</button>
         </div>
-        <div class="border-t header-bg backdrop-blur-xl p-4" style="border-color:inherit"><div class="max-w-3xl mx-auto"><div class="flex items-end gap-3"><div class="flex-1 input-bg rounded-2xl px-4 py-3 focus-within:border-brand-500/30 transition"><textarea id="user-input" rows="1" placeholder="Ceritakan masalah atau goal kamu..." class="w-full bg-transparent text-sm text-main placeholder-gray-400 resize-none max-h-32" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendMsg()}"></textarea></div><button onclick="sendMsg()" class="btn-primary w-11 h-11 rounded-full flex items-center justify-center flex-shrink-0"><i class="fas fa-paper-plane text-sm"></i></button></div><p class="text-center text-[10px] text-muted mt-2">SparkMind V4 — 16+ Categories • AI Typing Effect</p></div></div>
+      </div>
+    </div>\`;
+  document.getElementById('modal-confirm').onclick = () => { onConfirm && onConfirm(); closeModal() };
+}
+function closeModal() { document.getElementById('modal-root').innerHTML = '' }
+function openShortcutsModal() {
+  showModal({
+    title: '⌨️ Keyboard Shortcuts',
+    body: \`<div class="space-y-2 text-left"><div class="flex justify-between text-sm"><span>Search / Command</span><span class="kbd">⌘K</span></div><div class="flex justify-between text-sm"><span>Switch tabs</span><span class="kbd">⌘1-9</span></div><div class="flex justify-between text-sm"><span>Toggle theme</span><span class="kbd">⌘D</span></div><div class="flex justify-between text-sm"><span>Show shortcuts</span><span class="kbd">⌘/</span></div><div class="flex justify-between text-sm"><span>Close modal/sidebar</span><span class="kbd">Esc</span></div></div>\`,
+    confirmText: 'Mengerti',
+    onConfirm: () => {}
+  });
+  // Hide cancel button for info modal
+  setTimeout(() => { const btns = document.querySelectorAll('#modal-root button'); if (btns[0]) btns[0].style.display='none' }, 0);
+}
+function openCommandPalette() {
+  const tabs = ['dashboard','analyzer','coach','swot','pomodoro','journal','goals','habits','vision','review','resources','settings'];
+  showModal({
+    title: '🔍 Quick Navigation',
+    body: '<input id="cmd-input" type="text" placeholder="Ketik nama tab..." class="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-white text-sm mb-3 focus:outline-none focus:border-indigo-500" /><div id="cmd-results" class="space-y-1 max-h-60 overflow-y-auto"></div>',
+    confirmText: 'Tutup',
+    onConfirm: () => {}
+  });
+  setTimeout(() => {
+    const input = document.getElementById('cmd-input');
+    const results = document.getElementById('cmd-results');
+    const render = (filter='') => {
+      results.innerHTML = tabs.filter(t => t.includes(filter.toLowerCase())).map(t => \`<button onclick="closeModal();switchTab('\${t}')" class="w-full text-left px-3 py-2 hover:bg-white/5 rounded text-sm text-gray-300 capitalize">\${t}</button>\`).join('') || '<p class="text-gray-500 text-sm text-center p-3">Tidak ditemukan</p>';
+    };
+    render();
+    input.focus();
+    input.oninput = e => render(e.target.value);
+  }, 50);
+}
+
+// ============================================
+// THEME
+// ============================================
+function toggleTheme() {
+  document.body.classList.toggle('light');
+  const isLight = document.body.classList.contains('light');
+  save(STORAGE.theme, isLight ? 'light' : 'dark');
+  document.querySelector('#theme-toggle i').className = isLight ? 'fas fa-sun' : 'fas fa-moon';
+  toast(\`Mode \${isLight ? 'Light' : 'Dark'} aktif\`, 'info');
+}
+if (load(STORAGE.theme, 'dark') === 'light') {
+  document.body.classList.add('light');
+  setTimeout(() => { const i = document.querySelector('#theme-toggle i'); if (i) i.className = 'fas fa-sun' }, 50);
+}
+
+// ============================================
+// SIDEBAR (Mobile fix)
+// ============================================
+function toggleSidebar() {
+  const sb = document.getElementById('sidebar');
+  const bd = document.getElementById('sidebar-backdrop');
+  const open = sb.classList.toggle('open');
+  bd.classList.toggle('hidden', !open);
+  document.body.style.overflow = open ? 'hidden' : '';
+}
+
+// ============================================
+// ACTIVITY TRACKING (for trend chart)
+// ============================================
+function logActivity() {
+  const today = new Date().toISOString().split('T')[0];
+  activityLog[today] = (activityLog[today] || 0) + 1;
+  save(STORAGE.activity, activityLog);
+}
+
+// ============================================
+// TABS
+// ============================================
+const TABS = {
+  dashboard: { title:'Dashboard', render: renderDashboard },
+  analyzer: { title:'AI Analyzer', render: renderAnalyzer },
+  coach: { title:'AI Coach', render: renderCoach },
+  swot: { title:'SWOT Analyzer', render: renderSWOT },
+  pomodoro: { title:'Pomodoro V2', render: renderPomodoro },
+  journal: { title:'Journal', render: renderJournal },
+  goals: { title:'Goals', render: renderGoals },
+  habits: { title:'Habits', render: renderHabits },
+  vision: { title:'Vision Board', render: renderVision },
+  review: { title:'Weekly Review', render: renderReview },
+  resources: { title:'Resource Library', render: renderResources },
+  settings: { title:'Settings', render: renderSettings },
+};
+
+function switchTab(id) {
+  if (!TABS[id]) return;
+  currentTab = id;
+  document.querySelectorAll('[data-tab]').forEach(b => b.classList.toggle('active', b.dataset.tab === id));
+  document.getElementById('page-title').textContent = TABS[id].title;
+  TABS[id].render();
+  // Auto-close sidebar on mobile after navigation
+  if (window.innerWidth < 1024) {
+    const sb = document.getElementById('sidebar');
+    if (sb.classList.contains('open')) toggleSidebar();
+  }
+  document.getElementById('content').scrollTop = 0;
+  logActivity();
+}
+
+// ============================================
+// DASHBOARD with Weekly Trend
+// ============================================
+function renderDashboard() {
+  const completedGoals = goals.filter(g => g.progress >= 100).length;
+  const totalHabits = habits.length;
+  const journalEntries = journal.length;
+
+  // Weekly trend: last 7 days
+  const days = [];
+  for (let i = 6; i >= 0; i--) {
+    const d = new Date(); d.setDate(d.getDate() - i);
+    const key = d.toISOString().split('T')[0];
+    days.push({ key, label: ['Min','Sen','Sel','Rab','Kam','Jum','Sab'][d.getDay()], count: activityLog[key] || 0 });
+  }
+  const maxCount = Math.max(...days.map(d => d.count), 1);
+
+  const hour = new Date().getHours();
+  const greet = hour < 11 ? 'Selamat pagi' : hour < 15 ? 'Selamat siang' : hour < 18 ? 'Selamat sore' : 'Selamat malam';
+
+  document.getElementById('content').innerHTML = \`
+    <div class="space-y-6">
+      <div class="glass rounded-2xl p-5 sm:p-6">
+        <p class="text-sm text-gray-400">\${greet}, Sovereign 👋</p>
+        <h2 class="text-2xl sm:text-3xl font-bold text-white mt-1">Mari mulai hari penuh kemenangan</h2>
+        <p class="text-xs text-gray-500 mt-2">V5.0 SOVEREIGN · 18+ AI Categories · Semua data tersimpan aman di browser</p>
       </div>
 
-      <!-- SWOT -->
-      <div id="tab-swot" class="tab-content hidden p-6"><div class="max-w-3xl mx-auto"><div class="text-center mb-8"><div class="w-16 h-16 bg-gradient-to-br from-neon-green to-emerald-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg shadow-emerald-500/20"><i class="fas fa-chart-pie text-white text-2xl"></i></div><h2 class="text-2xl font-black text-main">SWOT Analyzer</h2><p class="text-sub text-sm mt-1">Strengths, Weaknesses, Opportunities & Threats</p></div><div class="card-bg rounded-2xl p-6"><textarea id="swot-input" rows="3" placeholder="Deskripsikan bisnis/ide kamu..." class="w-full input-bg rounded-xl px-4 py-3 text-sm placeholder-gray-400 resize-none mb-4"></textarea><button onclick="runSWOT()" class="bg-gradient-to-r from-neon-green to-emerald-600 text-white px-6 py-3 rounded-xl font-bold text-sm w-full shadow-lg shadow-emerald-500/20">Generate SWOT</button></div><div id="swot-result" class="mt-6"></div></div></div>
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
+        \${[
+          ['🎯', goals.length, 'Total Goals', 'indigo'],
+          ['✅', completedGoals, 'Completed', 'emerald'],
+          ['🔥', totalHabits, 'Active Habits', 'amber'],
+          ['📓', journalEntries, 'Journal Entries', 'pink'],
+        ].map(([icon, val, label, color]) => \`
+          <div class="glass rounded-xl p-4">
+            <div class="text-2xl mb-2">\${icon}</div>
+            <div class="text-2xl sm:text-3xl font-black text-\${color}-400 counter-num">\${val}</div>
+            <div class="text-xs text-gray-500 mt-1">\${label}</div>
+          </div>
+        \`).join('')}
+      </div>
 
-      <!-- COACH -->
-      <div id="tab-coach" class="tab-content hidden p-6"><div class="max-w-3xl mx-auto"><div class="text-center mb-8"><div class="w-16 h-16 bg-gradient-to-br from-amber-400 to-amber-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg shadow-amber-500/20"><i class="fas fa-user-tie text-white text-2xl"></i></div><h2 class="text-2xl font-black text-main">AI Coach V4</h2><p class="text-sub text-sm mt-1">Personal coaching session</p></div><div class="card-bg rounded-2xl p-6 space-y-4"><div><label class="text-xs font-bold text-sub mb-2 block">Goal utama:</label><textarea id="coach-goal" rows="2" placeholder="Contoh: 50 klien dalam 3 bulan" class="w-full input-bg rounded-xl px-4 py-3 text-sm placeholder-gray-400 resize-none"></textarea></div><div><label class="text-xs font-bold text-sub mb-2 block">Kondisi saat ini:</label><textarea id="coach-state" rows="2" placeholder="Contoh: Baru mulai" class="w-full input-bg rounded-xl px-4 py-3 text-sm placeholder-gray-400 resize-none"></textarea></div><div><label class="text-xs font-bold text-sub mb-2 block">Hambatan:</label><textarea id="coach-obstacles" rows="2" placeholder="Contoh: Belum tau caranya" class="w-full input-bg rounded-xl px-4 py-3 text-sm placeholder-gray-400 resize-none"></textarea></div><button onclick="runCoach()" class="bg-gradient-to-r from-amber-500 to-orange-500 text-white px-6 py-3 rounded-xl font-bold text-sm w-full shadow-lg shadow-amber-500/20">Mulai Coaching</button></div><div id="coach-result" class="mt-6"></div></div></div>
+      <div class="glass rounded-2xl p-5 sm:p-6">
+        <div class="flex items-center justify-between mb-5">
+          <div>
+            <h3 class="text-lg font-bold text-white">📊 Weekly Activity Trend</h3>
+            <p class="text-xs text-gray-500 mt-0.5">7 hari terakhir</p>
+          </div>
+          <span class="text-xs text-indigo-400 font-bold">\${days.reduce((a, d) => a + d.count, 0)} actions</span>
+        </div>
+        <div class="flex items-end gap-2 sm:gap-3 h-40">
+          \${days.map((d, i) => {
+            const h = (d.count / maxCount) * 100;
+            return \`<div class="flex-1 flex flex-col items-center gap-2">
+              <div class="text-[10px] font-bold text-gray-400">\${d.count}</div>
+              <div class="w-full bg-white/[0.03] rounded-lg flex items-end" style="height:120px"><div class="w-full bar-anim rounded-lg bg-gradient-to-t from-indigo-600 to-purple-500" style="height:\${h}%;animation-delay:\${i*60}ms"></div></div>
+              <div class="text-[10px] text-gray-500">\${d.label}</div>
+            </div>\`;
+          }).join('')}
+        </div>
+      </div>
 
-      <!-- POMODORO -->
-      <div id="tab-pomodoro" class="tab-content hidden p-6"><div class="max-w-lg mx-auto text-center"><div class="mb-6"><h2 class="text-2xl font-black text-main">Pomodoro Timer Pro</h2><p class="text-sub text-sm mt-1">Deep Work + Sound Notifications</p></div><div class="card-bg rounded-3xl p-10 mb-6"><div class="relative inline-block mb-6"><svg class="w-56 h-56 -rotate-90" viewBox="0 0 200 200"><circle cx="100" cy="100" r="90" fill="none" stroke="currentColor" stroke-width="8" class="text-brand-500/10"/><circle id="pomo-ring" cx="100" cy="100" r="90" fill="none" stroke="#6366f1" stroke-width="8" stroke-linecap="round" stroke-dasharray="565.48" stroke-dashoffset="0" class="timer-ring"/></svg><div class="absolute inset-0 flex flex-col items-center justify-center"><p id="pomo-time" class="text-5xl font-black text-main tabular-nums">25:00</p><p id="pomo-label" class="text-sm text-sub mt-1">Focus Time</p></div></div><div class="flex items-center justify-center gap-4 mb-6"><button onclick="startPomo()" id="pomo-start-btn" class="btn-primary px-8 py-3 rounded-full font-bold flex items-center gap-2"><i class="fas fa-play text-sm"></i>Mulai</button><button onclick="pausePomo()" id="pomo-pause-btn" class="hidden bg-white/10 hover:bg-white/20 text-main px-8 py-3 rounded-full font-bold flex items-center gap-2"><i class="fas fa-pause text-sm"></i>Pause</button><button onclick="resetPomo()" class="bg-brand-500/10 hover:bg-brand-500/20 text-sub px-6 py-3 rounded-full font-bold transition"><i class="fas fa-redo text-sm"></i></button></div><div class="flex justify-center gap-3 mb-4"><button onclick="setPomoMode('focus')" class="pomo-mode-btn active text-xs px-4 py-2 rounded-lg font-bold bg-brand-500 text-white" data-mode="focus">Focus 25m</button><button onclick="setPomoMode('short')" class="pomo-mode-btn text-xs px-4 py-2 rounded-lg font-bold text-sub bg-brand-500/10" data-mode="short">Short 5m</button><button onclick="setPomoMode('long')" class="pomo-mode-btn text-xs px-4 py-2 rounded-lg font-bold text-sub bg-brand-500/10" data-mode="long">Long 15m</button></div><div class="flex justify-center gap-8 text-center"><div><p class="text-2xl font-black text-main" id="pomo-sessions">0</p><p class="text-[10px] text-muted">sessions</p></div><div><p class="text-2xl font-black text-main" id="pomo-total">0m</p><p class="text-[10px] text-muted">total focus</p></div></div></div></div></div>
-
-      <!-- GOALS -->
-      <div id="tab-goals" class="tab-content hidden p-6"><div class="max-w-4xl mx-auto"><div class="flex items-center justify-between mb-6"><div><h2 class="text-2xl font-black text-main">Goal Tracker</h2><p class="text-sub text-sm">Track & manage goals</p></div><button onclick="showAddGoal()" class="btn-primary px-5 py-2.5 rounded-xl text-sm font-bold flex items-center gap-2"><i class="fas fa-plus"></i>Tambah</button></div><div id="add-goal-form" class="hidden card-bg rounded-2xl p-6 mb-6"><h3 class="font-bold text-main mb-4">Goal Baru</h3><div class="space-y-3"><input id="goal-title" type="text" placeholder="Nama goal..." class="w-full input-bg rounded-xl px-4 py-3 text-sm placeholder-gray-400"><textarea id="goal-desc" rows="2" placeholder="Deskripsi..." class="w-full input-bg rounded-xl px-4 py-3 text-sm placeholder-gray-400 resize-none"></textarea><div class="flex gap-3"><select id="goal-cat" class="input-bg rounded-xl px-4 py-3 text-sm flex-1"><option value="bisnis">Bisnis</option><option value="karir">Karir</option><option value="skill">Skill</option><option value="personal">Personal</option><option value="finansial">Finansial</option><option value="kesehatan">Kesehatan</option></select><input id="goal-dl" type="date" class="input-bg rounded-xl px-4 py-3 text-sm flex-1"></div><div class="flex gap-3"><button onclick="addGoal()" class="btn-primary px-6 py-2.5 rounded-xl text-sm font-bold">Simpan</button><button onclick="hideAddGoal()" class="bg-brand-500/10 text-sub px-6 py-2.5 rounded-xl text-sm">Batal</button></div></div></div><div id="goals-list" class="space-y-4"></div></div></div>
-
-      <!-- HABITS -->
-      <div id="tab-habits" class="tab-content hidden p-6"><div class="max-w-4xl mx-auto"><div class="flex items-center justify-between mb-6"><div><h2 class="text-2xl font-black text-main">Habit Tracker</h2><p class="text-sub text-sm">Build consistent habits</p></div><button onclick="showAddHabit()" class="bg-gradient-to-r from-neon-pink to-rose-600 text-white px-5 py-2.5 rounded-xl text-sm font-bold flex items-center gap-2 shadow-lg shadow-pink-500/20"><i class="fas fa-plus"></i>Tambah</button></div><div id="add-habit-form" class="hidden card-bg rounded-2xl p-6 mb-6"><h3 class="font-bold text-main mb-4">Habit Baru</h3><div class="space-y-3"><input id="habit-name" type="text" placeholder="Nama habit..." class="w-full input-bg rounded-xl px-4 py-3 text-sm placeholder-gray-400"><select id="habit-freq" class="w-full input-bg rounded-xl px-4 py-3 text-sm"><option value="daily">Setiap Hari</option><option value="weekday">Sen-Jum</option><option value="3x">3x/Minggu</option></select><div class="flex gap-3"><button onclick="addHabit()" class="bg-gradient-to-r from-neon-pink to-rose-600 text-white px-6 py-2.5 rounded-xl text-sm font-bold">Simpan</button><button onclick="hideAddHabit()" class="bg-brand-500/10 text-sub px-6 py-2.5 rounded-xl text-sm">Batal</button></div></div></div><div id="habits-list" class="space-y-3"></div></div></div>
-
-      <!-- JOURNAL (NEW V4) -->
-      <div id="tab-journal" class="tab-content hidden p-6"><div class="max-w-3xl mx-auto">
-        <div class="text-center mb-8"><div class="w-16 h-16 bg-gradient-to-br from-violet-500 to-purple-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg shadow-purple-500/20"><i class="fas fa-book text-white text-2xl"></i></div><h2 class="text-2xl font-black text-main">Daily Journal</h2><p class="text-sub text-sm mt-1">Refleksi, gratitude & mood tracker</p></div>
-        <div class="card-bg rounded-2xl p-6 mb-6">
-          <div class="flex items-center justify-between mb-4"><h3 class="font-bold text-main">Hari ini</h3><p class="text-xs text-muted" id="journal-date"></p></div>
-          <div class="mb-4"><label class="text-xs font-bold text-violet-400 mb-2 block">MOOD</label><div class="flex gap-3" id="mood-selector"><button onclick="setMood('😊')" class="mood-btn text-2xl hover:scale-125 transition cursor-pointer">😊</button><button onclick="setMood('😌')" class="mood-btn text-2xl hover:scale-125 transition cursor-pointer">😌</button><button onclick="setMood('🤔')" class="mood-btn text-2xl hover:scale-125 transition cursor-pointer">🤔</button><button onclick="setMood('😤')" class="mood-btn text-2xl hover:scale-125 transition cursor-pointer">😤</button><button onclick="setMood('😢')" class="mood-btn text-2xl hover:scale-125 transition cursor-pointer">😢</button><button onclick="setMood('🔥')" class="mood-btn text-2xl hover:scale-125 transition cursor-pointer">🔥</button></div></div>
-          <div class="space-y-4">
-            <div><label class="text-xs font-bold text-neon-green mb-2 block">3 HAL DISYUKURI</label><textarea id="journal-gratitude" rows="3" placeholder="1. ...\n2. ...\n3. ..." class="w-full input-bg rounded-xl px-4 py-3 text-sm placeholder-gray-400 resize-none"></textarea></div>
-            <div><label class="text-xs font-bold text-brand-400 mb-2 block">REFLEKSI HARI INI</label><textarea id="journal-reflection" rows="4" placeholder="Apa yang terjadi hari ini? Apa yang kamu pelajari?" class="w-full input-bg rounded-xl px-4 py-3 text-sm placeholder-gray-400 resize-none"></textarea></div>
-            <div><label class="text-xs font-bold text-neon-amber mb-2 block">1 LESSON LEARNED</label><textarea id="journal-lesson" rows="2" placeholder="Pelajaran terpenting hari ini..." class="w-full input-bg rounded-xl px-4 py-3 text-sm placeholder-gray-400 resize-none"></textarea></div>
-            <button onclick="saveJournal()" class="bg-gradient-to-r from-violet-500 to-purple-600 text-white px-6 py-3 rounded-xl font-bold text-sm w-full shadow-lg shadow-purple-500/20">Simpan Journal</button>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div class="glass rounded-2xl p-5">
+          <h3 class="font-bold text-white mb-4">⚡ Quick Actions</h3>
+          <div class="grid grid-cols-2 gap-2">
+            <button onclick="switchTab('analyzer')" class="glass rounded-lg p-3 text-left hover:bg-white/[0.05] transition"><div class="text-xl mb-1">🧠</div><div class="text-xs font-semibold text-white">AI Analyze</div></button>
+            <button onclick="switchTab('pomodoro')" class="glass rounded-lg p-3 text-left hover:bg-white/[0.05] transition"><div class="text-xl mb-1">🍅</div><div class="text-xs font-semibold text-white">Start Focus</div></button>
+            <button onclick="switchTab('journal')" class="glass rounded-lg p-3 text-left hover:bg-white/[0.05] transition"><div class="text-xl mb-1">📓</div><div class="text-xs font-semibold text-white">New Journal</div></button>
+            <button onclick="switchTab('goals')" class="glass rounded-lg p-3 text-left hover:bg-white/[0.05] transition"><div class="text-xl mb-1">🎯</div><div class="text-xs font-semibold text-white">Add Goal</div></button>
           </div>
         </div>
-        <div class="card-bg rounded-2xl p-6"><h3 class="font-bold text-main mb-4">Journal History</h3><div id="journal-history" class="space-y-3"></div></div>
-      </div></div>
+        <div class="glass rounded-2xl p-5">
+          <h3 class="font-bold text-white mb-4">🍅 Pomodoro Stats</h3>
+          <div class="space-y-3">
+            <div class="flex justify-between text-sm"><span class="text-gray-400">Total Sessions</span><span class="text-white font-bold counter-num">\${pomoStats.sessions}</span></div>
+            <div class="flex justify-between text-sm"><span class="text-gray-400">Total Focus Time</span><span class="text-white font-bold counter-num">\${pomoStats.totalMin}m</span></div>
+            <div class="flex justify-between text-sm"><span class="text-gray-400">Streak</span><span class="text-amber-400 font-bold">🔥 \${streak} hari</span></div>
+            <button onclick="switchTab('pomodoro')" class="w-full mt-3 btn-primary text-white py-2 rounded-lg text-sm font-bold">Start Session</button>
+          </div>
+        </div>
+      </div>
+    </div>\`;
+}
 
-      <!-- VISION BOARD -->
-      <div id="tab-vision" class="tab-content hidden p-6"><div class="max-w-4xl mx-auto"><div class="text-center mb-8"><div class="w-16 h-16 bg-gradient-to-br from-neon-pink to-rose-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg shadow-pink-500/20"><i class="fas fa-images text-white text-2xl"></i></div><h2 class="text-2xl font-black text-main">Vision Board</h2><p class="text-sub text-sm mt-1">Visualisasi goals & dreams</p></div><div class="card-bg rounded-2xl p-6 mb-6"><div class="space-y-4"><div><label class="text-xs font-bold text-neon-pink mb-2 block">MY BIG VISION</label><textarea id="vision-big" rows="3" placeholder="Visi besar hidupmu..." class="w-full input-bg rounded-xl px-4 py-3 text-sm placeholder-gray-400 resize-none"></textarea></div><div class="grid sm:grid-cols-3 gap-4"><div><label class="text-xs font-bold text-brand-400 mb-2 block">1 YEAR</label><textarea id="vision-1y" rows="2" placeholder="Dalam 1 tahun..." class="w-full input-bg rounded-xl px-4 py-3 text-sm placeholder-gray-400 resize-none"></textarea></div><div><label class="text-xs font-bold text-neon-green mb-2 block">3 MONTHS</label><textarea id="vision-3m" rows="2" placeholder="3 bulan..." class="w-full input-bg rounded-xl px-4 py-3 text-sm placeholder-gray-400 resize-none"></textarea></div><div><label class="text-xs font-bold text-neon-amber mb-2 block">THIS WEEK</label><textarea id="vision-1w" rows="2" placeholder="Minggu ini..." class="w-full input-bg rounded-xl px-4 py-3 text-sm placeholder-gray-400 resize-none"></textarea></div></div><button onclick="saveVision()" class="bg-gradient-to-r from-neon-pink to-rose-600 text-white px-6 py-3 rounded-xl font-bold text-sm w-full shadow-lg shadow-pink-500/20">Simpan Vision Board</button></div></div><div id="vision-display" class="card-bg rounded-2xl p-6 hidden"><h3 class="font-bold text-main mb-4 flex items-center gap-2"><i class="fas fa-eye text-neon-pink"></i> Your Vision</h3><div id="vision-content"></div></div></div></div>
+// ============================================
+// AI ANALYZER (Chat with persistent memory)
+// ============================================
+function renderAnalyzer() {
+  document.getElementById('content').innerHTML = \`
+    <div class="space-y-4">
+      <div class="glass rounded-2xl p-5">
+        <div class="flex items-center justify-between flex-wrap gap-2 mb-3">
+          <div>
+            <h3 class="text-lg font-bold text-white">🧠 AI Sovereign Engine V5</h3>
+            <p class="text-xs text-gray-500">18+ kategori · Chat memory persist</p>
+          </div>
+          <button onclick="clearChat()" class="text-xs text-gray-500 hover:text-rose-400 transition"><i class="fas fa-trash"></i> Clear</button>
+        </div>
+        <div id="chat-box" class="space-y-3 max-h-[480px] overflow-y-auto p-3 bg-white/[0.02] border border-white/5 rounded-xl mb-3"></div>
+        <div class="flex gap-2">
+          <input id="chat-input" type="text" placeholder="Tanya apa saja: bisnis, karir, spiritual, side hustle..." class="flex-1 bg-white/5 border border-white/10 rounded-lg px-3 py-2.5 text-white text-sm focus:outline-none focus:border-indigo-500" onkeypress="if(event.key==='Enter')sendChat()" />
+          <button onclick="sendChat()" class="btn-primary text-white px-5 py-2.5 rounded-lg text-sm font-bold"><i class="fas fa-paper-plane"></i></button>
+        </div>
+        <div class="flex flex-wrap gap-2 mt-3">
+          \${['Bisnis online','Karir tech','Side hustle','Spiritual','Mental health','Parenting'].map(s => \`<button onclick="document.getElementById('chat-input').value='\${s}';sendChat()" class="text-[10px] px-2.5 py-1 glass rounded-full text-gray-400 hover:text-white transition">\${s}</button>\`).join('')}
+        </div>
+      </div>
+    </div>\`;
+  // Restore history
+  const box = document.getElementById('chat-box');
+  if (chatHistory.length === 0) {
+    box.innerHTML = '<div class="text-center text-gray-500 text-sm py-8">💬 Mulai percakapan strategis...</div>';
+  } else {
+    box.innerHTML = chatHistory.map(msg => msg.role === 'user'
+      ? \`<div class="flex justify-end"><div class="bg-indigo-500/20 border border-indigo-500/30 rounded-xl px-4 py-2.5 max-w-[80%] text-sm text-white">\${msg.content}</div></div>\`
+      : \`<div class="flex justify-start"><div class="glass rounded-xl px-4 py-3 max-w-[90%]">\${msg.content}</div></div>\`
+    ).join('');
+    box.scrollTop = box.scrollHeight;
+  }
+}
 
-      <!-- WEEKLY REVIEW -->
-      <div id="tab-review" class="tab-content hidden p-6"><div class="max-w-3xl mx-auto"><div class="text-center mb-8"><div class="w-16 h-16 bg-gradient-to-br from-cyan-500 to-blue-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg shadow-cyan-500/20"><i class="fas fa-calendar-check text-white text-2xl"></i></div><h2 class="text-2xl font-black text-main">Weekly Review</h2><p class="text-sub text-sm mt-1">Refleksi & planning</p></div><div class="space-y-4"><div class="card-bg rounded-2xl p-6"><label class="text-xs font-bold text-neon-green mb-3 block">3 WINS MINGGU INI</label><textarea id="review-wins" rows="3" placeholder="3 hal berhasil..." class="w-full input-bg rounded-xl px-4 py-3 text-sm placeholder-gray-400 resize-none"></textarea></div><div class="card-bg rounded-2xl p-6"><label class="text-xs font-bold text-neon-amber mb-3 block">3 LEARNINGS</label><textarea id="review-learn" rows="3" placeholder="3 hal dipelajari..." class="w-full input-bg rounded-xl px-4 py-3 text-sm placeholder-gray-400 resize-none"></textarea></div><div class="card-bg rounded-2xl p-6"><label class="text-xs font-bold text-brand-400 mb-3 block">FOKUS MINGGU DEPAN</label><textarea id="review-focus" rows="3" placeholder="Prioritas utama..." class="w-full input-bg rounded-xl px-4 py-3 text-sm placeholder-gray-400 resize-none"></textarea></div><button onclick="saveReview()" class="bg-gradient-to-r from-cyan-500 to-blue-600 text-white px-6 py-3 rounded-xl font-bold text-sm w-full shadow-lg shadow-cyan-500/20">Simpan Review</button></div></div></div>
+async function sendChat() {
+  const input = document.getElementById('chat-input');
+  const msg = input.value.trim();
+  if (!msg) return;
+  const box = document.getElementById('chat-box');
+  if (chatHistory.length === 0) box.innerHTML = '';
+  box.innerHTML += \`<div class="flex justify-end"><div class="bg-indigo-500/20 border border-indigo-500/30 rounded-xl px-4 py-2.5 max-w-[80%] text-sm text-white">\${msg}</div></div>\`;
+  chatHistory.push({ role:'user', content:msg });
+  input.value = '';
+  box.scrollTop = box.scrollHeight;
 
-      <!-- RESOURCES -->
-      <div id="tab-resources" class="tab-content hidden p-6"><div class="max-w-4xl mx-auto"><div class="flex items-center justify-between mb-6"><div><h2 class="text-2xl font-black text-main">Resource Library</h2><p class="text-sub text-sm">19+ framework strategis — klik untuk detail</p></div></div><div class="mb-6"><input id="resource-search" type="text" placeholder="Search resources..." oninput="renderResources()" class="w-full input-bg rounded-xl px-4 py-3 text-sm placeholder-gray-400"></div><div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4" id="resources-grid"></div></div></div>
-    </div>
-  </main>
-  <div id="sb-overlay" class="fixed inset-0 bg-black/60 z-40 hidden" onclick="closeSB()"></div>
+  // Typing indicator
+  const tid = 'typing-' + Date.now();
+  box.innerHTML += \`<div id="\${tid}" class="flex justify-start"><div class="glass rounded-xl px-4 py-3 text-sm text-gray-400 typing">Berpikir</div></div>\`;
+  box.scrollTop = box.scrollHeight;
 
-  <script>
-    // ===== LOCALSTORAGE =====
-    const LS={get(k,d){try{const v=localStorage.getItem('sm4_'+k);return v?JSON.parse(v):d}catch{return d}},set(k,v){try{localStorage.setItem('sm4_'+k,JSON.stringify(v))}catch{}}};
+  try {
+    const r = await fetch('/api/analyze', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ message: msg, history: chatHistory.slice(-10) }) });
+    const data = await r.json();
+    document.getElementById(tid)?.remove();
+    box.innerHTML += \`<div class="flex justify-start"><div class="glass rounded-xl px-4 py-3 max-w-[90%]">\${data.response}</div></div>\`;
+    chatHistory.push({ role:'ai', content: data.response });
+    save(STORAGE.chat, chatHistory);
+    box.scrollTop = box.scrollHeight;
+    logActivity();
+  } catch (e) {
+    document.getElementById(tid)?.remove();
+    toast('Gagal terhubung. Coba lagi.', 'error');
+  }
+}
 
-    // ===== THEME =====
-    let darkMode=LS.get('dark',true);
-    function applyTheme(){document.documentElement.classList.toggle('dark',darkMode);document.getElementById('theme-icon').className=darkMode?'fas fa-sun':'fas fa-moon'}
-    function toggleTheme(){darkMode=!darkMode;LS.set('dark',darkMode);applyTheme();showToast(darkMode?'Dark mode activated':'Light mode activated','info')}
-    applyTheme();
-
-    // ===== TOAST =====
-    function showToast(msg,type='success'){
-      const c=document.getElementById('toast-container');const t=document.createElement('div');
-      const colors={success:'from-neon-green to-emerald-600',error:'from-red-500 to-rose-600',info:'from-brand-500 to-brand-600',warn:'from-neon-amber to-orange-500'};
-      const icons={success:'fa-check-circle',error:'fa-exclamation-circle',info:'fa-info-circle',warn:'fa-exclamation-triangle'};
-      t.className='toast flex items-center gap-3 bg-gradient-to-r '+colors[type]+' text-white px-5 py-3 rounded-xl shadow-2xl text-sm font-medium max-w-sm';
-      t.innerHTML='<i class="fas '+icons[type]+'"></i><span>'+msg+'</span>';
-      c.appendChild(t);setTimeout(()=>{t.classList.add('toast-out');setTimeout(()=>t.remove(),300)},3000);
+function clearChat() {
+  showModal({
+    title: 'Hapus Riwayat Chat?',
+    body: 'Semua percakapan akan dihapus permanen. Aksi ini tidak bisa dibatalkan.',
+    confirmText: 'Hapus Semua',
+    confirmClass: 'bg-rose-500 hover:bg-rose-600',
+    onConfirm: () => {
+      chatHistory = [];
+      save(STORAGE.chat, chatHistory);
+      renderAnalyzer();
+      toast('Chat history dihapus', 'success');
     }
+  });
+}
 
-    // ===== STATE =====
-    let userName=LS.get('name','');
-    let goals=LS.get('goals',[{id:1,title:'Launch Bisnis Digital',desc:'Buat & launch produk digital',category:'bisnis',progress:35,deadline:'2026-07-01',milestones:['Riset pasar','Buat MVP','Launch','Marketing']},{id:2,title:'Master JavaScript',desc:'Kuasai JS + React',category:'skill',progress:60,deadline:'2026-06-15',milestones:['JS Fundamentals','Async/Await','React','Build Project']},{id:3,title:'Emergency Fund 10 Jt',desc:'Dana darurat Rp 10 juta',category:'finansial',progress:70,deadline:'2026-08-01',milestones:['Budget','Nabung','Side income','Target!']}]);
-    let habits=LS.get('habits',[{id:1,name:'Olahraga 30m',freq:'daily',streak:12,done:true,icon:'🏃'},{id:2,name:'Baca 20 halaman',freq:'daily',streak:8,done:false,icon:'📚'},{id:3,name:'Coding practice',freq:'weekday',streak:15,done:true,icon:'💻'},{id:4,name:'Journaling',freq:'daily',streak:5,done:false,icon:'📝'}]);
-    let pomoSessions=LS.get('pomoSessions',0);let pomoTotal=LS.get('pomoTotal',0);let vision=LS.get('vision',null);
-    let journals=LS.get('journals',[]);let currentMood='';
-    const saveState=()=>{LS.set('goals',goals);LS.set('habits',habits);LS.set('pomoSessions',pomoSessions);LS.set('pomoTotal',pomoTotal)};
+// ============================================
+// AI COACH
+// ============================================
+function renderCoach() {
+  document.getElementById('content').innerHTML = \`
+    <div class="space-y-4">
+      <div class="glass rounded-2xl p-5">
+        <h3 class="text-lg font-bold text-white mb-1">🧭 AI Coach V5</h3>
+        <p class="text-xs text-gray-500 mb-4">Personal coaching session</p>
+        <div class="space-y-3">
+          <div><label class="text-xs text-gray-400 font-semibold">🎯 Goal kamu</label><input id="coach-goal" type="text" placeholder="Mau achieve apa dalam 3 bulan?" class="w-full mt-1 bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-indigo-500" /></div>
+          <div><label class="text-xs text-gray-400 font-semibold">📍 Posisi sekarang</label><input id="coach-state" type="text" placeholder="Di mana posisimu sekarang?" class="w-full mt-1 bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-indigo-500" /></div>
+          <div><label class="text-xs text-gray-400 font-semibold">⚠️ Hambatan utama</label><input id="coach-blockers" type="text" placeholder="Apa yang menghalangi?" class="w-full mt-1 bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-indigo-500" /></div>
+          <button onclick="getCoaching()" class="btn-primary text-white w-full py-2.5 rounded-lg text-sm font-bold">Dapatkan Coaching</button>
+        </div>
+      </div>
+      <div id="coach-result"></div>
+    </div>\`;
+}
+async function getCoaching() {
+  const goal = document.getElementById('coach-goal').value.trim();
+  const currentState = document.getElementById('coach-state').value.trim();
+  const obstacles = document.getElementById('coach-blockers').value.trim();
+  if (!goal) return toast('Goal wajib diisi', 'warn');
+  document.getElementById('coach-result').innerHTML = '<div class="glass rounded-2xl p-5 text-center text-gray-400 text-sm typing">Coach sedang menyusun...</div>';
+  try {
+    const r = await fetch('/api/coach', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ goal, currentState, obstacles }) });
+    const data = await r.json();
+    document.getElementById('coach-result').innerHTML = \`<div class="glass rounded-2xl p-5">\${data.response}</div>\`;
+    logActivity();
+    toast('Coaching tersusun!', 'success');
+  } catch (e) { toast('Gagal terhubung', 'error') }
+}
 
-    const resources=[{t:'Business Model Canvas',d:'Framework model bisnis. 9 blok.',i:'📋',c:'Bisnis',dt:'Mulai dari customer segment → value proposition → channels.'},{t:'SMART Goals',d:'Specific, Measurable, Achievable goals.',i:'🎯',c:'Produktivitas',dt:'Bukan "sukses" tapi "Revenue Rp 10jt/bulan dalam 6 bulan".'},{t:'Eisenhower Matrix',d:'Prioritas urgensi & kepentingan.',i:'⚡',c:'Produktivitas',dt:'Q1:DO Q2:SCHEDULE Q3:DELEGATE Q4:DELETE.'},{t:'Personal Finance 101',d:'Dasar kelola keuangan.',i:'💰',c:'Finansial',dt:'50/30/20 rule. Emergency fund first.'},{t:'Growth Mindset',d:'Pola pikir pertumbuhan.',i:'🧠',c:'Personal',dt:'"I can\'t do this YET." Embrace challenges.'},{t:'Networking Strategy',d:'Koneksi profesional.',i:'🤝',c:'Karir',dt:'Give first, follow up 48h, join communities.'},{t:'MVP Development',d:'Minimum Viable Product.',i:'🚀',c:'Tech',dt:'1 core feature → launch → feedback → iterate.'},{t:'Content Marketing',d:'Strategi konten.',i:'📝',c:'Marketing',dt:'Hook → Value → CTA. 3-5 posts/week.'},{t:'Time Blocking',d:'Block calendar deep work.',i:'⏰',c:'Produktivitas',dt:'2-3 jam blocks. No meetings before noon.'},{t:'SWOT Analysis',d:'Strengths & peluang.',i:'📊',c:'Bisnis',dt:'Use SparkMind SWOT Analyzer!'},{t:'Habit Stacking',d:'Build habits baru.',i:'🔥',c:'Personal',dt:'After [CURRENT], I will [NEW].'},{t:'Revenue Model',d:'Framework revenue.',i:'💎',c:'Bisnis',dt:'Subscription, Freemium, Marketplace, Ads.'},{t:'Active Recall',d:'Teknik belajar efektif.',i:'📖',c:'Pendidikan',dt:'Close book → remember → check. 3x effective.'},{t:'Deep Work',d:'Fokus tanpa distraksi.',i:'🧘',c:'Produktivitas',dt:'90 min blocks. Phone off. Single-task.'},{t:'Creator Economy',d:'Monetisasi konten.',i:'🎬',c:'Creative',dt:'1000 true fans > 100K casual.'},{t:'Ikigai Framework',d:'Temukan tujuan hidup.',i:'🌸',c:'Purpose',dt:'Love × Good At × World Needs × Paid For.'},{t:'Public Speaking',d:'Bicara di depan umum.',i:'🎤',c:'Networking',dt:'Hook → Problem → Solution → CTA.'},{t:'Journaling Guide',d:'Jurnal harian.',i:'📓',c:'Personal',dt:'Morning brain dump. Evening 3 gratitudes.'},{t:'Parenting Essentials',d:'Panduan parenting.',i:'👶',c:'Family',dt:'Quality > quantity. Emotional coaching.'}];
+// ============================================
+// SWOT
+// ============================================
+function renderSWOT() {
+  document.getElementById('content').innerHTML = \`
+    <div class="space-y-4">
+      <div class="glass rounded-2xl p-5">
+        <h3 class="text-lg font-bold text-white mb-1">📊 SWOT Analyzer</h3>
+        <p class="text-xs text-gray-500 mb-4">Generate analisis SWOT instan</p>
+        <div class="flex gap-2">
+          <input id="swot-input" type="text" placeholder="Bisnis/ide kamu (cth: jasa desain grafis)" class="flex-1 bg-white/5 border border-white/10 rounded-lg px-3 py-2.5 text-white text-sm focus:outline-none focus:border-indigo-500" onkeypress="if(event.key==='Enter')getSWOT()" />
+          <button onclick="getSWOT()" class="btn-primary text-white px-5 py-2.5 rounded-lg text-sm font-bold">Analyze</button>
+        </div>
+      </div>
+      <div id="swot-result"></div>
+    </div>\`;
+}
+async function getSWOT() {
+  const business = document.getElementById('swot-input').value.trim();
+  if (!business) return toast('Isi dulu bisnis/ide', 'warn');
+  document.getElementById('swot-result').innerHTML = '<div class="glass rounded-2xl p-5 text-center text-gray-400 text-sm typing">Menganalisis</div>';
+  try {
+    const r = await fetch('/api/swot', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ business }) });
+    const data = await r.json();
+    document.getElementById('swot-result').innerHTML = \`<div class="glass rounded-2xl p-5">\${data.response}</div>\`;
+    logActivity();
+    toast('SWOT tergenerate', 'success');
+  } catch (e) { toast('Gagal terhubung', 'error') }
+}
 
-    // ===== ONBOARDING =====
-    if(!userName)document.getElementById('onboarding').classList.remove('hidden');
-    function completeOnboarding(){const n=document.getElementById('onboard-name').value.trim()||'User';userName=n;LS.set('name',n);document.getElementById('onboarding').classList.add('hidden');updateUserDisplay();updateDashboard();showToast('Welcome, '+n+'! 🚀','success')}
-    function updateUserDisplay(){document.getElementById('user-initial').textContent=userName.charAt(0).toUpperCase();document.getElementById('dash-name').textContent=userName}
-    if(userName)updateUserDisplay();
+// ============================================
+// POMODORO V2
+// ============================================
+let pomoTimer = null, pomoMode = 'focus', pomoTime = 25*60, pomoOriginal = 25*60, pomoRunning = false, pomoAuto = load('sm_pomo_auto', false);
+function renderPomodoro() {
+  const pct = ((pomoOriginal - pomoTime) / pomoOriginal) * 100;
+  const offset = 565 - (565 * pct / 100);
+  document.getElementById('content').innerHTML = \`
+    <div class="space-y-4">
+      <div class="glass rounded-2xl p-6 sm:p-8 text-center">
+        <div class="flex justify-center gap-2 mb-6 flex-wrap">
+          <button onclick="setPomoMode('focus',25)" class="px-4 py-1.5 rounded-lg text-xs font-bold \${pomoMode==='focus'?'bg-indigo-500 text-white':'glass text-gray-400'}">🎯 Focus 25</button>
+          <button onclick="setPomoMode('break',5)" class="px-4 py-1.5 rounded-lg text-xs font-bold \${pomoMode==='break'?'bg-emerald-500 text-white':'glass text-gray-400'}">☕ Break 5</button>
+          <button onclick="setPomoMode('long',15)" class="px-4 py-1.5 rounded-lg text-xs font-bold \${pomoMode==='long'?'bg-amber-500 text-white':'glass text-gray-400'}">🌴 Long 15</button>
+        </div>
+        <div class="relative w-56 h-56 sm:w-64 sm:h-64 mx-auto">
+          <svg class="w-full h-full" viewBox="0 0 200 200">
+            <circle cx="100" cy="100" r="90" fill="none" stroke="rgba(255,255,255,0.05)" stroke-width="8"/>
+            <circle id="pomo-ring" class="ring-progress" cx="100" cy="100" r="90" fill="none" stroke="url(#pgr)" stroke-width="8" stroke-linecap="round" stroke-dasharray="565" stroke-dashoffset="\${offset}"/>
+            <defs><linearGradient id="pgr" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#818cf8"/><stop offset="100%" stop-color="#f472b6"/></linearGradient></defs>
+          </svg>
+          <div class="absolute inset-0 flex flex-col items-center justify-center">
+            <div id="pomo-display" class="text-5xl sm:text-6xl font-black text-white counter-num">\${fmtTime(pomoTime)}</div>
+            <div class="text-xs text-gray-500 mt-2 uppercase tracking-widest">\${pomoMode === 'focus' ? 'Deep Work' : pomoMode === 'break' ? 'Short Break' : 'Long Break'}</div>
+          </div>
+        </div>
+        <div class="flex gap-3 justify-center mt-6">
+          <button onclick="togglePomo()" id="pomo-btn" class="btn-primary text-white px-7 py-2.5 rounded-lg text-sm font-bold">\${pomoRunning ? '⏸ Pause' : '▶ Start'}</button>
+          <button onclick="resetPomo()" class="glass text-gray-300 px-5 py-2.5 rounded-lg text-sm font-bold hover:bg-white/10 transition">↺ Reset</button>
+        </div>
+        <label class="inline-flex items-center gap-2 mt-4 text-xs text-gray-400 cursor-pointer"><input type="checkbox" \${pomoAuto ? 'checked' : ''} onchange="pomoAuto=this.checked;localStorage.setItem('sm_pomo_auto',this.checked)"> Auto-start next session</label>
+      </div>
+      <div class="grid grid-cols-3 gap-3">
+        <div class="glass rounded-xl p-4 text-center"><div class="text-2xl font-black text-indigo-400 counter-num">\${pomoStats.sessions}</div><div class="text-xs text-gray-500 mt-1">Sessions</div></div>
+        <div class="glass rounded-xl p-4 text-center"><div class="text-2xl font-black text-emerald-400 counter-num">\${pomoStats.totalMin}m</div><div class="text-xs text-gray-500 mt-1">Focus Time</div></div>
+        <div class="glass rounded-xl p-4 text-center"><div class="text-2xl font-black text-amber-400 counter-num">\${focusMin}</div><div class="text-xs text-gray-500 mt-1">Today (min)</div></div>
+      </div>
+    </div>\`;
+}
+function fmtTime(s) { return \`\${String(Math.floor(s/60)).padStart(2,'0')}:\${String(s%60).padStart(2,'0')}\` }
+function setPomoMode(m, min) { pomoMode = m; pomoTime = min * 60; pomoOriginal = min * 60; pomoRunning = false; clearInterval(pomoTimer); renderPomodoro() }
+function togglePomo() {
+  if (pomoRunning) { clearInterval(pomoTimer); pomoRunning = false }
+  else {
+    pomoRunning = true;
+    pomoTimer = setInterval(() => {
+      pomoTime--;
+      if (pomoTime <= 0) {
+        clearInterval(pomoTimer); pomoRunning = false;
+        // Audio beep
+        try { const ctx = new (window.AudioContext || window.webkitAudioContext)(); const o = ctx.createOscillator(); const g = ctx.createGain(); o.connect(g); g.connect(ctx.destination); o.frequency.value = 880; g.gain.value = 0.3; o.start(); setTimeout(()=>{ g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.5); o.stop(ctx.currentTime + 0.5)}, 300) } catch {}
+        if (pomoMode === 'focus') {
+          pomoStats.sessions++; pomoStats.totalMin += pomoOriginal/60; focusMin += pomoOriginal/60;
+          save(STORAGE.pomoStats, pomoStats); save(STORAGE.focus, focusMin);
+          showModal({ title:'🎉 Focus Selesai!', body:\`Hebat! \${pomoOriginal/60} menit deep work tercapai. Saatnya istirahat.\`, confirmText:'Mulai Break', onConfirm: () => { setPomoMode('break', 5); if(pomoAuto) togglePomo() }});
+        } else {
+          showModal({ title:'☕ Break Selesai!', body:'Saatnya kembali fokus. Siap?', confirmText:'Lanjut Focus', onConfirm: () => { setPomoMode('focus', 25); if(pomoAuto) togglePomo() }});
+        }
+        logActivity();
+        return;
+      }
+      const display = document.getElementById('pomo-display');
+      const ring = document.getElementById('pomo-ring');
+      if (display) display.textContent = fmtTime(pomoTime);
+      if (ring) ring.setAttribute('stroke-dashoffset', 565 - (565 * ((pomoOriginal - pomoTime) / pomoOriginal)));
+    }, 1000);
+  }
+  document.getElementById('pomo-btn').textContent = pomoRunning ? '⏸ Pause' : '▶ Start';
+}
+function resetPomo() { clearInterval(pomoTimer); pomoTime = pomoOriginal; pomoRunning = false; renderPomodoro() }
 
-    // ===== TABS =====
-    function switchTab(t){document.querySelectorAll('.tab-content').forEach(e=>e.classList.add('hidden'));document.getElementById('tab-'+t).classList.remove('hidden');document.querySelectorAll('.sidebar-link').forEach(e=>e.classList.remove('active'));const sl=document.querySelector('[data-tab="'+t+'"]');if(sl)sl.classList.add('active');const titles={dashboard:'Dashboard',analyzer:'AI Analyzer V4',swot:'SWOT Analyzer',coach:'AI Coach V4',pomodoro:'Pomodoro Timer Pro',goals:'Goal Tracker',habits:'Habit Tracker',journal:'Daily Journal',vision:'Vision Board',review:'Weekly Review',resources:'Resource Library'};document.getElementById('page-title').textContent=titles[t]||'SparkMind V4';if(t==='dashboard')updateDashboard();if(t==='goals')renderGoals();if(t==='habits')renderHabits();if(t==='resources')renderResources();if(t==='vision')loadVision();if(t==='journal')loadJournal();closeSB()}
+// ============================================
+// JOURNAL with mood + edit/delete
+// ============================================
+let currentMood = '';
+function renderJournal() {
+  const moods = [['😄','great'],['🙂','good'],['😐','okay'],['😞','sad'],['😡','angry'],['😴','tired']];
+  document.getElementById('content').innerHTML = \`
+    <div class="space-y-4">
+      <div class="glass rounded-2xl p-5">
+        <h3 class="text-lg font-bold text-white mb-1">📓 Daily Journal</h3>
+        <p class="text-xs text-gray-500 mb-4">Mood tracker + refleksi harian</p>
+        <p class="text-xs text-gray-400 font-semibold mb-2">Mood hari ini:</p>
+        <div class="flex gap-2 mb-4 flex-wrap">
+          \${moods.map(([emoji, val]) => \`<button onclick="selectMood('\${val}', this)" data-mood="\${val}" class="mood-btn text-2xl p-2 rounded-lg glass hover:bg-white/10 transition">\${emoji}</button>\`).join('')}
+        </div>
+        <textarea id="journal-text" placeholder="Apa yang terjadi hari ini? Apa yang kamu syukuri? Pelajaran apa?" rows="5" class="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-indigo-500"></textarea>
+        <button onclick="saveJournal()" class="btn-primary text-white w-full mt-3 py-2.5 rounded-lg text-sm font-bold">💾 Save Entry</button>
+      </div>
+      <div id="journal-list" class="space-y-3"></div>
+    </div>\`;
+  renderJournalList();
+}
+function selectMood(mood, btn) {
+  currentMood = mood;
+  document.querySelectorAll('.mood-btn').forEach(b => b.classList.remove('bg-indigo-500/20', 'border-indigo-500'));
+  btn.classList.add('bg-indigo-500/20', 'border-indigo-500');
+}
+function saveJournal() {
+  const text = document.getElementById('journal-text').value.trim();
+  if (!text) return toast('Tulis sesuatu dulu', 'warn');
+  if (!currentMood) return toast('Pilih mood dulu', 'warn');
+  journal.unshift({ id: Date.now(), text, mood: currentMood, date: new Date().toLocaleString('id-ID') });
+  save(STORAGE.journal, journal);
+  document.getElementById('journal-text').value = '';
+  currentMood = '';
+  document.querySelectorAll('.mood-btn').forEach(b => b.classList.remove('bg-indigo-500/20', 'border-indigo-500'));
+  renderJournalList();
+  logActivity();
+  toast('Journal tersimpan ✨', 'success');
+}
+function renderJournalList() {
+  const moodMap = { great:'😄', good:'🙂', okay:'😐', sad:'😞', angry:'😡', tired:'😴' };
+  const list = document.getElementById('journal-list');
+  if (!list) return;
+  list.innerHTML = journal.length === 0 ? '<div class="glass rounded-xl p-8 text-center text-gray-500 text-sm">📓 Belum ada entry. Mulai journal-mu hari ini!</div>' :
+    journal.map(j => \`
+      <div class="glass rounded-xl p-4">
+        <div class="flex items-start justify-between mb-2">
+          <div class="flex items-center gap-2">
+            <span class="text-2xl">\${moodMap[j.mood]||'📝'}</span>
+            <span class="text-xs text-gray-500">\${j.date}</span>
+          </div>
+          <button onclick="deleteJournal(\${j.id})" class="text-gray-500 hover:text-rose-400 text-xs"><i class="fas fa-trash"></i></button>
+        </div>
+        <p class="text-gray-300 text-sm whitespace-pre-wrap">\${j.text}</p>
+      </div>
+    \`).join('');
+}
+function deleteJournal(id) {
+  showModal({
+    title: 'Hapus Entry?', body: 'Entry journal akan dihapus permanen.',
+    confirmText: 'Hapus', confirmClass: 'bg-rose-500 hover:bg-rose-600',
+    onConfirm: () => { journal = journal.filter(j => j.id !== id); save(STORAGE.journal, journal); renderJournalList(); toast('Entry dihapus', 'success') }
+  });
+}
 
-    // ===== DASHBOARD =====
-    function updateDashboard(){
-      document.getElementById('dash-goals').textContent=goals.length;document.getElementById('dash-habits').textContent=habits.length;document.getElementById('dash-focus').textContent=pomoTotal+'m';
-      const mx=habits.reduce((m,h)=>Math.max(m,h.streak),0);document.getElementById('dash-streak').textContent=mx;
-      // Chart
-      const ch=document.getElementById('goal-chart');
-      ch.innerHTML=goals.length?goals.map(g=>'<div class="flex-1 flex flex-col items-center gap-2"><div class="w-full bg-brand-500/10 rounded-t-lg relative" style="height:160px"><div class="absolute bottom-0 w-full bg-gradient-to-t from-brand-500 to-brand-400 rounded-t-lg chart-bar" style="height:0%" data-h="'+g.progress+'%"></div></div><p class="text-[10px] text-sub font-bold truncate max-w-full text-center">'+esc(g.title.substring(0,12))+'</p><p class="text-xs font-black text-brand-400">'+g.progress+'%</p></div>').join(''):'<p class="text-muted text-sm w-full text-center py-8">Tambah goals untuk melihat chart.</p>';
-      setTimeout(()=>{ch.querySelectorAll('.chart-bar').forEach(b=>{b.style.height=b.dataset.h})},100);
-      // Goal list
-      const gl=document.getElementById('dash-goal-list');gl.innerHTML=goals.slice(0,4).map(g=>'<div class="flex items-center gap-3"><div class="flex-1"><div class="flex justify-between mb-1"><span class="text-main text-xs font-bold">'+esc(g.title)+'</span><span class="text-brand-400 text-xs font-bold">'+g.progress+'%</span></div><div class="w-full bg-brand-500/10 rounded-full h-2"><div class="bg-gradient-to-r from-brand-500 to-neon-green h-2 rounded-full progress-bar" style="width:'+g.progress+'%"></div></div></div></div>').join('')||'<p class="text-muted text-sm">Belum ada goals.</p>';
-      // Habits
-      const hl=document.getElementById('dash-habit-list');hl.innerHTML=habits.slice(0,4).map(h=>'<div class="flex items-center gap-3"><div class="w-8 h-8 rounded-lg flex items-center justify-center '+(h.done?'bg-neon-green/20 text-neon-green':'bg-brand-500/10 text-muted')+'"><i class="fas '+(h.done?'fa-check':'fa-circle')+' text-xs"></i></div><span class="text-main text-sm flex-1 '+(h.done?'line-through opacity-50':'')+'">'+h.icon+' '+esc(h.name)+'</span><span class="text-neon-amber text-xs font-bold"><i class="fas fa-fire-flame-curved mr-1"></i>'+h.streak+'</span></div>').join('')||'<p class="text-muted text-sm">Belum ada habits.</p>';
+// ============================================
+// GOALS
+// ============================================
+function renderGoals() {
+  document.getElementById('content').innerHTML = \`
+    <div class="space-y-4">
+      <div class="glass rounded-2xl p-5">
+        <h3 class="text-lg font-bold text-white mb-3">🎯 Goal Tracker Pro</h3>
+        <div class="flex flex-col sm:flex-row gap-2">
+          <input id="goal-input" type="text" placeholder="Goal baru (cth: Revenue 10jt/bulan)" class="flex-1 bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-indigo-500" onkeypress="if(event.key==='Enter')addGoal()" />
+          <button onclick="addGoal()" class="btn-primary text-white px-5 py-2 rounded-lg text-sm font-bold">+ Add</button>
+        </div>
+      </div>
+      <div id="goals-list" class="space-y-3"></div>
+    </div>\`;
+  renderGoalsList();
+}
+function addGoal() {
+  const t = document.getElementById('goal-input').value.trim();
+  if (!t) return toast('Goal kosong', 'warn');
+  goals.push({ id: Date.now(), title: t, progress: 0 });
+  save(STORAGE.goals, goals);
+  document.getElementById('goal-input').value = '';
+  renderGoalsList(); logActivity(); toast('Goal ditambahkan', 'success');
+}
+function updateGoal(id, p) { const g = goals.find(x => x.id === id); if (g) { g.progress = Math.max(0, Math.min(100, p)); save(STORAGE.goals, goals); renderGoalsList() } }
+function deleteGoal(id) {
+  const g = goals.find(x => x.id === id); if (!g) return;
+  showModal({ title:'Hapus Goal?', body:\`"\${g.title}" akan dihapus permanen.\`, confirmText:'Hapus', confirmClass:'bg-rose-500 hover:bg-rose-600',
+    onConfirm: () => { goals = goals.filter(x => x.id !== id); save(STORAGE.goals, goals); renderGoalsList(); toast('Goal dihapus', 'success') }});
+}
+function renderGoalsList() {
+  const list = document.getElementById('goals-list'); if (!list) return;
+  list.innerHTML = goals.length === 0 ? '<div class="glass rounded-xl p-8 text-center text-gray-500 text-sm">🎯 Belum ada goal. Tambahkan satu!</div>' :
+    goals.map(g => \`
+      <div class="glass rounded-xl p-4">
+        <div class="flex items-start justify-between mb-3 gap-3">
+          <p class="text-white text-sm font-semibold flex-1 \${g.progress >= 100 ? 'line-through text-gray-500' : ''}">\${g.title}</p>
+          <button onclick="deleteGoal(\${g.id})" class="text-gray-500 hover:text-rose-400 text-xs"><i class="fas fa-trash"></i></button>
+        </div>
+        <div class="flex items-center gap-3">
+          <div class="flex-1 bg-white/5 rounded-full h-2 overflow-hidden"><div class="bg-gradient-to-r from-indigo-500 to-purple-500 h-full transition-all" style="width:\${g.progress}%"></div></div>
+          <span class="text-xs font-bold text-indigo-400 counter-num min-w-[40px] text-right">\${g.progress}%</span>
+        </div>
+        <div class="flex gap-2 mt-3">
+          <button onclick="updateGoal(\${g.id},\${g.progress-10})" class="text-xs px-2 py-1 glass rounded text-gray-400 hover:text-white">-10</button>
+          <button onclick="updateGoal(\${g.id},\${g.progress+10})" class="text-xs px-2 py-1 glass rounded text-gray-400 hover:text-white">+10</button>
+          <button onclick="updateGoal(\${g.id},100)" class="text-xs px-2 py-1 bg-emerald-500/20 text-emerald-400 rounded hover:bg-emerald-500/30">✓ Done</button>
+        </div>
+      </div>
+    \`).join('');
+}
+
+// ============================================
+// HABITS
+// ============================================
+function renderHabits() {
+  document.getElementById('content').innerHTML = \`
+    <div class="space-y-4">
+      <div class="glass rounded-2xl p-5">
+        <h3 class="text-lg font-bold text-white mb-3">🔥 Habit Tracker</h3>
+        <div class="flex flex-col sm:flex-row gap-2">
+          <input id="habit-input" type="text" placeholder="Habit baru (cth: Olahraga 30 menit)" class="flex-1 bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-indigo-500" onkeypress="if(event.key==='Enter')addHabit()" />
+          <button onclick="addHabit()" class="btn-primary text-white px-5 py-2 rounded-lg text-sm font-bold">+ Add</button>
+        </div>
+      </div>
+      <div id="habits-list" class="space-y-3"></div>
+    </div>\`;
+  renderHabitsList();
+}
+function addHabit() {
+  const t = document.getElementById('habit-input').value.trim();
+  if (!t) return toast('Habit kosong', 'warn');
+  habits.push({ id: Date.now(), title: t, streak: 0, lastCheck: null });
+  save(STORAGE.habits, habits);
+  document.getElementById('habit-input').value = '';
+  renderHabitsList(); logActivity(); toast('Habit ditambahkan', 'success');
+}
+function checkHabit(id) {
+  const h = habits.find(x => x.id === id); if (!h) return;
+  const today = new Date().toDateString();
+  if (h.lastCheck === today) return toast('Sudah check-in hari ini', 'info');
+  h.streak++; h.lastCheck = today;
+  save(STORAGE.habits, habits); renderHabitsList(); logActivity();
+  toast(\`🔥 Streak \${h.streak} hari!\`, 'success');
+}
+function deleteHabit(id) {
+  const h = habits.find(x => x.id === id); if (!h) return;
+  showModal({ title:'Hapus Habit?', body:\`"\${h.title}" akan dihapus.\`, confirmText:'Hapus', confirmClass:'bg-rose-500 hover:bg-rose-600',
+    onConfirm: () => { habits = habits.filter(x => x.id !== id); save(STORAGE.habits, habits); renderHabitsList(); toast('Habit dihapus', 'success') }});
+}
+function renderHabitsList() {
+  const list = document.getElementById('habits-list'); if (!list) return;
+  const today = new Date().toDateString();
+  list.innerHTML = habits.length === 0 ? '<div class="glass rounded-xl p-8 text-center text-gray-500 text-sm">🔥 Belum ada habit. Mulai bangun satu!</div>' :
+    habits.map(h => \`
+      <div class="glass rounded-xl p-4 flex items-center gap-3">
+        <button onclick="checkHabit(\${h.id})" class="w-10 h-10 rounded-lg flex items-center justify-center text-lg \${h.lastCheck === today ? 'bg-emerald-500 text-white' : 'glass text-gray-400 hover:bg-white/10'}">\${h.lastCheck === today ? '✓' : '○'}</button>
+        <div class="flex-1"><p class="text-white text-sm font-semibold">\${h.title}</p><p class="text-xs text-amber-400 mt-0.5">🔥 \${h.streak} hari streak</p></div>
+        <button onclick="deleteHabit(\${h.id})" class="text-gray-500 hover:text-rose-400"><i class="fas fa-trash text-xs"></i></button>
+      </div>
+    \`).join('');
+}
+
+// ============================================
+// VISION BOARD
+// ============================================
+function renderVision() {
+  document.getElementById('content').innerHTML = \`
+    <div class="space-y-4">
+      <div class="glass rounded-2xl p-5">
+        <h3 class="text-lg font-bold text-white mb-1">🎨 Vision Board</h3>
+        <p class="text-xs text-gray-500 mb-4">Kristalkan visi & cita-citamu</p>
+        <div class="space-y-3">
+          <div><label class="text-xs text-violet-400 font-bold uppercase tracking-wider">Big Vision (5-10 thn)</label><textarea id="v-big" rows="2" placeholder="Hidup ideal kamu..." class="w-full mt-1 bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-indigo-500">\${vision.big}</textarea></div>
+          <div><label class="text-xs text-indigo-400 font-bold uppercase tracking-wider">1 Tahun</label><textarea id="v-y1" rows="2" placeholder="Achievement 1 tahun..." class="w-full mt-1 bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-indigo-500">\${vision.y1}</textarea></div>
+          <div><label class="text-xs text-blue-400 font-bold uppercase tracking-wider">3 Bulan</label><textarea id="v-m3" rows="2" placeholder="Target 3 bulan..." class="w-full mt-1 bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-indigo-500">\${vision.m3}</textarea></div>
+          <div><label class="text-xs text-emerald-400 font-bold uppercase tracking-wider">Minggu Ini</label><textarea id="v-w1" rows="2" placeholder="Yang akan kamu lakukan minggu ini..." class="w-full mt-1 bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-indigo-500">\${vision.w1}</textarea></div>
+          <button onclick="saveVision()" class="btn-primary text-white w-full py-2.5 rounded-lg text-sm font-bold">💾 Save Vision</button>
+        </div>
+      </div>
+    </div>\`;
+}
+function saveVision() {
+  vision = {
+    big: document.getElementById('v-big').value,
+    y1: document.getElementById('v-y1').value,
+    m3: document.getElementById('v-m3').value,
+    w1: document.getElementById('v-w1').value,
+  };
+  save(STORAGE.vision, vision); logActivity(); toast('Vision tersimpan ✨', 'success');
+}
+
+// ============================================
+// WEEKLY REVIEW
+// ============================================
+function renderReview() {
+  document.getElementById('content').innerHTML = \`
+    <div class="space-y-4">
+      <div class="glass rounded-2xl p-5">
+        <h3 class="text-lg font-bold text-white mb-1">📋 Weekly Review</h3>
+        <p class="text-xs text-gray-500 mb-4">Refleksi mingguan = pertumbuhan eksponensial</p>
+        <div class="space-y-3">
+          <div><label class="text-xs text-emerald-400 font-bold uppercase tracking-wider">🏆 3 Wins Minggu Ini</label><textarea id="r-wins" rows="3" class="w-full mt-1 bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-indigo-500">\${review.wins}</textarea></div>
+          <div><label class="text-xs text-amber-400 font-bold uppercase tracking-wider">📚 3 Pelajaran</label><textarea id="r-learn" rows="3" class="w-full mt-1 bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-indigo-500">\${review.learnings}</textarea></div>
+          <div><label class="text-xs text-indigo-400 font-bold uppercase tracking-wider">🎯 Focus Minggu Depan</label><textarea id="r-focus" rows="3" class="w-full mt-1 bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-indigo-500">\${review.focus}</textarea></div>
+          <button onclick="saveReview()" class="btn-primary text-white w-full py-2.5 rounded-lg text-sm font-bold">💾 Save Review</button>
+        </div>
+      </div>
+    </div>\`;
+}
+function saveReview() {
+  review = {
+    wins: document.getElementById('r-wins').value,
+    learnings: document.getElementById('r-learn').value,
+    focus: document.getElementById('r-focus').value,
+  };
+  save(STORAGE.review, review); logActivity(); toast('Review tersimpan', 'success');
+}
+
+// ============================================
+// RESOURCES with debounced search
+// ============================================
+let resourceData = [], searchTimer = null;
+async function renderResources() {
+  document.getElementById('content').innerHTML = \`
+    <div class="space-y-4">
+      <div class="glass rounded-2xl p-5">
+        <h3 class="text-lg font-bold text-white mb-1">📚 Resource Library</h3>
+        <p class="text-xs text-gray-500 mb-4">21+ frameworks · Klik untuk detail</p>
+        <input id="res-search" type="text" placeholder="🔍 Cari framework..." class="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-indigo-500" />
+      </div>
+      <div id="res-list" class="grid grid-cols-1 md:grid-cols-2 gap-3"></div>
+    </div>\`;
+  if (resourceData.length === 0) {
+    try { const r = await fetch('/api/resources'); const d = await r.json(); resourceData = d.resources } catch { resourceData = [] }
+  }
+  renderResourcesList('');
+  document.getElementById('res-search').oninput = e => {
+    clearTimeout(searchTimer);
+    const q = e.target.value;
+    searchTimer = setTimeout(() => renderResourcesList(q), 300);
+  };
+}
+function renderResourcesList(q) {
+  const list = document.getElementById('res-list'); if (!list) return;
+  const filtered = resourceData.filter(r => !q || r.title.toLowerCase().includes(q.toLowerCase()) || r.category.toLowerCase().includes(q.toLowerCase()));
+  list.innerHTML = filtered.length === 0 ? '<div class="col-span-full glass rounded-xl p-8 text-center text-gray-500 text-sm">🔍 Tidak ditemukan</div>' :
+    filtered.map(r => \`
+      <div class="glass rounded-xl p-4 cursor-pointer hover:bg-white/[0.05] transition" onclick="toggleResource(\${r.id})">
+        <div class="flex items-start gap-3">
+          <span class="text-2xl">\${r.icon}</span>
+          <div class="flex-1 min-w-0">
+            <div class="flex items-center justify-between gap-2 mb-1">
+              <p class="text-white text-sm font-bold truncate">\${r.title}</p>
+              <span class="text-[10px] text-indigo-400 bg-indigo-500/10 px-2 py-0.5 rounded-full whitespace-nowrap">\${r.category}</span>
+            </div>
+            <p class="text-gray-400 text-xs leading-relaxed">\${r.description}</p>
+            <div id="res-detail-\${r.id}" class="resource-detail">
+              <div class="mt-3 pt-3 border-t border-white/5"><p class="text-emerald-400 text-xs font-bold mb-1">💡 Detail</p><p class="text-gray-300 text-xs">\${r.detail}</p></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    \`).join('');
+}
+function toggleResource(id) { document.getElementById(\`res-detail-\${id}\`)?.classList.toggle('open') }
+
+// ============================================
+// SETTINGS (Backup/Restore + Theme)
+// ============================================
+function renderSettings() {
+  document.getElementById('content').innerHTML = \`
+    <div class="space-y-4">
+      <div class="glass rounded-2xl p-5">
+        <h3 class="text-lg font-bold text-white mb-1">⚙️ Settings</h3>
+        <p class="text-xs text-gray-500 mb-4">Backup, restore & manage data</p>
+      </div>
+
+      <div class="glass rounded-2xl p-5">
+        <h4 class="font-bold text-white mb-2">💾 Backup & Restore</h4>
+        <p class="text-xs text-gray-500 mb-4">Export semua data ke JSON file. Import balik kapan saja.</p>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+          <button onclick="exportData()" class="btn-primary text-white py-2.5 rounded-lg text-sm font-bold">📤 Export JSON</button>
+          <label class="glass text-gray-300 py-2.5 rounded-lg text-sm font-bold text-center cursor-pointer hover:bg-white/10 transition">📥 Import JSON<input type="file" accept=".json" onchange="importData(event)" class="hidden"/></label>
+        </div>
+      </div>
+
+      <div class="glass rounded-2xl p-5">
+        <h4 class="font-bold text-white mb-2">📊 Data Stats</h4>
+        <div class="space-y-2 text-sm">
+          <div class="flex justify-between"><span class="text-gray-400">Goals</span><span class="text-white font-bold">\${goals.length}</span></div>
+          <div class="flex justify-between"><span class="text-gray-400">Habits</span><span class="text-white font-bold">\${habits.length}</span></div>
+          <div class="flex justify-between"><span class="text-gray-400">Journal Entries</span><span class="text-white font-bold">\${journal.length}</span></div>
+          <div class="flex justify-between"><span class="text-gray-400">Chat Messages</span><span class="text-white font-bold">\${chatHistory.length}</span></div>
+          <div class="flex justify-between"><span class="text-gray-400">Pomodoro Sessions</span><span class="text-white font-bold">\${pomoStats.sessions}</span></div>
+        </div>
+      </div>
+
+      <div class="glass rounded-2xl p-5 border border-rose-500/20">
+        <h4 class="font-bold text-rose-400 mb-2">⚠️ Danger Zone</h4>
+        <p class="text-xs text-gray-500 mb-3">Reset semua data. Tidak bisa di-undo.</p>
+        <button onclick="resetAll()" class="bg-rose-500/20 hover:bg-rose-500/30 text-rose-400 border border-rose-500/30 px-4 py-2 rounded-lg text-sm font-bold transition">🗑️ Reset All Data</button>
+      </div>
+    </div>\`;
+}
+
+function exportData() {
+  const data = {
+    version: '5.0', exported: new Date().toISOString(),
+    goals, habits, vision, review, journal, focusMin, streak, chatHistory, pomoStats, activityLog
+  };
+  const blob = new Blob([JSON.stringify(data, null, 2)], { type:'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = \`sparkmind-backup-\${new Date().toISOString().split('T')[0]}.json\`;
+  a.click(); URL.revokeObjectURL(url);
+  toast('Data ter-export!', 'success');
+}
+
+function importData(e) {
+  const file = e.target.files[0]; if (!file) return;
+  const reader = new FileReader();
+  reader.onload = ev => {
+    try {
+      const data = JSON.parse(ev.target.result);
+      showModal({
+        title: 'Import Backup?',
+        body: \`Akan replace semua data lokal dengan backup dari \${new Date(data.exported).toLocaleString('id-ID')}. Lanjutkan?\`,
+        confirmText: 'Import',
+        onConfirm: () => {
+          if (data.goals) { goals = data.goals; save(STORAGE.goals, goals) }
+          if (data.habits) { habits = data.habits; save(STORAGE.habits, habits) }
+          if (data.vision) { vision = data.vision; save(STORAGE.vision, vision) }
+          if (data.review) { review = data.review; save(STORAGE.review, review) }
+          if (data.journal) { journal = data.journal; save(STORAGE.journal, journal) }
+          if (data.chatHistory) { chatHistory = data.chatHistory; save(STORAGE.chat, chatHistory) }
+          if (data.pomoStats) { pomoStats = data.pomoStats; save(STORAGE.pomoStats, pomoStats) }
+          if (data.activityLog) { activityLog = data.activityLog; save(STORAGE.activity, activityLog) }
+          if (typeof data.focusMin === 'number') { focusMin = data.focusMin; save(STORAGE.focus, focusMin) }
+          if (typeof data.streak === 'number') { streak = data.streak; save(STORAGE.streak, streak) }
+          toast('Data ter-import!', 'success');
+          renderSettings();
+        }
+      });
+    } catch (err) { toast('File JSON invalid', 'error') }
+  };
+  reader.readAsText(file);
+}
+
+function resetAll() {
+  showModal({
+    title: '⚠️ Reset Semua Data?',
+    body: 'Semua data (goals, habits, journal, chat, vision, review, dll) akan dihapus PERMANEN. Tindakan ini tidak bisa dibatalkan.',
+    confirmText: 'Reset Semuanya',
+    confirmClass: 'bg-rose-500 hover:bg-rose-600',
+    onConfirm: () => {
+      Object.values(STORAGE).forEach(k => { if (k !== STORAGE.theme) localStorage.removeItem(k) });
+      goals = []; habits = []; vision = { big:'', y1:'', m3:'', w1:'' }; review = { wins:'', learnings:'', focus:'' };
+      journal = []; focusMin = 0; streak = 0; chatHistory = []; pomoStats = { sessions:0, totalMin:0 }; activityLog = {};
+      toast('Semua data direset', 'success');
+      switchTab('dashboard');
     }
+  });
+}
 
-    // ===== CHAT WITH TYPING EFFECT =====
-    function esc(t){const d=document.createElement('div');d.textContent=t;return d.innerHTML}
-    function useEx(t){document.getElementById('user-input').value=t;sendMsg()}
-    function sendMsg(){
-      const inp=document.getElementById('user-input');const t=inp.value.trim();if(!t)return;inp.value='';inp.style.height='auto';
-      const box=document.getElementById('chat-msgs');
-      box.innerHTML+='<div class="msg-in flex justify-end"><div class="bg-gradient-to-r from-brand-600 to-brand-500 text-white rounded-2xl rounded-tr-sm px-5 py-3 max-w-2xl shadow-lg shadow-brand-500/10"><p class="text-sm">'+esc(t)+'</p></div></div>';
-      const tid='t-'+Date.now();
-      box.innerHTML+='<div id="'+tid+'" class="msg-in flex gap-3"><div class="w-9 h-9 bg-gradient-to-br from-brand-500 to-neon-pink rounded-full flex items-center justify-center flex-shrink-0"><i class="fas fa-brain text-white text-sm"></i></div><div class="card-bg rounded-2xl rounded-tl-sm px-5 py-4"><div class="flex gap-1.5"><div class="w-2 h-2 bg-brand-400 rounded-full typing-dot"></div><div class="w-2 h-2 bg-brand-400 rounded-full typing-dot"></div><div class="w-2 h-2 bg-brand-400 rounded-full typing-dot"></div></div></div></div>';
-      box.scrollTop=box.scrollHeight;
-      fetch('/api/analyze',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:t,mode:'strategic'})})
-        .then(r=>r.json()).then(d=>{
-          document.getElementById(tid).remove();
-          const msgDiv=document.createElement('div');msgDiv.className='msg-in flex gap-3';
-          msgDiv.innerHTML='<div class="w-9 h-9 bg-gradient-to-br from-brand-500 to-neon-pink rounded-full flex items-center justify-center flex-shrink-0"><i class="fas fa-brain text-white text-sm"></i></div><div class="card-bg rounded-2xl rounded-tl-sm p-5 max-w-2xl"><div class="text-sm leading-relaxed" id="typed-'+tid+'"></div></div>';
-          box.appendChild(msgDiv);
-          // Typing effect - insert HTML progressively
-          const target=document.getElementById('typed-'+tid);
-          const html=d.response;let i=0;const speed=2;
-          function typeHTML(){if(i<html.length){const chunk=html.substring(0,i+speed);target.innerHTML=chunk;i+=speed;box.scrollTop=box.scrollHeight;requestAnimationFrame(typeHTML)}else{target.innerHTML=html;box.scrollTop=box.scrollHeight}}
-          typeHTML();
-        }).catch(()=>{document.getElementById(tid).remove();box.innerHTML+='<div class="msg-in flex gap-3"><div class="w-9 h-9 bg-red-500/20 rounded-full flex items-center justify-center flex-shrink-0"><i class="fas fa-exclamation text-red-400 text-sm"></i></div><div class="card-bg rounded-2xl p-5"><p class="text-sm text-red-400">Error!</p></div></div>';box.scrollTop=box.scrollHeight});
-    }
+// ============================================
+// KEYBOARD SHORTCUTS
+// ============================================
+const tabKeys = ['dashboard','analyzer','coach','swot','pomodoro','journal','goals','habits','vision'];
+document.addEventListener('keydown', (e) => {
+  const cmd = e.metaKey || e.ctrlKey;
+  if (cmd && e.key === 'k') { e.preventDefault(); openCommandPalette() }
+  else if (cmd && e.key === '/') { e.preventDefault(); openShortcutsModal() }
+  else if (cmd && e.key === 'd') { e.preventDefault(); toggleTheme() }
+  else if (cmd && e.key >= '1' && e.key <= '9') {
+    const idx = parseInt(e.key) - 1;
+    if (tabKeys[idx]) { e.preventDefault(); switchTab(tabKeys[idx]) }
+  }
+  else if (e.key === 'Escape') { closeModal(); const sb = document.getElementById('sidebar'); if (sb && sb.classList.contains('open')) toggleSidebar() }
+});
 
-    // ===== SWOT =====
-    function runSWOT(){const inp=document.getElementById('swot-input').value.trim();if(!inp)return showToast('Deskripsikan bisnis!','warn');const res=document.getElementById('swot-result');res.innerHTML='<div class="text-center py-8"><div class="flex gap-1.5 justify-center"><div class="w-2.5 h-2.5 bg-neon-green rounded-full typing-dot"></div><div class="w-2.5 h-2.5 bg-neon-green rounded-full typing-dot"></div><div class="w-2.5 h-2.5 bg-neon-green rounded-full typing-dot"></div></div></div>';fetch('/api/swot',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({business:inp})}).then(r=>r.json()).then(d=>{res.innerHTML='<div class="card-bg rounded-2xl p-6">'+d.response+'</div>';showToast('SWOT generated!','success')}).catch(()=>{res.innerHTML='';showToast('Error generating SWOT','error')})}
+// ============================================
+// INIT
+// ============================================
+async function loadQuote() {
+  try {
+    const r = await fetch('/api/quotes');
+    const q = await r.json();
+    const el = document.getElementById('quote-ticker');
+    if (el) el.textContent = \`"\${q.text}"\`;
+  } catch {}
+}
+loadQuote();
+setInterval(loadQuote, 60000);
 
-    // ===== COACH =====
-    function runCoach(){const g=document.getElementById('coach-goal').value.trim();if(!g)return showToast('Masukkan goal!','warn');const s=document.getElementById('coach-state').value.trim(),o=document.getElementById('coach-obstacles').value.trim();const res=document.getElementById('coach-result');res.innerHTML='<div class="text-center py-8"><div class="flex gap-1.5 justify-center"><div class="w-2.5 h-2.5 bg-neon-amber rounded-full typing-dot"></div><div class="w-2.5 h-2.5 bg-neon-amber rounded-full typing-dot"></div><div class="w-2.5 h-2.5 bg-neon-amber rounded-full typing-dot"></div></div></div>';fetch('/api/coach',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({goal:g,currentState:s,obstacles:o})}).then(r=>r.json()).then(d=>{res.innerHTML='<div class="card-bg rounded-2xl p-6">'+d.response+'</div>';showToast('Coaching ready!','success')}).catch(()=>{res.innerHTML='';showToast('Error','error')})}
-
-    // ===== POMODORO =====
-    let pomoInterval=null,pomoTimeLeft=25*60,pomoRunning=false,pomoMode='focus';
-    const pomoModes={focus:{time:25*60,label:'Focus Time',color:'#6366f1'},short:{time:5*60,label:'Short Break',color:'#34d399'},long:{time:15*60,label:'Long Break',color:'#fbbf24'}};
-    function updatePomoDisplay(){const m=Math.floor(pomoTimeLeft/60),s=pomoTimeLeft%60;document.getElementById('pomo-time').textContent=String(m).padStart(2,'0')+':'+String(s).padStart(2,'0');const total=pomoModes[pomoMode].time,pct=(total-pomoTimeLeft)/total;document.getElementById('pomo-ring').style.strokeDashoffset=565.48*(1-pct);document.getElementById('pomo-ring').style.stroke=pomoModes[pomoMode].color;document.getElementById('pomo-label').textContent=pomoModes[pomoMode].label;document.getElementById('pomo-sessions').textContent=pomoSessions;document.getElementById('pomo-total').textContent=pomoTotal+'m'}
-    function playBeep(){try{const a=new AudioContext(),o=a.createOscillator(),g=a.createGain();o.connect(g);g.connect(a.destination);o.frequency.value=800;g.gain.value=0.3;o.start();setTimeout(()=>{o.stop();a.close()},300)}catch{}}
-    function startPomo(){if(pomoRunning)return;pomoRunning=true;document.getElementById('pomo-start-btn').classList.add('hidden');document.getElementById('pomo-pause-btn').classList.remove('hidden');pomoInterval=setInterval(()=>{pomoTimeLeft--;if(pomoTimeLeft<=0){clearInterval(pomoInterval);pomoRunning=false;if(pomoMode==='focus'){pomoSessions++;pomoTotal+=25;saveState();showToast('Focus session selesai! 🎉','success')}document.getElementById('pomo-start-btn').classList.remove('hidden');document.getElementById('pomo-pause-btn').classList.add('hidden');playBeep();setTimeout(playBeep,400);setTimeout(playBeep,800);const next=pomoMode==='focus'?'short':'focus';setPomoMode(next)}updatePomoDisplay()},1000)}
-    function pausePomo(){if(!pomoRunning)return;clearInterval(pomoInterval);pomoRunning=false;document.getElementById('pomo-start-btn').classList.remove('hidden');document.getElementById('pomo-pause-btn').classList.add('hidden')}
-    function resetPomo(){pausePomo();pomoTimeLeft=pomoModes[pomoMode].time;updatePomoDisplay()}
-    function setPomoMode(mode){pausePomo();pomoMode=mode;pomoTimeLeft=pomoModes[mode].time;document.querySelectorAll('.pomo-mode-btn').forEach(b=>{b.className='pomo-mode-btn text-xs px-4 py-2 rounded-lg font-bold text-sub bg-brand-500/10'});const btn=document.querySelector('[data-mode="'+mode+'"]');if(btn)btn.className='pomo-mode-btn active text-xs px-4 py-2 rounded-lg font-bold bg-brand-500 text-white';updatePomoDisplay()}
-    updatePomoDisplay();
-
-    // ===== GOALS =====
-    function showAddGoal(){document.getElementById('add-goal-form').classList.remove('hidden')}
-    function hideAddGoal(){document.getElementById('add-goal-form').classList.add('hidden')}
-    function addGoal(){const t=document.getElementById('goal-title').value.trim();if(!t)return showToast('Nama goal!','warn');goals.push({id:Date.now(),title:t,desc:document.getElementById('goal-desc').value.trim(),category:document.getElementById('goal-cat').value,progress:0,deadline:document.getElementById('goal-dl').value||'TBD',milestones:[]});document.getElementById('goal-title').value='';document.getElementById('goal-desc').value='';hideAddGoal();saveState();renderGoals();showToast('Goal added! 🎯','success')}
-    function updProg(id,d){const g=goals.find(x=>x.id===id);if(g){g.progress=Math.max(0,Math.min(100,g.progress+d));if(g.progress===100)showToast('Goal completed! 🎉','success');saveState();renderGoals()}}
-    function delGoal(id){if(confirm('Hapus goal?')){goals=goals.filter(x=>x.id!==id);saveState();renderGoals();showToast('Goal deleted','info')}}
-    function renderGoals(){const l=document.getElementById('goals-list');if(!goals.length){l.innerHTML='<div class="text-center py-16"><i class="fas fa-bullseye text-4xl text-muted mb-4"></i><p class="text-muted text-sm">Belum ada goals.</p></div>';return}const ci={bisnis:'💼',karir:'📈',skill:'💻',personal:'🧘',finansial:'💰',kesehatan:'💪'};l.innerHTML=goals.map(g=>'<div class="card-bg rounded-2xl p-6 hover:border-brand-500/20 transition"><div class="flex items-start justify-between mb-4"><div class="flex items-center gap-3"><span class="text-2xl">'+(ci[g.category]||'🎯')+'</span><div><h3 class="font-bold text-main">'+esc(g.title)+'</h3><p class="text-muted text-xs">'+esc(g.desc)+'</p></div></div><div class="flex items-center gap-2"><span class="text-xs text-muted"><i class="fas fa-calendar mr-1"></i>'+g.deadline+'</span><button onclick="delGoal('+g.id+')" class="text-muted hover:text-red-400 transition"><i class="fas fa-trash text-xs"></i></button></div></div><div class="flex items-center gap-4"><div class="flex-1"><div class="w-full bg-brand-500/10 rounded-full h-3"><div class="bg-gradient-to-r from-brand-500 to-neon-green h-3 rounded-full progress-bar" style="width:'+g.progress+'%"></div></div></div><span class="text-sm font-bold text-brand-400 min-w-[40px] text-right">'+g.progress+'%</span><div class="flex gap-1"><button onclick="updProg('+g.id+',-10)" class="w-7 h-7 bg-brand-500/10 hover:bg-brand-500/20 rounded-lg flex items-center justify-center transition"><i class="fas fa-minus text-xs text-muted"></i></button><button onclick="updProg('+g.id+',10)" class="w-7 h-7 bg-brand-500/20 hover:bg-brand-500/30 rounded-lg flex items-center justify-center transition"><i class="fas fa-plus text-xs text-brand-400"></i></button></div></div>'+(g.milestones&&g.milestones.length?'<div class="mt-4 flex flex-wrap gap-2">'+g.milestones.map((m,i)=>'<span class="text-xs px-3 py-1 rounded-lg '+(i<Math.ceil(g.progress/(100/g.milestones.length))?'bg-neon-green/10 text-neon-green border border-neon-green/20':'bg-brand-500/5 text-muted border border-brand-500/10')+'">'+m+'</span>').join('')+'</div>':'')+'</div>').join('')}
-
-    // ===== HABITS =====
-    function showAddHabit(){document.getElementById('add-habit-form').classList.remove('hidden')}
-    function hideAddHabit(){document.getElementById('add-habit-form').classList.add('hidden')}
-    function addHabit(){const n=document.getElementById('habit-name').value.trim();if(!n)return showToast('Nama habit!','warn');habits.push({id:Date.now(),name:n,freq:document.getElementById('habit-freq').value,streak:0,done:false,icon:'✨'});document.getElementById('habit-name').value='';hideAddHabit();saveState();renderHabits();showToast('Habit added! 🔥','success')}
-    function toggleHabit(id){const h=habits.find(x=>x.id===id);if(h){h.done=!h.done;if(h.done){h.streak++;showToast(h.icon+' Streak '+h.streak+'! 🔥','success')}else h.streak=Math.max(0,h.streak-1);saveState();renderHabits()}}
-    function delHabit(id){if(confirm('Hapus?')){habits=habits.filter(x=>x.id!==id);saveState();renderHabits();showToast('Habit deleted','info')}}
-    function renderHabits(){const l=document.getElementById('habits-list');if(!habits.length){l.innerHTML='<div class="text-center py-16"><i class="fas fa-fire text-4xl text-muted mb-4"></i><p class="text-muted text-sm">Belum ada habits.</p></div>';return}const fq={daily:'Setiap Hari',weekday:'Sen-Jum','3x':'3x/Minggu'};l.innerHTML=habits.map(h=>'<div class="card-bg rounded-2xl p-5 flex items-center gap-4 hover:border-neon-pink/20 transition"><button onclick="toggleHabit('+h.id+')" class="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 transition '+(h.done?'bg-gradient-to-br from-neon-green to-emerald-600 text-white shadow-lg shadow-neon-green/20':'bg-brand-500/10 text-muted hover:bg-brand-500/20')+'"><i class="fas '+(h.done?'fa-check':'fa-circle')+' text-sm"></i></button><div class="flex-1 min-w-0"><h3 class="font-bold text-main text-sm truncate '+(h.done?'line-through opacity-50':'')+'">'+h.icon+' '+esc(h.name)+'</h3><p class="text-muted text-xs">'+(fq[h.freq]||h.freq)+'</p></div><div class="text-right flex-shrink-0"><div class="flex items-center gap-1.5"><i class="fas fa-fire-flame-curved text-neon-amber text-sm"></i><span class="font-black text-main">'+h.streak+'</span></div><p class="text-[10px] text-muted">streak</p></div><button onclick="delHabit('+h.id+')" class="text-muted hover:text-red-400 transition flex-shrink-0"><i class="fas fa-trash text-xs"></i></button></div>').join('')}
-
-    // ===== JOURNAL (NEW V4) =====
-    function loadJournal(){
-      document.getElementById('journal-date').textContent=new Date().toLocaleDateString('id-ID',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
-      renderJournalHistory();
-    }
-    function setMood(m){currentMood=m;document.querySelectorAll('.mood-btn').forEach(b=>b.classList.remove('selected'));event.target.classList.add('selected')}
-    function saveJournal(){
-      const g=document.getElementById('journal-gratitude').value.trim();const r=document.getElementById('journal-reflection').value.trim();const l=document.getElementById('journal-lesson').value.trim();
-      if(!g&&!r&&!l)return showToast('Isi minimal 1 field!','warn');
-      journals.unshift({date:new Date().toISOString(),mood:currentMood||'😊',gratitude:g,reflection:r,lesson:l});
-      LS.set('journals',journals);
-      document.getElementById('journal-gratitude').value='';document.getElementById('journal-reflection').value='';document.getElementById('journal-lesson').value='';currentMood='';document.querySelectorAll('.mood-btn').forEach(b=>b.classList.remove('selected'));
-      renderJournalHistory();showToast('Journal saved! 📓','success');
-    }
-    function renderJournalHistory(){
-      const h=document.getElementById('journal-history');
-      h.innerHTML=journals.slice(0,10).map(j=>{const d=new Date(j.date);return '<div class="card-bg rounded-xl p-4"><div class="flex items-center justify-between mb-2"><div class="flex items-center gap-2"><span class="text-xl">'+j.mood+'</span><span class="text-xs font-bold text-main">'+d.toLocaleDateString('id-ID',{day:'numeric',month:'short',year:'numeric'})+'</span></div></div>'+(j.gratitude?'<p class="text-xs text-sub mb-1"><span class="text-neon-green font-bold">Gratitude:</span> '+esc(j.gratitude).substring(0,100)+'</p>':'')+(j.reflection?'<p class="text-xs text-sub mb-1"><span class="text-brand-400 font-bold">Refleksi:</span> '+esc(j.reflection).substring(0,100)+'</p>':'')+(j.lesson?'<p class="text-xs text-sub"><span class="text-neon-amber font-bold">Lesson:</span> '+esc(j.lesson).substring(0,80)+'</p>':'')+'</div>'}).join('')||'<p class="text-muted text-sm text-center py-4">Belum ada journal entries.</p>';
-    }
-
-    // ===== VISION =====
-    function loadVision(){if(vision){document.getElementById('vision-big').value=vision.big||'';document.getElementById('vision-1y').value=vision.y1||'';document.getElementById('vision-3m').value=vision.m3||'';document.getElementById('vision-1w').value=vision.w1||'';showVisionDisplay()}}
-    function saveVision(){const big=document.getElementById('vision-big').value.trim();if(!big)return showToast('Tulis visi besarmu!','warn');vision={big,y1:document.getElementById('vision-1y').value.trim(),m3:document.getElementById('vision-3m').value.trim(),w1:document.getElementById('vision-1w').value.trim(),date:new Date().toISOString()};LS.set('vision',vision);showVisionDisplay();showToast('Vision saved! ✨','success')}
-    function showVisionDisplay(){if(!vision)return;document.getElementById('vision-display').classList.remove('hidden');document.getElementById('vision-content').innerHTML='<div class="space-y-4"><div class="bg-gradient-to-r from-neon-pink/10 to-rose-500/10 border border-neon-pink/20 rounded-xl p-5"><p class="text-neon-pink text-xs font-bold mb-2">MY BIG VISION</p><p class="text-main text-sm font-medium">'+esc(vision.big)+'</p></div><div class="grid sm:grid-cols-3 gap-3">'+(vision.y1?'<div class="card-bg rounded-xl p-4"><p class="text-brand-400 text-xs font-bold mb-2">1 YEAR</p><p class="text-sub text-xs">'+esc(vision.y1)+'</p></div>':'')+(vision.m3?'<div class="card-bg rounded-xl p-4"><p class="text-neon-green text-xs font-bold mb-2">3 MONTHS</p><p class="text-sub text-xs">'+esc(vision.m3)+'</p></div>':'')+(vision.w1?'<div class="card-bg rounded-xl p-4"><p class="text-neon-amber text-xs font-bold mb-2">THIS WEEK</p><p class="text-sub text-xs">'+esc(vision.w1)+'</p></div>':'')+'</div></div>'}
-
-    // ===== REVIEW =====
-    function saveReview(){const w=document.getElementById('review-wins').value,l=document.getElementById('review-learn').value,f=document.getElementById('review-focus').value;if(!w&&!l&&!f)return showToast('Isi minimal 1!','warn');const reviews=LS.get('reviews',[]);reviews.push({date:new Date().toISOString(),wins:w,learnings:l,focus:f});LS.set('reviews',reviews);showToast('Review saved! 📋','success')}
-
-    // ===== RESOURCES (EXPANDABLE) =====
-    function toggleResource(i){const el=document.getElementById('res-detail-'+i);el.classList.toggle('open')}
-    function renderResources(){const q=(document.getElementById('resource-search')?.value||'').toLowerCase();const filtered=resources.filter(r=>!q||r.t.toLowerCase().includes(q)||r.d.toLowerCase().includes(q)||r.c.toLowerCase().includes(q));document.getElementById('resources-grid').innerHTML=filtered.map((r,i)=>'<div class="card-bg rounded-2xl p-6 hover:border-brand-500/20 hover:-translate-y-1 transition cursor-pointer" onclick="toggleResource('+i+')"><span class="text-3xl mb-3 block">'+r.i+'</span><span class="text-[10px] bg-brand-500/10 text-sub px-2 py-0.5 rounded-lg font-bold uppercase border border-brand-500/10">'+r.c+'</span><h3 class="font-bold text-main mt-2 mb-1 text-sm">'+r.t+'</h3><p class="text-muted text-xs">'+r.d+'</p><div id="res-detail-'+i+'" class="resource-detail"><div class="mt-3 pt-3 border-t border-brand-500/10"><p class="text-xs text-brand-400 font-bold mb-1">DETAIL</p><p class="text-sub text-xs">'+r.dt+'</p></div></div><p class="text-brand-400 text-[10px] mt-2 font-bold">Klik untuk detail ↓</p></div>').join('')||(q?'<p class="text-muted text-sm col-span-3 text-center py-8">Tidak ditemukan.</p>':'')}
-
-    // ===== EXPORT =====
-    function exportData(){let txt='=== SparkMind V4.0 Data Export ===\\nDate: '+new Date().toLocaleString('id-ID')+'\\n\\n== GOALS ==\\n';goals.forEach(g=>{txt+=g.title+' ['+g.progress+'%] - '+g.category+'\\n'});txt+='\\n== HABITS ==\\n';habits.forEach(h=>{txt+=h.name+' streak:'+h.streak+' '+(h.done?'Done':'Pending')+'\\n'});txt+='\\n== POMODORO ==\\nSessions:'+pomoSessions+' Total:'+pomoTotal+'m\\n';if(vision)txt+='\\n== VISION ==\\n'+vision.big+'\\n';txt+='\\n== JOURNALS ==\\n';journals.slice(0,5).forEach(j=>{txt+=new Date(j.date).toLocaleDateString('id-ID')+' '+j.mood+' '+j.gratitude.substring(0,50)+'\\n'});const blob=new Blob([txt],{type:'text/plain'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='sparkmind-v4-'+new Date().toISOString().slice(0,10)+'.txt';a.click();showToast('Data exported! 📁','success')}
-
-    // ===== SIDEBAR MOBILE =====
-    document.getElementById('sb-toggle').addEventListener('click',()=>{document.getElementById('sidebar').classList.remove('hidden');document.getElementById('sidebar').classList.add('fixed','inset-y-0','left-0','z-50');document.getElementById('sb-overlay').classList.remove('hidden')});
-    function closeSB(){document.getElementById('sidebar').classList.add('hidden');document.getElementById('sidebar').classList.remove('fixed','inset-y-0','left-0','z-50');document.getElementById('sb-overlay').classList.add('hidden');if(window.innerWidth>=768)document.getElementById('sidebar').classList.remove('hidden')}
-
-    // ===== TEXTAREA AUTO RESIZE =====
-    document.getElementById('user-input')?.addEventListener('input',function(){this.style.height='auto';this.style.height=Math.min(this.scrollHeight,128)+'px'});
-
-    // ===== QUOTE TICKER =====
-    fetch('/api/quotes').then(r=>r.json()).then(q=>{document.getElementById('quote-ticker').textContent='"'+q.text+'" — '+q.author}).catch(()=>{});
-
-    // ===== INIT =====
-    updateDashboard();renderGoals();renderHabits();
-  </script>
+switchTab('dashboard');
+setTimeout(() => toast('🚀 SparkMind V5 SOVEREIGN aktif! Tekan ⌘/ untuk shortcuts.', 'info'), 800);
+</script>
 </body>
 </html>`
 
