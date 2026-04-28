@@ -9,24 +9,66 @@ app.use('/api/*', cors())
 // ============================================
 app.get('/', (c) => c.html(LANDING_HTML))
 app.get('/app', (c) => c.html(APP_HTML))
+app.get('/pricing', (c) => c.html(PRICING_HTML))
+app.get('/manifest.webmanifest', (c) => {
+  c.header('Content-Type', 'application/manifest+json')
+  return c.body(JSON.stringify({
+    name: 'SparkMind — AI Strategic Guide',
+    short_name: 'SparkMind',
+    description: 'AI Strategic Guide untuk hidup berdaulat. 18+ kategori AI + tools produktivitas.',
+    start_url: '/app',
+    display: 'standalone',
+    background_color: '#0a0a1a',
+    theme_color: '#4f46e5',
+    orientation: 'portrait',
+    icons: [
+      { src: 'data:image/svg+xml;base64,' + btoa('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect width="100" height="100" rx="20" fill="#4f46e5"/><text x="50" y="68" font-size="60" text-anchor="middle" fill="white" font-family="system-ui" font-weight="bold">S</text></svg>'), sizes: '192x192', type: 'image/svg+xml', purpose: 'any maskable' },
+      { src: 'data:image/svg+xml;base64,' + btoa('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect width="100" height="100" rx="20" fill="#4f46e5"/><text x="50" y="68" font-size="60" text-anchor="middle" fill="white" font-family="system-ui" font-weight="bold">S</text></svg>'), sizes: '512x512', type: 'image/svg+xml', purpose: 'any maskable' },
+    ],
+  }))
+})
+app.get('/sw.js', (c) => {
+  c.header('Content-Type', 'application/javascript; charset=utf-8')
+  c.header('Cache-Control', 'no-cache')
+  return c.body(SERVICE_WORKER_JS)
+})
 
 // ============================================
 // API ROUTES
 // ============================================
 app.post('/api/analyze', async (c) => {
-  const { message, mode, history } = await c.req.json()
-  const response = generateStrategicResponse(message, mode || 'strategic', history || [])
-  return c.json({ response, timestamp: new Date().toISOString(), mode, tokens: Math.floor(Math.random() * 200) + 100 })
+  try {
+    const { message, mode, history } = await c.req.json()
+    if (!message || typeof message !== 'string' || message.trim().length === 0) {
+      return c.json({ error: 'Message required' }, 400)
+    }
+    const response = generateStrategicResponse(message.slice(0, 2000), mode || 'strategic', Array.isArray(history) ? history.slice(-6) : [])
+    return c.json({ response, timestamp: new Date().toISOString(), mode, tokens: Math.floor(Math.random() * 200) + 100 })
+  } catch (e: any) {
+    return c.json({ error: 'Server error', detail: e?.message || 'unknown' }, 500)
+  }
 })
 
 app.post('/api/swot', async (c) => {
-  const { business } = await c.req.json()
-  return c.json({ response: generateSWOT(business), timestamp: new Date().toISOString() })
+  try {
+    const { business } = await c.req.json()
+    if (!business || typeof business !== 'string' || business.trim().length === 0) {
+      return c.json({ error: 'Business required' }, 400)
+    }
+    return c.json({ response: generateSWOT(business.slice(0, 200)), timestamp: new Date().toISOString() })
+  } catch (e: any) {
+    return c.json({ error: 'Server error' }, 500)
+  }
 })
 
 app.post('/api/coach', async (c) => {
-  const { goal, currentState, obstacles } = await c.req.json()
-  return c.json({ response: generateCoachResponse(goal, currentState, obstacles), timestamp: new Date().toISOString() })
+  try {
+    const { goal, currentState, obstacles } = await c.req.json()
+    if (!goal || typeof goal !== 'string') return c.json({ error: 'Goal required' }, 400)
+    return c.json({ response: generateCoachResponse(goal.slice(0, 300), (currentState || '').slice(0, 300), (obstacles || '').slice(0, 300)), timestamp: new Date().toISOString() })
+  } catch {
+    return c.json({ error: 'Server error' }, 500)
+  }
 })
 
 app.get('/api/resources', (c) => c.json({ resources: RESOURCES_DATA }))
@@ -36,1591 +78,1910 @@ app.get('/api/quotes', (c) => {
   return c.json(q)
 })
 app.get('/api/health', (c) => c.json({
-  status: 'ok', service: 'SparkMind V5.0 SOVEREIGN API', version: '5.0.0',
-  engine: 'Sovereign AI Engine V5', categories: 18,
-  features: ['chat-memory-persist','mobile-sidebar-fix','backup-restore-json','weekly-trend-chart','pomodoro-v2','smart-delete-modal','debounced-search','keyboard-shortcuts','spiritual-faith','side-hustle','animated-counters','micro-interactions']
+  status: 'ok',
+  service: 'SparkMind V6.0 BULLETPROOF API',
+  version: '6.0.0',
+  engine: 'Sovereign AI Engine V6',
+  categories: 18,
+  features: [
+    'pwa-installable','service-worker-offline','xss-safe-render','error-boundary',
+    'pomodoro-resume-on-tab','storage-quota-guard','onboarding-tour-v6',
+    'quick-add-modal','pricing-page','seo-og-tags','copy-share-ai-response',
+    'habit-heatmap-30d','density-toggle','reduced-motion-respect',
+    'chat-memory-persist','mobile-sidebar-fix','backup-restore-json',
+    'weekly-trend-chart','smart-delete-modal','debounced-search','keyboard-shortcuts',
+    'spiritual-faith','side-hustle','18-categories'
+  ]
 }))
 
+// 404 fallback
+app.notFound((c) => c.html(`<!DOCTYPE html><html><head><title>404 — SparkMind</title><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><script src="https://cdn.tailwindcss.com"></script></head><body class="min-h-screen bg-slate-950 text-white flex items-center justify-center font-sans"><div class="text-center px-6"><div class="text-8xl mb-4">🧠</div><h1 class="text-4xl font-bold mb-3">404</h1><p class="text-gray-400 mb-6">Halaman tidak ditemukan.</p><a href="/" class="inline-block px-6 py-3 bg-indigo-600 hover:bg-indigo-500 rounded-xl font-semibold">← Kembali</a></div></body></html>`, 404))
+
 // ============================================
-// AI STRATEGIC ENGINE V5 — 18+ CATEGORIES
+// AI STRATEGIC ENGINE V6 — 18+ CATEGORIES
 // ============================================
 function generateStrategicResponse(message: string, mode: string, history: any[]): string {
   const m = message.toLowerCase()
   const ctx = history.length > 0 ? `<div class="mb-3"><span class="text-[10px] bg-white/5 text-gray-500 px-2 py-0.5 rounded border border-white/5">💭 Context: ${history.length} pesan sebelumnya</span></div>` : ''
 
-  if (mode === 'swot') return generateSWOT(message)
-  if (mode === 'mindmap') return generateMindMap(message)
-  if (mode === 'coach') return generateCoachResponse(message, '', '')
-
-  const badge = (label: string, color: string, extra?: string) => `<span class="px-2.5 py-1 bg-${color}-500/10 text-${color}-400 rounded-lg text-xs font-bold border border-${color}-500/20">${label}</span>${extra ? `<span class="px-2.5 py-1 bg-purple-500/10 text-purple-400 rounded-lg text-xs font-bold border border-purple-500/20">${extra}</span>` : ''}`
-  const step = (n: number, color: string, title: string, desc: string) => `<div class="flex gap-3 bg-white/[0.02] border border-white/5 rounded-xl p-4 hover:bg-white/[0.04] hover:border-${color}-500/20 transition-all"><span class="w-8 h-8 bg-${color}-500 rounded-lg flex items-center justify-center flex-shrink-0 text-white font-bold text-xs shadow-lg shadow-${color}-500/20">${n}</span><div><p class="font-bold text-white text-sm">${title}</p><p class="text-gray-400 text-xs mt-1.5 leading-relaxed">${desc}</p></div></div>`
-  const insight = (color: string, label: string, text: string) => `<div class="bg-gradient-to-r from-${color}-500/10 to-${color}-600/10 border border-${color}-500/20 rounded-xl p-4"><p class="text-${color}-400 text-xs font-bold">${label}</p><p class="text-gray-300 text-sm mt-1">${text}</p></div>`
-
-  // Business
-  if (m.match(/bisnis|usaha|jualan|startup|toko|online shop|e-commerce|dropship|franchise|modal|revenue|monetisasi|market/)) {
-    return `<div class="space-y-4">${ctx}<div class="flex items-center gap-2 flex-wrap">${badge('BISNIS','blue','V5 ENGINE')}</div>
-      <p class="font-bold text-white text-lg">Deep Strategic Analysis: Memulai & Mengembangkan Bisnis</p>
-      <div class="bg-blue-500/5 border border-blue-500/10 rounded-xl p-4"><p class="text-blue-400 text-xs font-bold mb-2">EXECUTIVE SUMMARY</p><p class="text-gray-300 text-sm">67% startup gagal karena tidak validasi pasar. Berikut <strong class="text-white">proven framework</strong> dari 500+ startup sukses:</p></div>
-      <div class="space-y-3">
-        ${step(1,'blue','Market Validation Sprint (Minggu 1-2)','Riset 5 kompetitor. Interview 15-20 calon customer via WA/IG. Identifikasi pain point terbesar. Hypothesis: "Orang bayar Rp X untuk Y".')}
-        ${step(2,'blue','MVP Launch (Minggu 3-4)','Buat produk paling sederhana. Gunakan tools gratis: Canva, WA Business, IG Shop. Launch ke 50 orang. Kumpulkan feedback.')}
-        ${step(3,'blue','Growth Engine (Bulan 2-3)','Content marketing 3x/minggu. Referral system diskon 20%. Paid ads Rp 50K/hari di IG. Target: 50 paying customers dalam 90 hari.')}
-        ${step(4,'blue','Scale & Systemize (Bulan 4-6)','Buat SOP setiap proses. Hire 1 orang operasional. Diversifikasi 1-2 produk. Target MRR: Rp 5-10 jt/bulan.')}
+  const wrap = (title: string, badge: string, badgeColor: string, content: string) => `
+    <div class="space-y-4">${ctx}
+      <div class="flex items-center gap-2 flex-wrap">
+        <span class="px-2.5 py-1 bg-${badgeColor}-500/10 text-${badgeColor}-400 text-[10px] rounded-full border border-${badgeColor}-500/20 font-bold uppercase tracking-wider">${badge}</span>
+        <span class="text-[10px] text-gray-500">${new Date().toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'})}</span>
       </div>
-      ${insight('amber','SOVEREIGN INSIGHT','"Revenue is oxygen for business. Don\'t build in silence — sell first, build later."')}</div>`
+      <p class="font-bold text-white text-base leading-snug">${title}</p>
+      ${content}
+    </div>`
+
+  const insight = (color: string, label: string, body: string) =>
+    `<div class="bg-${color}-500/5 border-l-2 border-${color}-500 rounded-r p-3"><p class="text-[10px] text-${color}-400 font-bold uppercase tracking-wider mb-1">${label}</p><p class="text-sm text-gray-200 leading-relaxed">${body}</p></div>`
+
+  const list = (items: string[]) =>
+    `<div class="space-y-2">${items.map(i => `<div class="flex items-start gap-2.5"><span class="text-indigo-400 text-sm leading-none mt-0.5">▸</span><p class="text-sm text-gray-300 leading-relaxed flex-1">${i}</p></div>`).join('')}</div>`
+
+  // Spiritual & Faith
+  if (m.match(/spiritual|iman|agama|tuhan|allah|doa|ibadah|sholat|sabar|syukur|tawakal|ikhlas|hijrah|takwa|akhirat|dosa|tobat|berkah|rezeki halal|barokah/)) {
+    return wrap('Spiritual & Faith Strategy 🕊️','Spiritual','emerald',`
+      ${insight('emerald','FONDASI','Tanpa kompas spiritual, sukses dunia jadi kosong. Iman bukan beban — iman adalah <b>recharge</b> harian.')}
+      ${list([
+        '<b>Morning routine spiritual:</b> 5 menit muhasabah/refleksi sebelum hp dibuka',
+        '<b>Tadabbur weekly:</b> 1x/minggu baca 1 ayat + tadabbur dalam',
+        '<b>Sedekah otomatis:</b> 2.5% income → auto-transfer setiap gajian',
+        '<b>Niat ulang:</b> setiap mulai kerja, ucap "Bismillah, untuk berkah"',
+        '<b>Tahajud streak:</b> mulai 1x/minggu lalu naikkan bertahap',
+      ])}
+      ${insight('cyan','PROTOKOL HARIAN','Sholat 5 waktu on-time + dzikir 5 menit pagi & sore + 1 amal kebaikan/hari.')}
+      ${insight('amber','MINDSET','Rezeki sudah ditulis. Tugas kita adalah <b>menjemput dengan ikhtiar terbaik dan akhlak terbaik</b>.')}`)
   }
 
-  // Productivity
-  if (m.match(/produktivitas|produktif|fokus|wfh|manajemen waktu|time management|procrastina|malas|distraksi/)) {
-    return `<div class="space-y-4">${ctx}<div class="flex items-center gap-2 flex-wrap">${badge('PRODUKTIVITAS','emerald','V5 ENGINE')}</div>
-      <p class="font-bold text-white text-lg">Sistem Produktivitas Tingkat Tinggi</p>
-      <div class="bg-emerald-500/5 border border-emerald-500/10 rounded-xl p-4"><p class="text-emerald-400 text-xs font-bold mb-2">ROOT CAUSE</p><p class="text-gray-300 text-sm">3 akar: <strong class="text-white">kurang struktur</strong>, <strong class="text-white">distraksi</strong>, atau <strong class="text-white">energy management buruk</strong>.</p></div>
-      <div class="space-y-3">
-        ${step(1,'emerald','Deep Work Protocol','Blok 90 menit tanpa gangguan. HP silent, notif off. Otak butuh 23 menit untuk refocus setelah distraksi.')}
-        ${step(2,'emerald','MIT Method','Setiap pagi, tentukan 1 tugas TERPENTING. Kerjakan PERTAMA sebelum buka email. Boost produktivitas 2x.')}
-        ${step(3,'emerald','Energy Management','Tidur 7-8 jam, olahraga 3x/minggu. CEO top prioritaskan kesehatan = fondasi performa.')}
-        ${step(4,'emerald','Pomodoro + Time Blocking','25m fokus, 5m istirahat. 4 siklus = 15-30m break. Block kalender. Gunakan Pomodoro V2 SparkMind!')}
-      </div>
-      ${insight('purple','QUICK WIN','Matikan notifikasi HP, kerjakan 1 MIT selama 90 menit pertama hari. Dalam 1 minggu, rasakan perbedaannya.')}</div>`
+  // Side Hustle
+  if (m.match(/side hustle|sampingan|freelance|kerja sampingan|extra income|cuan tambahan|jualan online|bisnis sampingan|hustle/)) {
+    return wrap('Side Hustle Blueprint 💼','Side Hustle','rose',`
+      ${insight('rose','REALITAS','Side hustle = aset kebebasan. Mulai kecil, scale ketika valid. Jangan resign sebelum side income > expenses 3 bulan.')}
+      ${list([
+        '<b>Pilih satu skill</b> kamu yang sudah valid → monetize duluan',
+        '<b>Channel:</b> Fiverr, Upwork, Projects.co.id, Sribulancer, atau langsung jaringan',
+        '<b>Pricing:</b> mulai 50% market rate untuk dapat review dulu, naikkan bertahap',
+        '<b>Time-box:</b> 2 jam/hari di luar jam kerja utama, weekend 4 jam',
+        '<b>Reinvest:</b> 50% income side → tools/edukasi yang naikkan rate',
+      ])}
+      ${insight('green','TARGET 90 HARI','Bulan 1: 1 client. Bulan 2: 3 client + portfolio. Bulan 3: rate naik 50%, ada waiting list.')}
+      ${insight('cyan','EXIT STRATEGY','Resign aman ketika: side income ≥ 1.5x gaji utama selama 3 bulan + dana darurat 6 bulan.')}`)
   }
 
-  // Tech
-  if (m.match(/programming|coding|developer|belajar|roadmap|javascript|python|react|web|ai|machine learning|data|tech|software/)) {
-    return `<div class="space-y-4">${ctx}<div class="flex items-center gap-2 flex-wrap">${badge('TECH & SKILL','purple','V5 ENGINE')}</div>
-      <p class="font-bold text-white text-lg">Learning Roadmap: Nol ke Developer Profesional</p>
-      <div class="bg-purple-500/5 border border-purple-500/10 rounded-xl p-4"><p class="text-purple-400 text-xs font-bold mb-2">MARKET INSIGHT</p><p class="text-gray-300 text-sm">Developer junior Indonesia: Rp 6-15 jt/bulan. Freelance: Rp 10-50 jt/project. AI engineer: Rp 20-60 jt/bulan.</p></div>
-      <div class="space-y-3">
-        ${step(1,'purple','Foundation (Bulan 1)','HTML + CSS + JS dasar. 3 mini project. freeCodeCamp, The Odin Project.')}
-        ${step(2,'purple','Framework Mastery (Bulan 2-3)','React atau Next.js. 2 real project. API integration & state management.')}
-        ${step(3,'purple','Portfolio & Job Hunt (Bulan 4-5)','Portfolio website + 3 showcase + GitHub aktif. Apply LinkedIn, Glints, Upwork.')}
-        ${step(4,'purple','Monetize & Specialize (Bulan 6+)','Target Rp 5-15 jt/bulan. Specialize: AI/ML, mobile, cloud. Build SaaS.')}
-      </div>
-      ${insight('cyan','DAILY PROTOCOL','Minimal 2 jam belajar + 1 jam coding/hari. 100 hari konsisten = lebih baik dari 90% pemula.')}</div>`
+  // Bisnis
+  if (m.match(/bisnis|usaha|jualan|startup|umkm|customer|pelanggan|profit|omzet|marketing|brand|launch|produk|sales/)) {
+    return wrap('Strategic Business Framework 🚀','Bisnis','blue',`
+      ${insight('blue','DIAGNOSIS','MVP wajib divalidasi 30 hari. Jangan scale sebelum product-market-fit.')}
+      ${list([
+        '<b>Validasi cepat:</b> 10 wawancara calon customer, screening 5 problem teratas',
+        '<b>MVP (1-2 minggu):</b> Solusi paling minimal — fokus 1 problem, 1 segmen',
+        '<b>Pricing test:</b> 3 tier (Basic/Pro/Premium) — lihat conversion mana yang tertinggi',
+        '<b>Acquisition awal:</b> 3 channel saja — content + komunitas + referral',
+        '<b>Metrik utama:</b> CAC payback < 3 bulan, gross margin > 60%, NPS > 40',
+      ])}
+      ${insight('cyan','30 HARI PERTAMA','Goal: 10 paying customer. Dapatkan testimoni + case study real. Iterate produk dari feedback.')}
+      ${insight('amber','TRAP TO AVOID','Premature scaling sebelum PMF, terlalu banyak fitur, ignore unit economics.')}`)
   }
 
   // Career
   if (m.match(/karir|promosi|gaji|jabatan|interview|resign|pindah kerja|cv|resume|lowongan|kerja/)) {
-    return `<div class="space-y-4">${ctx}<div class="flex items-center gap-2">${badge('KARIR','amber','V5')}</div>
-      <p class="font-bold text-white text-lg">Career Acceleration Framework</p>
-      <div class="bg-amber-500/5 border border-amber-500/10 rounded-xl p-4"><p class="text-amber-400 text-xs font-bold mb-2">INSIGHT</p><p class="text-gray-300 text-sm">80% promosi ditentukan <strong class="text-white">visibility + relationship</strong>, bukan hanya hard skill.</p></div>
-      <div class="space-y-3">
-        ${step(1,'amber','Visibility Strategy','Share progress di meeting, dokumentasi achievements, volunteer project high-impact.')}
-        ${step(2,'amber','Skill Stacking','Kombinasi skill unik = rare & valuable. Technical + Communication = pemimpin.')}
-        ${step(3,'amber','Strategic Networking','Build relationship dengan 3 decision makers. 1-on-1: "What would it take for me to get promoted?"')}
-      </div>
-      ${insight('rose','ACTION','Jadwalkan coffee chat dengan 1 senior leader minggu ini.')}</div>`
+    return wrap('Career Architecture 🎯','Karir','purple',`
+      ${insight('purple','POSITIONING','Karir bagus = skill langka × visibilitas × reputasi. Bukan cuma kerja keras.')}
+      ${list([
+        '<b>Skill stack langka:</b> kombinasi 2-3 skill (mis. Tech + Komunikasi + Domain)',
+        '<b>Personal brand:</b> LinkedIn aktif 3x/minggu, share 1 case nyata/bulan',
+        '<b>Internal visibility:</b> tampil di meeting, lead 1 inisiatif/kuartal',
+        '<b>Network 20 senior:</b> coffee chat 1x/bulan dengan orang 2 level di atas',
+        '<b>Salary nego:</b> punya 2 offer paralel sebelum nego naik',
+      ])}
+      ${insight('cyan','TARGET 6 BULAN','Promosi/role naik atau pindah ke posisi 30%+ lebih tinggi. Tracking via dokumentasi pencapaian bulanan.')}
+      ${insight('amber','RED FLAG','Stuck > 18 bulan tanpa naik level/skill = kerangka karir kamu mandek.')}`)
   }
 
-  // Finance
-  if (m.match(/uang|keuangan|tabung|investasi|finansial|hutang|income|nabung|saham|crypto|reksadana|budgeting/)) {
-    return `<div class="space-y-4">${ctx}<div class="flex items-center gap-2">${badge('FINANSIAL','emerald')}</div>
-      <p class="font-bold text-white text-lg">Financial Independence Blueprint</p>
-      <div class="bg-emerald-500/5 border border-emerald-500/10 rounded-xl p-4"><p class="text-emerald-400 text-xs font-bold mb-2">INSIGHT</p><p class="text-gray-300 text-sm">Rata-rata orang Indonesia menabung &lt;10% income. Dengan strategi ini, emergency fund dalam 6 bulan.</p></div>
-      <div class="space-y-3">
-        ${step(1,'emerald','Financial Audit','Track SEMUA pengeluaran 30 hari. "Can\'t manage what you don\'t measure."')}
-        ${step(2,'emerald','Emergency Fund First','Target 3-6 bulan pengeluaran. Rekening terpisah. Prioritas #1.')}
-        ${step(3,'emerald','Multiple Income','Side hustle dari skill: freelance, mengajar, content. Target +Rp 2-5 jt/bulan.')}
-        ${step(4,'emerald','Invest Wisely','Mulai reksadana pasar uang. Pelajari saham. Crypto tanpa riset = gambling.')}
-      </div>
-      ${insight('emerald','WEALTH PRINCIPLE','"Bukan berapa yang kamu hasilkan, tapi berapa yang kamu simpan." Sisihkan 20% income PERTAMA.')}</div>`
+  // Tech & Skill
+  if (m.match(/coding|programming|developer|programmer|skill|belajar|tech|software|web|app|ai|data|python|javascript/)) {
+    return wrap('Tech Mastery Path 💻','Tech & Skill','cyan',`
+      ${insight('cyan','PRINSIP','Mastery = 1 skill mendalam > 10 skill dangkal. Pilih T-shape: 1 deep, beberapa wide.')}
+      ${list([
+        '<b>Deep stack:</b> pilih 1 stack utama (mis. TypeScript + React + Cloudflare)',
+        '<b>Build in public:</b> 1 project setiap bulan, share di GitHub + Twitter',
+        '<b>Open source contribution:</b> kontribusi 1 PR/minggu ke project favorit',
+        '<b>Reading code &gt; writing:</b> 30 menit/hari baca codebase produk yang kamu pakai',
+        '<b>Sertifikasi strategis:</b> 1 sertifikasi vendor (AWS/GCP) per tahun',
+      ])}
+      ${insight('emerald','DAILY PROTOCOL','Min 2 jam belajar + 1 jam coding/hari. 100 hari konsisten = lebih baik dari 90% developer.')}
+      ${insight('amber','TRAP','Tutorial hell — terlalu banyak nonton, sedikit ngebuild. Ratio 20% nonton : 80% build.')}`)
+  }
+
+  // Finansial
+  if (m.match(/uang|finansial|invest|saham|crypto|tabungan|hutang|kredit|bunga|reksa|emas|properti|kekayaan/)) {
+    return wrap('Wealth Building Framework 💰','Finansial','green',`
+      ${insight('green','RULE','Spend < Earn. Invest the rest. Compound 20-30 tahun.')}
+      ${list([
+        '<b>Dana darurat 6 bulan</b> di rekening likuid sebelum invest agresif',
+        '<b>Alokasi income (50/30/20):</b> 50% kebutuhan, 30% keinginan, 20% invest',
+        '<b>Diversifikasi:</b> 60% indeks/reksa dana, 20% emas/USD, 20% sektor potensi',
+        '<b>Hindari hutang konsumtif</b> — kecuali rumah utama atau aset produktif',
+        '<b>Multiple income:</b> aktif (kerja) + pasif (dividen/sewa) + portfolio (skill)',
+      ])}
+      ${insight('cyan','TARGET 3 TAHUN','Net worth 3x gaji tahunan. Income pasif menutupi 30% expenses.')}
+      ${insight('amber','TRAP','FOMO trading harian, leverage tinggi, dengar tip orang random.')}`)
+  }
+
+  // Produktivitas
+  if (m.match(/produktivitas|fokus|disiplin|kebiasaan|habit|waktu|prokrastinasi|malas|menunda/)) {
+    return wrap('Productivity OS 🍅','Produktivitas','orange',`
+      ${insight('orange','RULE OF 3','Pilih max 3 prioritas/hari. Selesaikan dulu sebelum sentuh notifikasi/email.')}
+      ${list([
+        '<b>Pomodoro 25/5:</b> minimal 4 sesi sebelum makan siang',
+        '<b>Deep work block:</b> 90 menit no-interrupt pagi, hp di mode pesawat',
+        '<b>End-of-day review:</b> 5 menit tulis 3 wins + plan 3 prioritas besok',
+        '<b>Energy management:</b> tugas berat saat energi puncak (biasanya 9-11 pagi)',
+        '<b>Eliminasi:</b> tiap 1 hal yang ditambah, kurangi 1 hal lain',
+      ])}
+      ${insight('cyan','DEEP WORK FORMULA','Output bernilai = (Waktu) × (Intensitas Fokus). Maksimalkan intensitas, bukan jam kerja.')}
+      ${insight('amber','TRAP','Menyibukkan diri tapi tidak produktif. Aktif ≠ produktif.')}`)
   }
 
   // Mental Health
-  if (m.match(/stress|burnout|mental|motivasi|galau|overthink|sedih|anxiety|depresi|lelah|capek|susah tidur|insomnia|bingung|takut/)) {
-    return `<div class="space-y-4">${ctx}<div class="flex items-center gap-2">${badge('MENTAL HEALTH','rose','IMPORTANT')}</div>
-      <p class="font-bold text-white text-lg">Mental Resilience Framework</p>
-      <div class="bg-rose-500/5 border border-rose-500/10 rounded-xl p-4"><p class="text-rose-400 text-xs font-bold mb-2">NOTE</p><p class="text-gray-300 text-sm">Mental health nyata & valid. Jika overwhelmed, bicara dengan profesional. Into The Light ID: 119.</p></div>
-      <div class="space-y-3">
-        ${step(1,'rose','Grounding 5-4-3-2-1','5 hal dilihat, 4 disentuh, 3 suara, 2 bau, 1 rasa. Kembali ke present moment.')}
-        ${step(2,'rose','Journaling Protocol','3 hal disyukuri setiap malam. Brain dump pikiran negatif ke kertas. Gunakan Journal di SparkMind!')}
-        ${step(3,'rose','Recovery Ritual','Tidur 7-8 jam, jalan kaki 20 menit/hari, kurangi screen time malam.')}
-        ${step(4,'rose','Cognitive Reframing','Ubah "Aku gagal" → "Aku sedang belajar". Perspektif menentukan realita.')}
-      </div>
-      ${insight('violet','REMINDER','"You don\'t have to have it all figured out. Taking care of yourself IS productive."')}</div>`
+  if (m.match(/cemas|stress|stres|depresi|sedih|burnout|lelah mental|overthink|anxiety|panic|trauma|self/)) {
+    return wrap('Mental Resilience Toolkit 🧘','Mental Health','pink',`
+      ${insight('pink','VALIDASI','Yang kamu rasakan valid. Mental health = prioritas, bukan kelemahan.')}
+      ${list([
+        '<b>4-7-8 breathing:</b> 4 detik tarik, 7 tahan, 8 buang — 4 ronde saat cemas',
+        '<b>Gratitude journal:</b> 3 hal yang disyukuri, sebelum tidur',
+        '<b>Body scan 5 menit:</b> rasakan tubuh dari ujung kepala ke kaki',
+        '<b>Cut digital input:</b> 1 jam sebelum tidur no screen, no scrolling',
+        '<b>Olahraga ringan</b> 30 menit/hari — proven naikkan serotonin/endorfin',
+      ])}
+      ${insight('cyan','BATAS','Kalau gejala &gt; 2 minggu, berat, atau ganggu fungsi → cari profesional. <b>Itu kekuatan, bukan kelemahan.</b>')}
+      ${insight('amber','PRINSIP','You are not your thoughts. Observe, don&#39;t identify.')}`)
   }
 
   // Relationship
-  if (m.match(/hubungan|pacar|cinta|nikah|relationship|pasangan|jodoh|toxic|putus|selingkuh|komunikasi/)) {
-    return `<div class="space-y-4">${ctx}<div class="flex items-center gap-2">${badge('RELATIONSHIP','pink')}</div>
-      <p class="font-bold text-white text-lg">Relationship Strategic Framework</p>
-      <div class="bg-pink-500/5 border border-pink-500/10 rounded-xl p-4"><p class="text-pink-400 text-xs font-bold mb-2">PERSPECTIVE</p><p class="text-gray-300 text-sm">Hubungan sehat = <strong class="text-white">dua individu utuh</strong>, bukan saling melengkapi kekurangan.</p></div>
-      <div class="space-y-3">
-        ${step(1,'pink','Build Yourself First','Jadi versi terbaik: stabil mental, punya tujuan, mandiri finansial.')}
-        ${step(2,'pink','Respect Boundaries','Hormati batasan orang lain. Keheninganmu = pernyataan kedaulatan terkuat.')}
-        ${step(3,'pink','Value Alignment','Cari pasangan share visi & value. Compatibility > chemistry.')}
-      </div>
-      ${insight('violet','TRUTH','"The right person won\'t make you chase them. They\'ll meet you halfway."')}</div>`
+  if (m.match(/hubungan|pacar|nikah|menikah|jodoh|pasangan|keluarga|teman|sahabat|cinta|putus|cerai|ldr/)) {
+    return wrap('Relationship Architecture ❤️','Relationship','red',`
+      ${insight('red','PRINSIP','Relasi sehat = saling tumbuh, saling jujur, saling support — bukan saling kontrol.')}
+      ${list([
+        '<b>Komunikasi non-violent:</b> "Aku merasa X ketika Y, karena Z."',
+        '<b>Active listening:</b> 70% dengar, 30% bicara. Validasi sebelum solusi.',
+        '<b>Quality time tanpa hp:</b> 30 menit/hari fokus penuh pasangan/keluarga',
+        '<b>Conflict 24-jam rule:</b> tidak buat keputusan besar saat emosi panas',
+        '<b>Personal growth bareng:</b> setiap orang ada goal individu yang didukung',
+      ])}
+      ${insight('cyan','RED FLAGS','Manipulasi, kontrol, kekerasan (fisik/verbal/finansial), tidak ada respect. Walk away.')}
+      ${insight('amber','GREEN FLAG','Bisa diajak bicara hal sulit, akui kesalahan, support mimpi kamu, growth mindset.')}`)
   }
 
-  // Education
-  if (m.match(/kuliah|sekolah|ujian|skripsi|tesis|ipk|beasiswa|lulus|sertifikasi/)) {
-    return `<div class="space-y-4">${ctx}<div class="flex items-center gap-2">${badge('PENDIDIKAN','indigo')}</div>
-      <p class="font-bold text-white text-lg">Academic Excellence Framework</p>
-      <div class="bg-indigo-500/5 border border-indigo-500/10 rounded-xl p-4"><p class="text-indigo-400 text-xs font-bold mb-2">STUDY INTELLIGENCE</p><p class="text-gray-300 text-sm">Active recall + spaced repetition 3x lebih efektif dari membaca ulang.</p></div>
-      <div class="space-y-3">
-        ${step(1,'indigo','Active Recall','Tutup buku, coba ingat. Buat pertanyaan dari materi. Test yourself.')}
-        ${step(2,'indigo','Spaced Repetition','Review hari 1, 3, 7, 14, 30. Gunakan Anki/Quizlet.')}
-        ${step(3,'indigo','Feynman Technique','Jelaskan konsep seolah mengajar anak 12 tahun.')}
-      </div>
-      ${insight('blue','PROTOCOL','2 jam focused study + Pomodoro > 6 jam scrolling sambil belajar.')}</div>`
+  // Pendidikan
+  if (m.match(/sekolah|kuliah|kampus|jurusan|skripsi|tesis|beasiswa|sertifikasi|pendidikan|s1|s2|s3/)) {
+    return wrap('Learning Strategy 🎓','Pendidikan','indigo',`
+      ${insight('indigo','PRINSIP','Pendidikan formal = fondasi. Pendidikan diri = differentiator. Keduanya wajib.')}
+      ${list([
+        '<b>Active recall &gt; re-reading:</b> bikin soal sendiri, tutup buku, jawab',
+        '<b>Spaced repetition:</b> Anki/Quizlet untuk konsep penting',
+        '<b>Feynman technique:</b> jelaskan ke anak SD — kalau bisa, kamu paham',
+        '<b>Project-based learning:</b> tiap topik = 1 proyek nyata',
+        '<b>Teach to learn:</b> ngajar/bikin konten = retention 90%',
+      ])}
+      ${insight('cyan','BEYOND CAMPUS','Coursera/edX/YouTube + komunitas + mentor. Skill dunia kerja jarang diajar di kampus.')}
+      ${insight('amber','TRAP','Hanya kejar nilai tanpa skill nyata. Lulus dengan IPK tinggi tapi tidak punya portfolio = bahaya.')}`)
   }
 
   // Health
-  if (m.match(/olahraga|diet|gym|sehat|berat badan|kurus|gemuk|fitness|nutrisi|makan/)) {
-    return `<div class="space-y-4">${ctx}<div class="flex items-center gap-2">${badge('HEALTH','teal')}</div>
-      <p class="font-bold text-white text-lg">Health & Fitness Optimization</p>
-      <div class="bg-teal-500/5 border border-teal-500/10 rounded-xl p-4"><p class="text-teal-400 text-xs font-bold mb-2">BODY INTELLIGENCE</p><p class="text-gray-300 text-sm">Kesehatan fisik = <strong class="text-white">fondasi segala performa</strong>.</p></div>
-      <div class="space-y-3">
-        ${step(1,'teal','Movement Daily','Minimal 30 menit/hari. Jalan kaki, jogging, bodyweight exercise.')}
-        ${step(2,'teal','Nutrition','80% diet, 20% exercise. Protein, kurangi gula. Air 2-3 liter/hari.')}
-        ${step(3,'teal','Sleep Protocol','7-8 jam. No screen 1 jam sebelum tidur. Kamar gelap & sejuk.')}
-      </div>
-      ${insight('teal','START NOW','"Take care of your body." Mulai dengan 10 menit push-up + plank hari ini.')}</div>`
+  if (m.match(/kesehatan|olahraga|gym|diet|berat badan|kurus|gemuk|tidur|insomnia|nutrisi|sehat/)) {
+    return wrap('Physical Health OS 💪','Health','teal',`
+      ${insight('teal','3 PILAR','Tidur 7-9 jam + makan whole food + gerak 150 menit/minggu. Non-negotiable.')}
+      ${list([
+        '<b>Sleep:</b> jadwal konsisten ±30 menit, kamar gelap-dingin, no caffeine sore',
+        '<b>Strength training:</b> 3-4x/minggu, fokus compound (squat, deadlift, push-up)',
+        '<b>Cardio low-intensity:</b> jalan 8-10rb langkah/hari, lebih sustainable',
+        '<b>Protein 1.6-2g/kg BB:</b> minimal 30g/meal untuk muscle preservation',
+        '<b>Hydration:</b> 30-35ml/kg BB/hari, lebih saat olahraga',
+      ])}
+      ${insight('cyan','PRINSIP','Konsistensi 70% &gt; sempurna 100%. Mulai 10 menit/hari, naikkan bertahap.')}
+      ${insight('amber','TRAP','Diet ekstrem, latihan terlalu banyak tanpa istirahat, ignore tidur.')}`)
   }
 
   // Creative
-  if (m.match(/konten|youtube|tiktok|instagram|influencer|content creator|blog|podcast|desain|kreativ|personal brand/)) {
-    return `<div class="space-y-4">${ctx}<div class="flex items-center gap-2">${badge('CREATIVE','orange')}</div>
-      <p class="font-bold text-white text-lg">Content Creator Monetization Blueprint</p>
-      <div class="bg-orange-500/5 border border-orange-500/10 rounded-xl p-4"><p class="text-orange-400 text-xs font-bold mb-2">CREATOR ECONOMY</p><p class="text-gray-300 text-sm">Creator economy Indonesia tumbuh <strong class="text-white">40%/tahun</strong>. 10K followers = Rp 3-10 jt/bulan.</p></div>
-      <div class="space-y-3">
-        ${step(1,'orange','Pick Your Niche','Passion + Expertise + Demand. 1000 true fans > 100K casual.')}
-        ${step(2,'orange','Content System','Batch create: 1 hari produksi = 1 minggu konten. Hook, Value, CTA.')}
-        ${step(3,'orange','Monetize Stack','Ads → Sponsorship → Digital Products → Community → Consulting.')}
-      </div>
-      ${insight('orange','START TODAY','"Post 100 konten sebelum judge hasilnya." Algoritma rewards consistency.')}</div>`
+  if (m.match(/konten|content|kreator|youtube|tiktok|instagram|reels|video|tulis|blog|podcast|design/)) {
+    return wrap('Creator Economy Playbook 🎨','Creative','fuchsia',`
+      ${insight('fuchsia','PRINSIP','Konten konsisten + niche + nilai = audience. Jangan kejar viral, kejar resonance.')}
+      ${list([
+        '<b>Niche dulu:</b> 1 audiens spesifik, 1 problem, 1 sudut pandang unik',
+        '<b>Content calendar:</b> 3 jenis konten — Educate, Inspire, Entertain',
+        '<b>Hook 3 detik:</b> caption + visual harus stop scroll',
+        '<b>Repurpose:</b> 1 long-form → 5-10 short-form di platform berbeda',
+        '<b>Engagement &gt; views:</b> reply komen 30 menit pertama after post',
+      ])}
+      ${insight('cyan','MONETISASI','Mulai dari $0: jualan jasa (paling cepat) → produk digital → sponsorship → komunitas berbayar.')}
+      ${insight('amber','TRAP','Burnout karena posting harian tanpa sistem. Quality &gt; quantity.')}`)
   }
 
   // Leadership
-  if (m.match(/leadership|pemimpin|manage|team|tim|delegasi|boss|atasan/)) {
-    return `<div class="space-y-4">${ctx}<div class="flex items-center gap-2">${badge('LEADERSHIP','violet')}</div>
-      <p class="font-bold text-white text-lg">Sovereign Leadership Framework</p>
-      <div class="bg-violet-500/5 border border-violet-500/10 rounded-xl p-4"><p class="text-violet-400 text-xs font-bold mb-2">INTELLIGENCE</p><p class="text-gray-300 text-sm">Leadership = <strong class="text-white">influence, not position</strong>.</p></div>
-      <div class="space-y-3">
-        ${step(1,'violet','Lead by Example','Tim mengikuti tindakan, bukan kata-kata. Be the standard.')}
-        ${step(2,'violet','Clear Communication','WHY, WHAT, HOW. Tim yang paham "kenapa" bergerak lebih cepat.')}
-        ${step(3,'violet','Empower & Delegate','Trust team. Delegate outcomes, not tasks. Create more leaders.')}
-      </div>
-      ${insight('violet','PRINCIPLE','"A leader knows the way, goes the way, shows the way." — John C. Maxwell')}</div>`
+  if (m.match(/leader|pemimpin|kepemimpinan|tim|team|manager|atasan|delegasi|memimpin/)) {
+    return wrap('Leadership Operating System 👑','Leadership','amber',`
+      ${insight('amber','PRINSIP','Leadership = service. Pemimpin hebat = melayani tim agar mereka sukses.')}
+      ${list([
+        '<b>Vision yang jelas:</b> tim tahu &quot;why&quot; sebelum &quot;what&quot;',
+        '<b>1-on-1 weekly:</b> 30 menit per anggota tim, fokus growth mereka',
+        '<b>Radical candor:</b> care personally + challenge directly',
+        '<b>Decision frame (RAPID):</b> Recommend, Agree, Perform, Input, Decide',
+        '<b>Psychological safety:</b> tim aman speak up, gagal, eksperimen',
+      ])}
+      ${insight('cyan','PROTOKOL HARIAN','30 menit thinking-time tidak terganggu + delegasi 80%, lakukan 20%.')}
+      ${insight('rose','TRAP','Micromanage, ambil semua kerjaan sendiri, takut delegate, ego dijual sebagai standar.')}`)
   }
 
-  // Life Purpose / Ikigai
-  if (m.match(/tujuan hidup|makna|purpose|passion|ikigai/)) {
-    return `<div class="space-y-4">${ctx}<div class="flex items-center gap-2">${badge('LIFE PURPOSE','indigo','V5')}</div>
-      <p class="font-bold text-white text-lg">Finding Your Ikigai</p>
-      <div class="bg-indigo-500/5 border border-indigo-500/10 rounded-xl p-4"><p class="text-indigo-400 text-xs font-bold mb-2">DEEP INSIGHT</p><p class="text-gray-300 text-sm">Ikigai: <strong class="text-white">passion × misi × profesi × panggilan</strong>.</p></div>
-      <div class="space-y-3">
-        ${step(1,'indigo','What You Love','10 hal yang bikin excited tanpa dibayar. Pattern?')}
-        ${step(2,'indigo','What You\'re Good At','Skill yang orang selalu minta bantuanmu. Clue unique ability.')}
-        ${step(3,'indigo','What World Needs','Masalah yang paling ingin diselesaikan. Your mission.')}
-        ${step(4,'indigo','What You Can Be Paid For','Di mana market demand? Intersection = Ikigai.')}
-      </div>
-      ${insight('indigo','TRUTH','"The meaning of life is to find your gift. The purpose is to give it away." — Picasso')}</div>`
-  }
-
-  // Spiritual / Faith (NEW V5)
-  if (m.match(/spiritual|ibadah|doa|iman|tuhan|allah|tawakal|sabar|syukur|hijrah|religi|agama/)) {
-    return `<div class="space-y-4">${ctx}<div class="flex items-center gap-2">${badge('SPIRITUAL & FAITH','violet','V5 NEW')}</div>
-      <p class="font-bold text-white text-lg">Spiritual Strength Framework</p>
-      <div class="bg-violet-500/5 border border-violet-500/10 rounded-xl p-4"><p class="text-violet-400 text-xs font-bold mb-2">DEEP INSIGHT</p><p class="text-gray-300 text-sm">Spiritualitas yang kuat = <strong class="text-white">fondasi ketahanan mental</strong>. Orang dengan praktik spiritual harian 30% lebih resilient.</p></div>
-      <div class="space-y-3">
-        ${step(1,'violet','Daily Practice','Pagi 10 menit: doa, meditasi, atau Quran/scripture. Set niat hari ini.')}
-        ${step(2,'violet','Gratitude Ritual','Malam: 3 hal disyukuri. Gratitude rewires brain to positive.')}
-        ${step(3,'violet','Tawakal & Action','Berdoa seolah semua tergantung Tuhan, bekerja seolah semua tergantung kamu.')}
-        ${step(4,'violet','Community','Komunitas spiritual: rutinitas, akuntabilitas, support. Jangan jalan sendiri.')}
-      </div>
-      ${insight('violet','SOVEREIGN PRINCIPLE','"Where there is faith, there is no fear. Trust the process — your effort + His timing."')}</div>`
-  }
-
-  // Side Hustle (NEW V5)
-  if (m.match(/side hustle|kerja sampingan|freelance|side project|bisnis sampingan|extra income|gig/)) {
-    return `<div class="space-y-4">${ctx}<div class="flex items-center gap-2">${badge('SIDE HUSTLE','green','V5 NEW')}</div>
-      <p class="font-bold text-white text-lg">Side Hustle Acceleration Blueprint</p>
-      <div class="bg-green-500/5 border border-green-500/10 rounded-xl p-4"><p class="text-green-400 text-xs font-bold mb-2">REVENUE INSIGHT</p><p class="text-gray-300 text-sm">85% miliarder punya <strong class="text-white">7 income streams</strong>. Side hustle = jalur kedua menuju sovereignty.</p></div>
-      <div class="space-y-3">
-        ${step(1,'green','Audit Skill & Asset','List semua skill kamu. 3 yang paling marketable? Mulai dari sana.')}
-        ${step(2,'green','Pick One Lane','Service (freelance), Product (digital), atau Content (creator). Fokus 1 sampai jalan.')}
-        ${step(3,'green','First $100 Sprint','Goal: dapat customer pertama dalam 30 hari. Upwork, Fiverr, IG, TikTok.')}
-        ${step(4,'green','Scale Smart','Setelah konsisten Rp 2-5 jt/bulan, sistemkan. Otomatisasi, hire VA, scale.')}
-      </div>
-      ${insight('green','ACTION','"Don\'t quit your job to start. Start, then quit when income matches." Tonight: list 3 skill yang bisa kamu monetize.')}</div>`
+  // Life Purpose
+  if (m.match(/purpose|tujuan hidup|ikigai|passion|panggilan|makna hidup|misi|visi pribadi/)) {
+    return wrap('Ikigai & Life Purpose 🌟','Tujuan Hidup','violet',`
+      ${insight('violet','IKIGAI','Persimpangan dari: yang kamu cintai × kamu jago × dunia butuh × bisa dibayar.')}
+      ${list([
+        '<b>Audit 3 bulan terakhir:</b> kapan kamu paling alive? Catat polanya.',
+        '<b>Future self exercise:</b> tulis surat dari diri 10 tahun lagi yang bahagia',
+        '<b>Test small bets:</b> coba 3-5 arah kecil sebelum komit besar',
+        '<b>Energy audit:</b> aktivitas apa yang charge vs drain?',
+        '<b>Death-bed test:</b> akan kamu sesali apa kalau besok meninggal?',
+      ])}
+      ${insight('cyan','LANGKAH','Tujuan hidup bukan ditemukan, tapi dibangun lewat tindakan + refleksi konsisten.')}
+      ${insight('amber','TRAP','Menunggu &quot;ah-ha moment&quot; sempurna. Itu mitos. Mulai dari yang ada sekarang.')}`)
   }
 
   // Networking
-  if (m.match(/networking|teman|social|introvert|pergaulan|komunitas|kenalan|public speaking/)) {
-    return `<div class="space-y-4">${ctx}<div class="flex items-center gap-2">${badge('NETWORKING','cyan','V5')}</div>
-      <p class="font-bold text-white text-lg">Strategic Networking Framework</p>
-      <div class="bg-cyan-500/5 border border-cyan-500/10 rounded-xl p-4"><p class="text-cyan-400 text-xs font-bold mb-2">NETWORK INTELLIGENCE</p><p class="text-gray-300 text-sm">Your network = <strong class="text-white">net worth</strong>. 85% jobs filled through networking.</p></div>
-      <div class="space-y-3">
-        ${step(1,'cyan','Give Before Ask','Bantu orang lain tanpa pamrih. Share knowledge, connect people.')}
-        ${step(2,'cyan','Strategic Circles','Join 2-3 komunitas sesuai niche. Hadir konsisten.')}
-        ${step(3,'cyan','Follow-Up System','Kenalan baru → follow up 48 jam. Pesan personal, bukan template.')}
-      </div>
-      ${insight('cyan','ACTION','Minggu ini: reach out ke 3 orang baru di bidangmu.')}</div>`
+  if (m.match(/networking|relasi profesional|koneksi|kenalan|linkedin|komunitas|circle|inner circle/)) {
+    return wrap('Networking Strategy 🤝','Networking','sky',`
+      ${insight('sky','PRINSIP','Net worth = network. Tapi quality &gt; quantity. 50 koneksi kuat &gt; 5000 dangkal.')}
+      ${list([
+        '<b>Give first:</b> bantu 3 orang/minggu tanpa expect balasan',
+        '<b>Coffee chat 1x/minggu</b> dengan orang lebih senior/berbeda industri',
+        '<b>Komunitas 2-3 grup:</b> aktif, bukan hanya member silent',
+        '<b>Personal CRM:</b> catat kontak, last interaction, follow-up jadwal',
+        '<b>Bring value:</b> share insights, intro orang ke orang, kirim resource',
+      ])}
+      ${insight('cyan','LINKEDIN','Post 3x/minggu, comment di 10 post relevan/hari, DM personal — bukan template.')}
+      ${insight('amber','TRAP','Spam pitch di pertemuan pertama, koleksi kartu nama tanpa follow-up.')}`)
   }
 
   // Parenting
-  if (m.match(/anak|parenting|keluarga|orang tua|mendidik|balita|remaja|family/)) {
-    return `<div class="space-y-4">${ctx}<div class="flex items-center gap-2">${badge('PARENTING','pink','V5')}</div>
-      <p class="font-bold text-white text-lg">Smart Parenting Framework</p>
-      <div class="bg-pink-500/5 border border-pink-500/10 rounded-xl p-4"><p class="text-pink-400 text-xs font-bold mb-2">PARENTING INSIGHT</p><p class="text-gray-300 text-sm">Anak belajar dari <strong class="text-white">apa yang kamu lakukan</strong>, bukan apa yang kamu katakan.</p></div>
-      <div class="space-y-3">
-        ${step(1,'pink','Quality Time','15 menit penuh perhatian > 3 jam sambil HP. Be fully present.')}
-        ${step(2,'pink','Emotional Coaching','Validasi emosi: "Aku paham kamu kesal." Label → regulate → problem solve.')}
-        ${step(3,'pink','Positive Discipline','Batas tegas + kasih sayang. Natural consequences > hukuman.')}
-        ${step(4,'pink','Growth Environment','Buku, kreativitas, eksplorasi. Curiosity > obedience.')}
-      </div>
-      ${insight('pink','PRINCIPLE','"Children don\'t need perfect parents. They need authentic ones."')}</div>`
+  if (m.match(/anak|parenting|orangtua|keluarga inti|mendidik|toddler|sekolah anak/)) {
+    return wrap('Parenting Strategy 👨‍👩‍👧','Parenting','lime',`
+      ${insight('lime','PRINSIP','Anak meniru bukan mendengar. Jadi versi terbaik diri kamu = parenting terbaik.')}
+      ${list([
+        '<b>Quality time tanpa hp:</b> minimal 1 jam/hari fokus total',
+        '<b>Konsistensi rule:</b> aturan sama dari kedua orangtua',
+        '<b>Validate emotion:</b> "Kamu kecewa ya, papa ngerti." sebelum solusi',
+        '<b>Reading bedtime:</b> 15 menit/hari = lifelong learner',
+        '<b>Modeling stress management:</b> tunjukkan cara handle masalah dengan tenang',
+      ])}
+      ${insight('cyan','GROWTH MINDSET','Puji effort, bukan hasil. "Pintar banget kamu usahanya!" &gt; "Pintar banget nilainya!"')}
+      ${insight('amber','TRAP','Helicopter parenting, comparison ke anak lain, screen-time pengganti attention.')}`)
   }
 
   // Time Freedom
-  if (m.match(/passive income|kebebasan|waktu luang|freedom|pensiun dini|financial freedom|fire/)) {
-    return `<div class="space-y-4">${ctx}<div class="flex items-center gap-2">${badge('TIME FREEDOM','amber','V5')}</div>
-      <p class="font-bold text-white text-lg">Path to Time Freedom</p>
-      <div class="bg-amber-500/5 border border-amber-500/10 rounded-xl p-4"><p class="text-amber-400 text-xs font-bold mb-2">FREEDOM BLUEPRINT</p><p class="text-gray-300 text-sm">True wealth = <strong class="text-white">control over your time</strong>, bukan jumlah uang.</p></div>
-      <div class="space-y-3">
-        ${step(1,'amber','Build Skill Asset','Skill yang bisa generate income tanpa trading time. Coding, writing, design.')}
-        ${step(2,'amber','Create Systems','SOP, automation, delegation. Bisnis jalan tanpa kamu harus ada.')}
-        ${step(3,'amber','Build Assets','Digital products, online courses, affiliate. Income while you sleep.')}
-        ${step(4,'amber','FIRE Target','25x annual expenses. Invest in index funds. Live below means.')}
-      </div>
-      ${insight('amber','TRUTH','"Rich is having money. Wealthy is having time."')}</div>`
+  if (m.match(/kebebasan waktu|financial freedom|passive income|fire|pensiun|retire early|location freedom/)) {
+    return wrap('Time & Financial Freedom 🗽','Time Freedom','emerald',`
+      ${insight('emerald','PRINSIP','Tujuan akhir bukan kekayaan, tapi waktu &amp; kebebasan memilih.')}
+      ${list([
+        '<b>FIRE number:</b> 25x annual expenses (rule 4%)',
+        '<b>Income asymmetric:</b> bangun aset yang scale tanpa waktu (digital product, royalti, dividen)',
+        '<b>Lifestyle inflation guard:</b> setiap raise, invest 50% dulu sebelum upgrade gaya hidup',
+        '<b>Skip rat race:</b> kerja remote/freelance/digital nomad bila memungkinkan',
+        '<b>Calendar audit:</b> 1x/bulan review apa drain waktu — eliminate atau outsource',
+      ])}
+      ${insight('cyan','LANGKAH','Coast FI dulu (tidak perlu tambah tabungan, biarkan compound) → baru full FI.')}
+      ${insight('amber','TRAP','Gaya hidup naik bareng income — &quot;hedonic treadmill&quot;. Tetap simple, invest the diff.')}`)
   }
 
-  // Default
-  return `<div class="space-y-4">${ctx}<div class="flex items-center gap-2">${badge('STRATEGIC ANALYSIS','blue','V5 ENGINE')}</div>
-    <p class="font-bold text-white text-lg">Framework Pemecahan Masalah Universal</p>
-    <div class="bg-blue-500/5 border border-blue-500/10 rounded-xl p-4"><p class="text-blue-400 text-xs font-bold mb-2">ANALYSIS</p><p class="text-gray-300 text-sm">Setiap masalah bisa dipecahkan dengan pendekatan terstruktur:</p></div>
-    <div class="space-y-3">
-      ${step(1,'blue','Define','Tulis masalah dalam 1 kalimat jelas.')}
-      ${step(2,'blue','Decompose','Pecah jadi langkah kecil. Setiap langkah actionable 1-3 hari.')}
-      ${step(3,'blue','Execute','Ambil 1 langkah PERTAMA hari ini.')}
-      ${step(4,'blue','Iterate','Review setiap minggu. Done > perfect.')}
-    </div>
-    ${insight('amber','PRO TIP','Coba spesifik: <strong class="text-white">bisnis, karir, skill, keuangan, produktivitas, mental health, hubungan, pendidikan, kesehatan, konten, leadership, tujuan hidup, networking, parenting, time freedom, spiritual, side hustle</strong> — 18 kategori siap bantu!')}</div>`
+  // Default Universal
+  return wrap('Strategic Universal Framework 🧠','Universal','indigo',`
+    ${insight('indigo','PROBLEM FRAMING','Definisikan ulang masalah kamu. Solusi bagus dimulai dari pertanyaan tepat.')}
+    ${list([
+      '<b>Diagnosa:</b> Apa root cause real (pakai 5-Why)?',
+      '<b>Hypothesis:</b> Apa solusi paling kecil yang bisa divalidasi 7 hari?',
+      '<b>Action:</b> 3 langkah konkret yang bisa kamu mulai hari ini',
+      '<b>Metrik:</b> Bagaimana kamu tahu ini berhasil/gagal?',
+      '<b>Iterate:</b> Review weekly, adjust mingguan',
+    ])}
+    ${insight('cyan','PROTOKOL UNIVERSAL','Strategy = clarity × focus × consistency × speed. Hilangkan 1 = momentum hilang.')}
+    ${insight('amber','PRINSIP','Lebih baik 1 langkah salah lalu corrected, daripada paralisis analisis 6 bulan.')}`)
 }
 
 function generateSWOT(business: string): string {
-  const b = business.substring(0, 60)
+  const safe = business.replace(/[<>]/g, '')
   return `<div class="space-y-4">
-    <p class="font-bold text-white text-lg">SWOT Analysis: ${b}</p>
-    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-      <div class="bg-emerald-500/5 border border-emerald-500/10 rounded-xl p-4"><p class="font-bold text-emerald-400 text-sm mb-3">Strengths</p><ul class="text-gray-300 text-xs space-y-1.5"><li>• Passion & dedikasi tinggi</li><li>• Kemampuan teknis berkembang</li><li>• Low overhead cost</li><li>• Fleksibilitas & akses AI tools</li></ul></div>
-      <div class="bg-red-500/5 border border-red-500/10 rounded-xl p-4"><p class="font-bold text-red-400 text-sm mb-3">Weaknesses</p><ul class="text-gray-300 text-xs space-y-1.5"><li>• Modal awal terbatas</li><li>• Belum ada track record</li><li>• Network bisnis kecil</li><li>• Kurang pengalaman marketing</li></ul></div>
-      <div class="bg-blue-500/5 border border-blue-500/10 rounded-xl p-4"><p class="font-bold text-blue-400 text-sm mb-3">Opportunities</p><ul class="text-gray-300 text-xs space-y-1.5"><li>• Pasar digital tumbuh 30%/tahun</li><li>• Remote work trend</li><li>• AI niche baru</li><li>• UMKM butuh digital</li></ul></div>
-      <div class="bg-amber-500/5 border border-amber-500/10 rounded-xl p-4"><p class="font-bold text-amber-400 text-sm mb-3">Threats</p><ul class="text-gray-300 text-xs space-y-1.5"><li>• Kompetisi global</li><li>• Perubahan tech cepat</li><li>• Ketidakpastian ekonomi</li><li>• AI replacing low-skill</li></ul></div>
+    <p class="font-bold text-white text-lg">SWOT Analysis: ${safe}</p>
+    <div class="grid sm:grid-cols-2 gap-3">
+      <div class="bg-green-500/10 border border-green-500/20 rounded-xl p-4">
+        <p class="text-xs text-green-400 font-bold uppercase mb-2">💪 Strengths</p>
+        <ul class="text-sm text-gray-200 space-y-1.5"><li>• Fokus value unik</li><li>• Tim agile, decision cepat</li><li>• Cost structure rendah</li></ul>
+      </div>
+      <div class="bg-red-500/10 border border-red-500/20 rounded-xl p-4">
+        <p class="text-xs text-red-400 font-bold uppercase mb-2">⚠️ Weaknesses</p>
+        <ul class="text-sm text-gray-200 space-y-1.5"><li>• Brand awareness terbatas</li><li>• Resources marketing kecil</li><li>• Belum ada moat kuat</li></ul>
+      </div>
+      <div class="bg-blue-500/10 border border-blue-500/20 rounded-xl p-4">
+        <p class="text-xs text-blue-400 font-bold uppercase mb-2">🚀 Opportunities</p>
+        <ul class="text-sm text-gray-200 space-y-1.5"><li>• Pasar tumbuh 25% YoY</li><li>• Pesaing besar lambat adopt</li><li>• Trend sosial favorable</li></ul>
+      </div>
+      <div class="bg-amber-500/10 border border-amber-500/20 rounded-xl p-4">
+        <p class="text-xs text-amber-400 font-bold uppercase mb-2">🛡️ Threats</p>
+        <ul class="text-sm text-gray-200 space-y-1.5"><li>• Regulasi berubah</li><li>• Pesaing baru agresif</li><li>• Customer acquisition cost naik</li></ul>
+      </div>
     </div>
-    <div class="bg-gradient-to-r from-indigo-500/10 to-blue-500/10 border border-indigo-500/20 rounded-xl p-4"><p class="text-indigo-400 text-xs font-bold">RECOMMENDATION</p><p class="text-gray-300 text-sm mt-1">Leverage strengths → capture opportunities. Mitigate weaknesses via networking. Counter threats via continuous learning.</p></div></div>`
-}
-
-function generateMindMap(topic: string): string {
-  return `<div class="space-y-4"><p class="font-bold text-white text-lg">Mind Map: ${topic.substring(0, 40)}</p>
-    <div class="bg-indigo-500/5 border border-indigo-500/10 rounded-xl p-6"><div class="text-center mb-5"><span class="inline-block bg-indigo-500 text-white px-5 py-2.5 rounded-full font-bold text-sm shadow-lg">${topic.substring(0, 30)}</span></div>
-    <div class="grid grid-cols-2 gap-4">
-      <div class="bg-white/[0.03] border border-white/5 rounded-lg p-3"><p class="font-bold text-indigo-400 text-xs mb-2">Planning</p><ul class="text-gray-400 text-xs space-y-1"><li>Goals</li><li>Research</li><li>Timeline</li></ul></div>
-      <div class="bg-white/[0.03] border border-white/5 rounded-lg p-3"><p class="font-bold text-emerald-400 text-xs mb-2">Execution</p><ul class="text-gray-400 text-xs space-y-1"><li>Build MVP</li><li>Test</li><li>Launch</li></ul></div>
-      <div class="bg-white/[0.03] border border-white/5 rounded-lg p-3"><p class="font-bold text-amber-400 text-xs mb-2">Growth</p><ul class="text-gray-400 text-xs space-y-1"><li>Marketing</li><li>Scale</li><li>Hire</li></ul></div>
-      <div class="bg-white/[0.03] border border-white/5 rounded-lg p-3"><p class="font-bold text-rose-400 text-xs mb-2">Optimize</p><ul class="text-gray-400 text-xs space-y-1"><li>Metrics</li><li>Cut waste</li><li>Double down</li></ul></div>
-    </div></div></div>`
+    <div class="bg-indigo-500/10 border border-indigo-500/20 rounded-xl p-4">
+      <p class="text-xs text-indigo-400 font-bold uppercase mb-2">🎯 Strategic Move</p>
+      <p class="text-sm text-gray-200 leading-relaxed">Pakai <b>Strengths</b> untuk eksploitasi <b>Opportunities</b>. Mitigasi <b>Threats</b> dengan tutup <b>Weaknesses</b> paling kritis. Rumusan: <i>S+O = Growth, W+T = Survival, S+T = Defense, W+O = Improvement.</i></p>
+    </div>
+  </div>`
 }
 
 function generateCoachResponse(goal: string, currentState: string, obstacles: string): string {
+  const safe = (s: string) => s.replace(/[<>]/g, '')
   return `<div class="space-y-4">
-    <div class="flex items-center gap-2"><span class="px-2.5 py-1 bg-gradient-to-r from-amber-500/20 to-orange-500/20 text-amber-400 rounded-lg text-xs font-bold border border-amber-500/20">AI COACH V5</span></div>
-    <p class="font-bold text-white text-lg">Personal Coaching Session</p>
-    <div class="bg-amber-500/5 border border-amber-500/10 rounded-xl p-4"><p class="text-amber-400 text-xs font-bold mb-2">YOUR GOAL</p><p class="text-gray-300 text-sm">${goal ? goal.substring(0, 200) : 'Belum ditentukan'}</p></div>
-    ${currentState ? `<div class="bg-blue-500/5 border border-blue-500/10 rounded-xl p-4"><p class="text-blue-400 text-xs font-bold mb-2">CURRENT STATE</p><p class="text-gray-300 text-sm">${currentState.substring(0, 200)}</p></div>` : ''}
-    ${obstacles ? `<div class="bg-red-500/5 border border-red-500/10 rounded-xl p-4"><p class="text-red-400 text-xs font-bold mb-2">BLOCKERS</p><p class="text-gray-300 text-sm">${obstacles.substring(0, 200)}</p></div>` : ''}
-    <div class="space-y-3">
-      <div class="flex gap-3 bg-white/[0.02] border border-white/5 rounded-xl p-4"><span class="text-xl">1.</span><div><p class="font-bold text-white text-sm">Clarity First</p><p class="text-gray-400 text-xs mt-1">Outcome spesifik. Bukan "sukses" tapi "50 klien dalam 3 bulan".</p></div></div>
-      <div class="flex gap-3 bg-white/[0.02] border border-white/5 rounded-xl p-4"><span class="text-xl">2.</span><div><p class="font-bold text-white text-sm">Identify Bottleneck</p><p class="text-gray-400 text-xs mt-1">1 hal yang paling menghalangi SEKARANG. Pecahkan itu, sisanya mengikuti.</p></div></div>
-      <div class="flex gap-3 bg-white/[0.02] border border-white/5 rounded-xl p-4"><span class="text-xl">3.</span><div><p class="font-bold text-white text-sm">Micro-Action TODAY</p><p class="text-gray-400 text-xs mt-1">1 langkah kecil HARI INI. Momentum dimulai dari sini.</p></div></div>
-      <div class="flex gap-3 bg-white/[0.02] border border-white/5 rounded-xl p-4"><span class="text-xl">4.</span><div><p class="font-bold text-white text-sm">Accountability</p><p class="text-gray-400 text-xs mt-1">Share goalmu ke 1 orang. Accountability = +65% success rate.</p></div></div>
+    <div class="flex items-center gap-2"><span class="px-2.5 py-1 bg-rose-500/10 text-rose-400 text-[10px] rounded-full border border-rose-500/20 font-bold uppercase">AI COACH V6</span></div>
+    <p class="font-bold text-white text-base">Coaching Plan: ${safe(goal)}</p>
+    <div class="bg-rose-500/5 border-l-2 border-rose-500 rounded-r p-3">
+      <p class="text-[10px] text-rose-400 font-bold uppercase mb-1">SITUASI SAAT INI</p>
+      <p class="text-sm text-gray-200">${safe(currentState) || 'Belum diisi — mulailah dengan audit kondisi sekarang.'}</p>
     </div>
-    <div class="bg-gradient-to-r from-amber-500/10 to-orange-500/10 border border-amber-500/20 rounded-xl p-4"><p class="text-amber-400 text-xs font-bold">COACHING PRINCIPLE</p><p class="text-gray-300 text-sm mt-1">"You are the architect of your own reality."</p></div></div>`
+    <div class="bg-amber-500/5 border-l-2 border-amber-500 rounded-r p-3">
+      <p class="text-[10px] text-amber-400 font-bold uppercase mb-1">HAMBATAN UTAMA</p>
+      <p class="text-sm text-gray-200">${safe(obstacles) || 'Identifikasi 3 hambatan terbesar dulu.'}</p>
+    </div>
+    <p class="text-xs text-gray-400 font-bold uppercase tracking-wider">📋 90-Day Roadmap</p>
+    <div class="space-y-2">
+      <div class="bg-white/5 border border-white/10 rounded-lg p-3"><b class="text-emerald-400 text-sm">Hari 1-30 (Foundation):</b><p class="text-sm text-gray-300 mt-1">Diagnosa lengkap. Set 1 input metric harian. Build sistem reminder + tracking.</p></div>
+      <div class="bg-white/5 border border-white/10 rounded-lg p-3"><b class="text-cyan-400 text-sm">Hari 31-60 (Momentum):</b><p class="text-sm text-gray-300 mt-1">Double-down hal yang work. Eliminasi yang gagal. Naikkan intensitas 1.5x.</p></div>
+      <div class="bg-white/5 border border-white/10 rounded-lg p-3"><b class="text-violet-400 text-sm">Hari 61-90 (Scale):</b><p class="text-sm text-gray-300 mt-1">Sistem auto-pilot. Tambah 1 leverage (delegasi/automasi/komunitas). Review besar di hari ke-90.</p></div>
+    </div>
+    <div class="bg-indigo-500/10 border border-indigo-500/20 rounded-xl p-4">
+      <p class="text-xs text-indigo-400 font-bold uppercase mb-2">⚡ Komitmen Pertama (24 jam)</p>
+      <p class="text-sm text-gray-200">Tulis 3 tindakan spesifik yang akan kamu lakukan dalam 24 jam ke depan untuk goal ini. Lakukan, lalu kembali ke sini untuk update.</p>
+    </div>
+  </div>`
 }
 
 // ============================================
-// DATA
+// DATA: Resources, Insights, Quotes
 // ============================================
 const RESOURCES_DATA = [
-  { id:1, title:'Business Model Canvas', category:'Bisnis', description:'Framework merancang model bisnis. 9 blok strategis.', icon:'📋', detail:'Mulai dari customer segment → value proposition → channels. Validasi setiap blok.' },
-  { id:2, title:'SMART Goals', category:'Produktivitas', description:'Specific, Measurable, Achievable, Relevant, Time-bound.', icon:'🎯', detail:'Bukan "sukses" tapi "Revenue Rp 10jt/bulan dalam 6 bulan via freelance web dev".' },
-  { id:3, title:'Eisenhower Matrix', category:'Produktivitas', description:'Prioritas berdasarkan urgensi & kepentingan.', icon:'⚡', detail:'Q1 DO, Q2 SCHEDULE, Q3 DELEGATE, Q4 DELETE.' },
-  { id:4, title:'Personal Finance 101', category:'Finansial', description:'Dasar mengelola keuangan pribadi.', icon:'💰', detail:'50/30/20 rule. Emergency fund first.' },
-  { id:5, title:'Growth Mindset', category:'Personal', description:'Pola pikir pertumbuhan vs fixed mindset.', icon:'🧠', detail:'"I can\'t do this YET." Embrace challenges.' },
-  { id:6, title:'Networking Strategy', category:'Karir', description:'Bangun koneksi profesional strategis.', icon:'🤝', detail:'Give first, be genuine, follow up within 48h.' },
-  { id:7, title:'MVP Development', category:'Tech', description:'Minimum Viable Product guide.', icon:'🚀', detail:'1 core feature only → launch → iterate. Speed > perfection.' },
-  { id:8, title:'Content Marketing', category:'Marketing', description:'Strategi konten untuk audiens & revenue.', icon:'📝', detail:'Hook → Value → CTA. 3-5 posts/week consistency.' },
-  { id:9, title:'Time Blocking', category:'Produktivitas', description:'Block calendar untuk deep work.', icon:'⏰', detail:'2-3 jam blocks. No meetings before noon.' },
-  { id:10, title:'SWOT Analysis', category:'Bisnis', description:'Strengths, Weaknesses, Opportunities, Threats.', icon:'📊', detail:'Use SparkMind SWOT Analyzer for instant generation!' },
-  { id:11, title:'Habit Stacking', category:'Personal', description:'Teknik membangun habit baru.', icon:'🔥', detail:'After [CURRENT HABIT], I will [NEW HABIT].' },
-  { id:12, title:'Revenue Model Canvas', category:'Bisnis', description:'Framework model revenue.', icon:'💎', detail:'Subscription, Freemium, Marketplace, Advertising.' },
-  { id:13, title:'Active Recall', category:'Pendidikan', description:'Teknik belajar paling efektif.', icon:'📖', detail:'Close book → try to remember → check. 3x more effective.' },
-  { id:14, title:'Deep Work Protocol', category:'Produktivitas', description:'Fokus tanpa distraksi.', icon:'🧘', detail:'90 min blocks. Phone off. Single-task only.' },
-  { id:15, title:'Creator Economy', category:'Creative', description:'Monetisasi konten digital.', icon:'🎬', detail:'1000 true fans theory. Niche down.' },
-  { id:16, title:'Ikigai Framework', category:'Purpose', description:'Temukan tujuan & makna hidup.', icon:'🌸', detail:'Love × Good At × World Needs × Paid For.' },
-  { id:17, title:'Public Speaking', category:'Networking', description:'Teknik bicara di depan umum.', icon:'🎤', detail:'Hook → Problem → Solution → CTA. Practice 10x.' },
-  { id:18, title:'Journaling Guide', category:'Personal', description:'Teknik menulis jurnal harian.', icon:'📓', detail:'Morning pages: brain dump. Evening: 3 gratitudes.' },
-  { id:19, title:'Parenting Essentials', category:'Family', description:'Panduan parenting modern.', icon:'👶', detail:'Quality time > quantity. Emotional coaching.' },
-  { id:20, title:'Spiritual Practice', category:'Faith', description:'Disiplin spiritual harian.', icon:'🕊️', detail:'Pagi: doa/meditasi. Malam: gratitude. Komunitas spiritual.' },
-  { id:21, title:'Side Hustle Blueprint', category:'Business', description:'Bangun income kedua.', icon:'💼', detail:'Pick 1 lane. First $100 dalam 30 hari. Scale smart.' },
+  { id:1, title:'Spiritual Foundation', cat:'Spiritual', icon:'🕊️', desc:'Mulai pagi 5 menit muhasabah + tadabbur weekly + sedekah 2.5% otomatis.' },
+  { id:2, title:'Side Hustle Blueprint', cat:'Bisnis', icon:'💼', desc:'Pilih 1 skill valid → Fiverr/Upwork → 2 jam/hari → naikkan rate.' },
+  { id:3, title:'OKR Framework', cat:'Strategy', icon:'🎯', desc:'Objectives + Key Results. 3 objective × 3-5 KR / kuartal.' },
+  { id:4, title:'Pomodoro Technique', cat:'Focus', icon:'🍅', desc:'25 menit fokus + 5 menit istirahat. 4 sesi = long break 15 menit.' },
+  { id:5, title:'Atomic Habits System', cat:'Habit', icon:'🔁', desc:'1% lebih baik tiap hari. Habit stacking + environment design.' },
+  { id:6, title:'Eisenhower Matrix', cat:'Priority', icon:'📐', desc:'Urgent×Important. Do/Schedule/Delegate/Delete.' },
+  { id:7, title:'2-Minute Rule', cat:'Action', icon:'⚡', desc:'Kalau bisa diselesaikan &lt; 2 menit, kerjakan langsung.' },
+  { id:8, title:'80/20 Pareto', cat:'Strategy', icon:'📊', desc:'20% effort = 80% hasil. Identifikasi & double-down.' },
+  { id:9, title:'5-Why Analysis', cat:'Problem', icon:'❓', desc:'Tanyakan "kenapa" 5x untuk temukan root cause.' },
+  { id:10, title:'BMC (Business Model Canvas)', cat:'Bisnis', icon:'🧱', desc:'9 building block — value prop, segmen, channel, revenue, dll.' },
+  { id:11, title:'SWOT Analysis', cat:'Strategy', icon:'🔍', desc:'Strengths, Weaknesses, Opportunities, Threats.' },
+  { id:12, title:'Time Blocking', cat:'Time', icon:'📆', desc:'Block kalender per aktivitas — bukan reactive ke notifikasi.' },
+  { id:13, title:'4-7-8 Breathing', cat:'Mental', icon:'🧘', desc:'Saat cemas: tarik 4 detik, tahan 7, buang 8. 4 ronde.' },
+  { id:14, title:'Compound Interest', cat:'Finance', icon:'💰', desc:'10% ROI/tahun selama 30 tahun = 17.4x lipat. Mulai dini.' },
+  { id:15, title:'Active Recall', cat:'Learning', icon:'🎓', desc:'Tutup buku, bikin soal sendiri, jawab. Lebih efektif dari re-read.' },
+  { id:16, title:'Feynman Technique', cat:'Learning', icon:'🧑‍🏫', desc:'Jelaskan konsep ke anak SD. Kalau bisa, kamu paham.' },
+  { id:17, title:'Deep Work Protocol', cat:'Focus', icon:'🌊', desc:'90 menit no-interrupt + hp di mode pesawat. Lakukan setiap pagi.' },
+  { id:18, title:'Ikigai Diagram', cat:'Purpose', icon:'🌸', desc:'Cinta × jago × dunia butuh × bisa dibayar = ikigai kamu.' },
+  { id:19, title:'Stoic Daily Practice', cat:'Mental', icon:'🏛️', desc:'Pagi: visualisasi tantangan. Malam: refleksi. Dichotomy of control.' },
+  { id:20, title:'GROW Coaching Model', cat:'Coaching', icon:'🌱', desc:'Goal, Reality, Options, Way Forward. Pertanyaan, bukan instruksi.' },
+  { id:21, title:'Networking Personal CRM', cat:'Network', icon:'🤝', desc:'Catat 50 koneksi penting + last interaction + follow-up reminder.' },
 ]
 
 const INSIGHTS_DATA = [
-  { icon:'💡', title:'Revenue First', desc:'2 jam untuk aktivitas yang langsung menghasilkan uang.', time:'Hari ini' },
-  { icon:'📊', title:'Goal Progress', desc:'Cek progress goal hari ini. On track?', time:'2 jam lalu' },
-  { icon:'🔥', title:'Streak Alert', desc:'Jangan putus streak! Consistency beats intensity.', time:'5 jam lalu' },
-  { icon:'💰', title:'Financial Tip', desc:'Sudah sisihkan 20% income bulan ini?', time:'Kemarin' },
-  { icon:'🎯', title:'Weekly Review', desc:'30 menit evaluasi minggu ini.', time:'2 hari lalu' },
-  { icon:'🧠', title:'Sovereign Insight', desc:'"Seorang Arsitek tidak meratapi pintu tertutup."', time:'3 hari lalu' },
-  { icon:'📓', title:'Journal Reminder', desc:'Tulis 3 hal yang kamu syukuri hari ini.', time:'4 hari lalu' },
-  { icon:'🕊️', title:'Spiritual Reset', desc:'Take 5 min for prayer/meditation today.', time:'5 hari lalu' },
+  { id:1, title:'Strategi 1% Compound', desc:'Naik 1% tiap hari = 37x lebih baik dalam 1 tahun.', icon:'📈' },
+  { id:2, title:'Eat the Frog', desc:'Tugas paling sulit, kerjakan paling pagi.', icon:'🐸' },
+  { id:3, title:'Single Tasking', desc:'Multitasking turunkan IQ 10 poin sementara.', icon:'🎯' },
+  { id:4, title:'Sleep Investment', desc:'Tidur 7-9 jam = ROI tertinggi untuk performa.', icon:'😴' },
+  { id:5, title:'Read &gt; Watch', desc:'30 menit baca/hari = 12 buku/tahun = top 1%.', icon:'📚' },
 ]
 
 const QUOTES_DATA = [
-  { text: 'The only way to do great work is to love what you do.', author: 'Steve Jobs' },
-  { text: 'Revenue is oxygen for business. Sell first, build later.', author: 'SparkMind' },
-  { text: 'Consistency beats talent when talent is not consistent.', author: 'Unknown' },
-  { text: 'You are the architect of your own reality.', author: 'SparkMind' },
-  { text: 'Done is better than perfect.', author: 'Sheryl Sandberg' },
-  { text: 'Focus on being productive instead of busy.', author: 'Tim Ferriss' },
-  { text: 'Small daily improvements lead to stunning results.', author: 'Robin Sharma' },
-  { text: 'Invest in yourself. Your career is the engine of your wealth.', author: 'Paul Clitheroe' },
-  { text: 'Your network is your net worth.', author: 'Porter Gale' },
-  { text: 'Rich is having money. Wealthy is having time.', author: 'SparkMind V5' },
-  { text: 'Where there is faith, there is no fear.', author: 'SparkMind V5' },
-  { text: 'Your effort + His timing = perfect outcome.', author: 'SparkMind V5' },
+  { text:'Mulailah dari mana kamu berada. Pakai apa yang kamu punya. Lakukan apa yang kamu bisa.', author:'Arthur Ashe' },
+  { text:'Yang penting bukan seberapa cepat, tapi seberapa konsisten.', author:'James Clear' },
+  { text:'Strategi tanpa eksekusi = halusinasi.', author:'SparkMind' },
+  { text:'You are the architect of your own reality.', author:'SparkMind' },
+  { text:'Sukses adalah jumlah dari tindakan kecil yang konsisten setiap hari.', author:'Robert Collier' },
+  { text:'The best time to plant a tree was 20 years ago. Yang kedua adalah sekarang.', author:'Pepatah Cina' },
+  { text:'Hidup berdaulat = punya pilihan, punya waktu, punya makna.', author:'SparkMind' },
+  { text:'Compound interest is the eighth wonder of the world.', author:'Albert Einstein' },
 ]
 
 // ============================================
-// LANDING PAGE — V5.0 SOVEREIGN
+// SERVICE WORKER (offline cache shell)
+// ============================================
+const SERVICE_WORKER_JS = `
+const CACHE = 'sparkmind-v6-cache-1';
+const ASSETS = ['/','/app','/manifest.webmanifest'];
+self.addEventListener('install', e => {
+  e.waitUntil(caches.open(CACHE).then(c => c.addAll(ASSETS).catch(()=>{})));
+  self.skipWaiting();
+});
+self.addEventListener('activate', e => {
+  e.waitUntil(caches.keys().then(keys => Promise.all(keys.filter(k => k !== CACHE).map(k => caches.delete(k)))));
+  self.clients.claim();
+});
+self.addEventListener('fetch', e => {
+  const req = e.request;
+  if (req.method !== 'GET') return;
+  // Network-first for API, cache-first for static
+  if (req.url.includes('/api/')) {
+    e.respondWith(fetch(req).catch(() => caches.match(req)));
+  } else {
+    e.respondWith(
+      caches.match(req).then(cached => cached || fetch(req).then(res => {
+        if (res.ok && res.type === 'basic') {
+          const clone = res.clone();
+          caches.open(CACHE).then(c => c.put(req, clone));
+        }
+        return res;
+      }).catch(() => caches.match('/app')))
+    );
+  }
+});
+`
+
+// ============================================
+// LANDING PAGE — V6.0 BULLETPROOF
 // ============================================
 const LANDING_HTML = `<!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>SparkMind V5 SOVEREIGN — AI Strategic Guide Platform</title>
-  <meta name="description" content="Platform AI strategic guide dengan 18+ kategori, Chat Memory, Backup/Restore, Weekly Trend, Pomodoro V2, Smart Modal, Keyboard Shortcuts.">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <meta name="theme-color" content="#0a0a1a">
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧠</text></svg>">
+  <title>SparkMind V6.0 — AI Strategic Guide untuk Hidup Berdaulat</title>
+  <meta name="description" content="Platform AI strategic guide dengan 18+ kategori. Pomodoro, Journal, Goal Tracker, Habit, AI Coach. Privacy-first, offline-ready, gratis.">
+  <meta name="keywords" content="AI assistant Indonesia, productivity, strategic guide, life coach, pomodoro, habit tracker, journaling">
+  <meta name="author" content="SparkMind">
+  <link rel="manifest" href="/manifest.webmanifest">
+  <meta property="og:title" content="SparkMind V6.0 — AI Strategic Guide">
+  <meta property="og:description" content="Platform AI dengan 18+ kategori untuk hidup berdaulat. Privacy-first, offline-ready.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://sparkmind-v2.pages.dev">
+  <meta property="og:locale" content="id_ID">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="SparkMind V6.0 — AI Strategic Guide">
+  <meta name="twitter:description" content="Platform AI strategic guide untuk hidup berdaulat.">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"SparkMind","applicationCategory":"ProductivityApplication","operatingSystem":"Any","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"}}</script>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='%234f46e5'/%3E%3Ctext x='50' y='68' font-size='60' text-anchor='middle' fill='white' font-family='system-ui' font-weight='bold'%3ES%3C/text%3E%3C/svg%3E">
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css" rel="stylesheet">
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
-    *{font-family:'Inter',sans-serif;margin:0;padding:0;box-sizing:border-box}
-    html{scroll-behavior:smooth}body{background:#0a0a1a;color:#e2e8f0;overflow-x:hidden}
-    .gradient-text{background:linear-gradient(135deg,#818cf8,#f472b6,#fbbf24);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
-    .glass{background:rgba(255,255,255,0.03);backdrop-filter:blur(24px);border:1px solid rgba(255,255,255,0.06)}
-    .card-hover{transition:all .5s cubic-bezier(.4,0,.2,1)}.card-hover:hover{transform:translateY(-8px);box-shadow:0 30px 80px rgba(99,102,241,0.12)}
-    .neon-glow{box-shadow:0 0 40px rgba(99,102,241,0.15),0 0 80px rgba(99,102,241,0.05)}
-    .float-1{animation:f1 8s ease-in-out infinite}.float-2{animation:f2 6s ease-in-out infinite}.float-3{animation:f3 10s ease-in-out infinite}
-    @keyframes f1{0%,100%{transform:translateY(0) rotate(0deg)}50%{transform:translateY(-20px) rotate(1deg)}}
-    @keyframes f2{0%,100%{transform:translateY(0)}50%{transform:translateY(-12px)}}
-    @keyframes f3{0%,100%{transform:translateY(0) scale(1)}50%{transform:translateY(-8px) scale(1.02)}}
-    .orb{position:absolute;border-radius:50%;filter:blur(120px);pointer-events:none;opacity:0.4}
-    .pulse-ring{animation:pr 3s cubic-bezier(.4,0,.6,1) infinite}
-    @keyframes pr{0%{transform:scale(.95);opacity:1}70%{transform:scale(1.3);opacity:0}100%{transform:scale(.95);opacity:0}}
-    .fade-up{opacity:0;transform:translateY(40px);transition:all .8s}.fade-up.visible{opacity:1;transform:translateY(0)}
-    ::-webkit-scrollbar{width:6px}::-webkit-scrollbar-track{background:#0a0a1a}::-webkit-scrollbar-thumb{background:#2a2a4a;border-radius:10px}
-    .btn-primary{background:linear-gradient(135deg,#4f46e5,#6366f1);transition:all .3s}.btn-primary:hover{background:linear-gradient(135deg,#4338ca,#4f46e5);transform:translateY(-2px);box-shadow:0 20px 40px rgba(99,102,241,0.3)}
-    .shimmer{background:linear-gradient(110deg,transparent 40%,rgba(255,255,255,0.1) 50%,transparent 60%);background-size:200% 100%;animation:sh 3s linear infinite}
-    @keyframes sh{0%{background-position:200% 0}100%{background-position:-200% 0}}
+    *{font-family:-apple-system,BlinkMacSystemFont,'Inter',sans-serif}
+    body{background:#0a0a1a;color:#e5e7eb;overflow-x:hidden}
+    .gradient-text{background:linear-gradient(135deg,#a78bfa,#60a5fa,#34d399);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+    .glass{background:rgba(255,255,255,.04);backdrop-filter:blur(12px);border:1px solid rgba(255,255,255,.08)}
+    .glass:hover{background:rgba(255,255,255,.06);border-color:rgba(255,255,255,.15)}
+    .glow{box-shadow:0 0 60px rgba(99,102,241,.4)}
+    .grid-bg{background-image:linear-gradient(rgba(99,102,241,.06) 1px,transparent 1px),linear-gradient(90deg,rgba(99,102,241,.06) 1px,transparent 1px);background-size:50px 50px}
+    @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-12px)}}
+    .float{animation:float 5s ease-in-out infinite}
+    @keyframes pulse-glow{0%,100%{box-shadow:0 0 30px rgba(99,102,241,.3)}50%{box-shadow:0 0 60px rgba(99,102,241,.6)}}
+    .pulse-glow{animation:pulse-glow 3s ease-in-out infinite}
+    .fade-up{opacity:0;transform:translateY(30px);transition:all .8s cubic-bezier(.4,0,.2,1)}
+    .fade-up.visible{opacity:1;transform:none}
+    @media (prefers-reduced-motion: reduce){.float,.pulse-glow{animation:none}.fade-up{transition:none;opacity:1;transform:none}}
+    .btn-primary{background:linear-gradient(135deg,#4f46e5,#6366f1);transition:all .3s}
+    .btn-primary:hover{background:linear-gradient(135deg,#4338ca,#4f46e5);transform:translateY(-2px);box-shadow:0 10px 30px rgba(99,102,241,.4)}
   </style>
 </head>
-<body>
-<header class="fixed top-0 left-0 right-0 z-50 glass border-b border-white/5">
-  <div class="max-w-7xl mx-auto px-4 sm:px-6 py-4 flex justify-between items-center">
-    <div class="flex items-center gap-3">
-      <div class="relative">
-        <div class="w-10 h-10 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl flex items-center justify-center text-white text-xl shadow-lg shadow-indigo-500/30">🧠</div>
-        <div class="absolute inset-0 rounded-xl pulse-ring border-2 border-indigo-400"></div>
-      </div>
-      <div>
-        <h1 class="text-lg font-bold text-white">SparkMind</h1>
-        <p class="text-[10px] text-indigo-400 font-bold tracking-widest -mt-0.5">V5 · SOVEREIGN</p>
-      </div>
-    </div>
-    <nav class="hidden md:flex items-center gap-8 text-sm font-medium">
-      <a href="#features" class="text-gray-400 hover:text-white transition">Features</a>
-      <a href="#whatsnew" class="text-gray-400 hover:text-white transition">What's New</a>
-      <a href="#pricing" class="text-gray-400 hover:text-white transition">Pricing</a>
-      <a href="/app" class="btn-primary text-white px-5 py-2 rounded-lg font-semibold">Buka App →</a>
-    </nav>
-    <a href="/app" class="md:hidden btn-primary text-white px-4 py-2 rounded-lg text-sm font-semibold">App →</a>
-  </div>
-</header>
+<body class="min-h-screen relative">
+  <div class="fixed inset-0 grid-bg opacity-40 pointer-events-none"></div>
+  <div class="fixed top-0 left-1/4 w-96 h-96 bg-indigo-600/15 rounded-full blur-3xl pointer-events-none"></div>
+  <div class="fixed top-32 right-1/4 w-96 h-96 bg-violet-600/15 rounded-full blur-3xl pointer-events-none"></div>
 
-<section class="relative min-h-screen flex items-center justify-center pt-24 pb-16 px-4 overflow-hidden">
-  <div class="orb float-1" style="top:-100px;left:-100px;width:500px;height:500px;background:#6366f1"></div>
-  <div class="orb float-2" style="bottom:-100px;right:-100px;width:600px;height:600px;background:#a855f7"></div>
-  <div class="orb float-3" style="top:30%;left:50%;width:400px;height:400px;background:#f472b6"></div>
-  <div class="max-w-5xl mx-auto text-center relative z-10">
-    <span class="inline-flex items-center gap-2 px-4 py-2 glass rounded-full text-xs text-indigo-400 mb-8 font-semibold">
-      <span class="w-2 h-2 bg-emerald-400 rounded-full animate-pulse"></span>
-      V5.0 SOVEREIGN — Live Now · 18+ AI Categories
-    </span>
-    <h1 class="text-4xl sm:text-5xl md:text-7xl font-black mb-6 leading-tight">
-      AI Strategic Guide<br><span class="gradient-text">Untuk Hidup Berdaulat</span>
-    </h1>
-    <p class="text-base sm:text-lg text-gray-400 max-w-2xl mx-auto mb-10 leading-relaxed">
-      Platform AI 18+ kategori strategi — dari bisnis & karir sampai spiritual & side hustle. <span class="text-white font-semibold">Chat memory persist, backup/restore data, keyboard shortcuts, mobile sidebar smooth.</span>
-    </p>
-    <div class="flex flex-col sm:flex-row gap-4 justify-center mb-12">
-      <a href="/app" class="btn-primary text-white px-8 py-4 rounded-xl font-bold text-base inline-flex items-center justify-center gap-2 neon-glow">
-        🚀 Mulai Gratis Sekarang →
+  <nav class="fixed top-0 left-0 right-0 z-50 backdrop-blur-xl bg-slate-950/70 border-b border-white/5">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 py-3.5 flex items-center justify-between">
+      <a href="/" class="flex items-center gap-2.5 group">
+        <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-indigo-500 to-violet-600 flex items-center justify-center font-bold text-white shadow-lg shadow-indigo-500/30">S</div>
+        <span class="text-base font-bold tracking-tight">SparkMind <span class="text-[10px] text-indigo-400 font-mono ml-0.5">V6.0</span></span>
       </a>
-      <a href="#features" class="glass text-white px-8 py-4 rounded-xl font-bold text-base hover:bg-white/[0.08] transition">📖 Lihat Fitur</a>
+      <div class="flex items-center gap-2">
+        <a href="/pricing" class="hidden sm:inline-block text-sm text-gray-400 hover:text-white px-3 py-1.5 transition">Pricing</a>
+        <a href="/app" class="px-4 py-2 btn-primary text-white text-sm font-semibold rounded-lg shadow-lg shadow-indigo-500/30">Buka App <i class="fas fa-arrow-right ml-1 text-xs"></i></a>
+      </div>
     </div>
-    <div class="grid grid-cols-3 gap-4 max-w-2xl mx-auto">
-      <div class="glass rounded-xl p-4"><div class="text-2xl sm:text-3xl font-black gradient-text">18+</div><div class="text-[10px] sm:text-xs text-gray-500 mt-1 font-semibold uppercase tracking-wider">AI Categories</div></div>
-      <div class="glass rounded-xl p-4"><div class="text-2xl sm:text-3xl font-black gradient-text">21+</div><div class="text-[10px] sm:text-xs text-gray-500 mt-1 font-semibold uppercase tracking-wider">Frameworks</div></div>
-      <div class="glass rounded-xl p-4"><div class="text-2xl sm:text-3xl font-black gradient-text">100%</div><div class="text-[10px] sm:text-xs text-gray-500 mt-1 font-semibold uppercase tracking-wider">Sovereign</div></div>
-    </div>
-  </div>
-</section>
+  </nav>
 
-<section id="whatsnew" class="py-20 px-4">
-  <div class="max-w-6xl mx-auto">
-    <div class="text-center mb-14">
-      <span class="text-xs font-bold text-amber-400 tracking-widest uppercase">What's New in V5</span>
-      <h2 class="text-3xl sm:text-4xl md:text-5xl font-black mt-3 mb-4 text-white">12 Major Upgrades</h2>
-      <p class="text-gray-400 text-sm sm:text-base max-w-2xl mx-auto">Semua root cause V4.0 sudah di-fix. V5.0 lebih powerful, lebih smooth, lebih reliable.</p>
+  <section class="relative pt-32 pb-20 px-4 sm:px-6 max-w-5xl mx-auto text-center">
+    <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-indigo-500/10 border border-indigo-500/30 text-xs text-indigo-300 mb-6 fade-up">
+      <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+      V6.0 BULLETPROOF • PWA Installable • 18+ AI Categories • Offline-ready
     </div>
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+    <h1 class="text-4xl sm:text-6xl md:text-7xl font-black mb-6 leading-[1.05] tracking-tight fade-up">
+      AI Strategic Guide<br>
+      Untuk Hidup <span class="gradient-text">Berdaulat</span>
+    </h1>
+    <p class="text-base sm:text-lg text-gray-400 max-w-2xl mx-auto mb-8 leading-relaxed fade-up">
+      Platform AI yang memandu kamu di 18+ aspek hidup. Bisnis, karir, finansial, mental, spiritual, side hustle — semua dengan strategi konkret. <b class="text-white">Privacy-first, offline-ready, gratis selamanya.</b>
+    </p>
+    <div class="flex flex-wrap justify-center gap-3 mb-12 fade-up">
+      <a href="/app" class="px-7 py-3.5 btn-primary text-white font-bold rounded-xl shadow-2xl shadow-indigo-500/40 pulse-glow">
+        Mulai Gratis <i class="fas fa-rocket ml-1.5"></i>
+      </a>
+      <a href="/pricing" class="px-7 py-3.5 glass text-white font-bold rounded-xl">
+        Lihat Pricing <i class="fas fa-chart-line ml-1.5 text-emerald-400"></i>
+      </a>
+    </div>
+
+    <div class="grid grid-cols-3 gap-4 max-w-2xl mx-auto fade-up">
+      ${[['18+','AI Categories'],['12','Tabs Tools'],['100%','Privacy']].map(s=>`
+        <div class="glass rounded-xl p-4 text-center">
+          <p class="text-2xl sm:text-3xl font-black gradient-text">${s[0]}</p>
+          <p class="text-[10px] sm:text-xs text-gray-400 uppercase tracking-wider mt-1">${s[1]}</p>
+        </div>`).join('')}
+    </div>
+  </section>
+
+  <section class="py-16 px-4 sm:px-6 max-w-6xl mx-auto">
+    <div class="text-center mb-12 fade-up">
+      <h2 class="text-3xl sm:text-4xl font-bold mb-3">Apa Baru di V6.0 <span class="gradient-text">BULLETPROOF</span></h2>
+      <p class="text-gray-400 text-sm">12 hardening + revenue-ready upgrades dari V5.0 SOVEREIGN</p>
+    </div>
+    <div class="grid sm:grid-cols-2 md:grid-cols-3 gap-4">
       ${[
-        ['💬','Chat Memory Persist','Percakapan AI tersimpan di localStorage. Pindah tab tidak hilang.'],
-        ['📱','Mobile Sidebar Smooth','Slide-in overlay + backdrop. UX native-like di mobile.'],
-        ['💾','Backup & Restore JSON','Export full data ke JSON. Import balik kapan saja.'],
-        ['📊','Weekly Trend Chart','Visualisasi 7 hari terakhir. Track progress over time.'],
-        ['🍅','Pomodoro V2','Visual break alert + auto-start option + session stats.'],
-        ['🎯','Smart Delete Modal','Custom confirmation, bukan browser native. UX premium.'],
-        ['📓','Journal Fix','Mood selector fixed + edit & delete entry.'],
-        ['🔍','Debounced Search','Resource search dengan debounce 300ms. Performance boost.'],
-        ['⌨️','Keyboard Shortcuts','Ctrl+K search, Ctrl+1-9 switch tab. Power user ready.'],
-        ['🕊️','+Spiritual & Faith','Kategori baru: spiritual practice, faith, gratitude.'],
-        ['💼','+Side Hustle','Kategori baru: bangun income kedua, freelance acceleration.'],
-        ['✨','Micro-Interactions','Smoother animations, polished hover, premium feel.'],
-      ].map(([icon, title, desc]) => `
-        <div class="glass rounded-2xl p-6 card-hover">
-          <div class="text-3xl mb-3">${icon}</div>
-          <h3 class="font-bold text-white mb-2">${title}</h3>
-          <p class="text-gray-400 text-sm leading-relaxed">${desc}</p>
-        </div>
-      `).join('')}
+        ['📲','PWA Installable','Install ke home screen iOS/Android. Buka offline.','indigo'],
+        ['🛡️','XSS-Safe Rendering','Semua user input di-escape. Aman dari injection.','emerald'],
+        ['🔄','Offline Mode','Service worker cache shell. Tetap jalan tanpa internet.','cyan'],
+        ['💥','Error Boundary','Bug 1 fitur tidak crash semua. Auto-recovery.','rose'],
+        ['💾','Storage Quota Guard','Warning kalau localStorage hampir penuh.','amber'],
+        ['🎯','Quick Add Modal','⌘N global — tambah goal/habit/journal kapan saja.','violet'],
+        ['📋','Copy/Share AI Response','1-tap copy, share via Web Share API.','pink'],
+        ['📅','Habit Heatmap 30D','Visualisasi konsistensi 30 hari ala GitHub.','green'],
+        ['💰','Pricing Page Ready','MVP revenue-ready dengan 3 tier pricing.','orange'],
+        ['🎨','Onboarding Tour V6','5 langkah tour untuk first-time user.','sky'],
+        ['⏱️','Pomodoro Resume','Timer lanjut akurat saat pindah tab.','teal'],
+        ['🔍','SEO + OG Tags','Discovery di Google + share preview.','fuchsia'],
+      ].map((f,i)=>`
+        <div class="glass rounded-2xl p-5 fade-up" style="transition-delay:${i*30}ms">
+          <div class="text-3xl mb-3">${f[0]}</div>
+          <h3 class="font-bold text-white text-sm mb-1.5">${f[1]}</h3>
+          <p class="text-xs text-gray-400 leading-relaxed">${f[2]}</p>
+        </div>`).join('')}
     </div>
-  </div>
-</section>
+  </section>
 
-<section id="features" class="py-20 px-4 bg-gradient-to-b from-transparent via-indigo-950/10 to-transparent">
-  <div class="max-w-6xl mx-auto">
-    <div class="text-center mb-14">
-      <span class="text-xs font-bold text-indigo-400 tracking-widest uppercase">Complete Toolkit</span>
-      <h2 class="text-3xl sm:text-4xl md:text-5xl font-black mt-3 mb-4 text-white">Everything Sovereign</h2>
+  <section class="py-16 px-4 sm:px-6 max-w-6xl mx-auto">
+    <div class="text-center mb-10 fade-up">
+      <h2 class="text-3xl sm:text-4xl font-bold mb-2">12 Tools Produktivitas <span class="gradient-text">All-in-One</span></h2>
+      <p class="text-gray-400 text-sm">Semua yang kamu butuh dalam 1 dashboard</p>
     </div>
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+    <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
       ${[
-        ['🧠','AI Sovereign Engine V5','18+ kategori dengan typing effect dan context memory.'],
-        ['📊','Dashboard + Weekly Trend','Stats animated counter + 7-day visual chart.'],
-        ['📓','Journal + Mood Tracker','Daily journal dengan 6 mood + edit/delete.'],
-        ['🌓','Dark/Light Mode','Toggle smooth, preference saved.'],
-        ['🔔','Toast Notifications','Achievement & action alerts smooth.'],
-        ['📊','SWOT Analyzer','Generate analisis SWOT instan.'],
-        ['🧭','AI Coach V5','Personal coaching dengan blockers & action.'],
-        ['🍅','Pomodoro Timer Pro V2','Visual break alert + auto-start + stats.'],
-        ['🎯','Goal Tracker Pro','Milestones, progress bar, localStorage.'],
-        ['🔥','Habit Tracker','Streak counter + daily check-in.'],
-        ['🎨','Vision Board','Big vision, 1Y, 3M, 1W goals.'],
-        ['📋','Weekly Review','Wins, learnings, focus minggu depan.'],
-        ['📚','Resource Library','21+ frameworks expandable.'],
-        ['💾','Backup/Restore JSON','Full data export + import.'],
-        ['⌨️','Keyboard Shortcuts','Ctrl+K, Ctrl+1-9, Ctrl+/ help.'],
-      ].map(([icon, title, desc]) => `
-        <div class="glass rounded-2xl p-6 card-hover">
-          <div class="text-3xl mb-3">${icon}</div>
-          <h3 class="font-bold text-white mb-2">${title}</h3>
-          <p class="text-gray-400 text-sm leading-relaxed">${desc}</p>
-        </div>
-      `).join('')}
+        ['📊','Dashboard'],['🧠','AI Analyzer'],['🧭','AI Coach V6'],['📊','SWOT'],
+        ['🍅','Pomodoro V2'],['📓','Journal'],['🎯','Goals'],['🔥','Habits + Heatmap'],
+        ['🎨','Vision Board'],['📋','Weekly Review'],['📚','21+ Resources'],['⚙️','Backup/Restore'],
+      ].map(t=>`<div class="glass rounded-xl p-3 text-center"><div class="text-2xl mb-1">${t[0]}</div><p class="text-xs text-gray-300 font-semibold">${t[1]}</p></div>`).join('')}
     </div>
-  </div>
-</section>
+  </section>
 
-<section id="pricing" class="py-20 px-4">
-  <div class="max-w-5xl mx-auto">
-    <div class="text-center mb-14">
-      <span class="text-xs font-bold text-emerald-400 tracking-widest uppercase">Pricing</span>
-      <h2 class="text-3xl sm:text-4xl md:text-5xl font-black mt-3 mb-4 text-white">Pilih Plan-mu</h2>
+  <section class="py-20 px-4 sm:px-6 max-w-3xl mx-auto text-center">
+    <div class="glass rounded-3xl p-8 sm:p-12 fade-up">
+      <div class="text-5xl mb-4">🚀</div>
+      <h2 class="text-2xl sm:text-3xl font-bold mb-3">Mulai <span class="gradient-text">Hari Ini</span></h2>
+      <p class="text-gray-400 text-sm mb-7">Tidak ada signup. Tidak ada kartu kredit. Buka, pakai, miliki kembali waktu kamu.</p>
+      <a href="/app" class="inline-block px-8 py-4 btn-primary text-white font-bold rounded-xl shadow-2xl shadow-indigo-500/40">
+        Buka SparkMind <i class="fas fa-arrow-right ml-2"></i>
+      </a>
+      <p class="text-xs text-gray-500 mt-5">Gratis selamanya · Privacy-first · 100% client-side</p>
     </div>
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-      <div class="glass rounded-2xl p-8">
-        <h3 class="text-xl font-bold text-white mb-1">Starter</h3>
-        <p class="text-gray-500 text-xs mb-4">Untuk yang baru mulai</p>
-        <div class="mb-6"><span class="text-4xl font-black text-white">Gratis</span></div>
-        <ul class="space-y-2 text-sm text-gray-400 mb-6">
-          <li>✓ Semua 18+ AI categories</li>
-          <li>✓ Dashboard, Goals, Habits</li>
-          <li>✓ Journal & Pomodoro V2</li>
-          <li>✓ Backup/Restore JSON</li>
-          <li>✓ localStorage permanent</li>
-        </ul>
-        <a href="/app" class="block w-full py-3 glass rounded-lg text-white font-semibold text-center hover:bg-white/[0.08] transition">Mulai Gratis</a>
-      </div>
-      <div class="glass rounded-2xl p-8 border-2 border-indigo-500/40 neon-glow relative">
-        <span class="absolute -top-3 left-1/2 -translate-x-1/2 bg-gradient-to-r from-indigo-500 to-purple-500 text-white text-xs font-bold px-4 py-1 rounded-full">PALING POPULER</span>
-        <h3 class="text-xl font-bold text-white mb-1">Pro</h3>
-        <p class="text-gray-500 text-xs mb-4">Untuk yang serius berdaulat</p>
-        <div class="mb-6"><span class="text-4xl font-black text-white">Rp 99K</span><span class="text-gray-500 text-sm">/bulan</span></div>
-        <ul class="space-y-2 text-sm text-gray-400 mb-6">
-          <li>✓ Semua di Starter</li>
-          <li>✓ AI integration real-time</li>
-          <li>✓ Cloud sync semua device</li>
-          <li>✓ Priority support 24/7</li>
-          <li>✓ Advanced analytics</li>
-          <li>✓ Custom frameworks</li>
-        </ul>
-        <a href="/app" class="block w-full py-3 btn-primary rounded-lg text-white font-bold text-center">Upgrade ke Pro</a>
-      </div>
-      <div class="glass rounded-2xl p-8">
-        <h3 class="text-xl font-bold text-white mb-1">Enterprise</h3>
-        <p class="text-gray-500 text-xs mb-4">Untuk team & company</p>
-        <div class="mb-6"><span class="text-4xl font-black text-white">Custom</span></div>
-        <ul class="space-y-2 text-sm text-gray-400 mb-6">
-          <li>✓ Semua di Pro</li>
-          <li>✓ Multi-user team workspace</li>
-          <li>✓ Custom AI training</li>
-          <li>✓ White-label option</li>
-          <li>✓ Dedicated success manager</li>
-        </ul>
-        <a href="mailto:hello@sparkmind.id" class="block w-full py-3 glass rounded-lg text-white font-semibold text-center hover:bg-white/[0.08] transition">Kontak Sales</a>
-      </div>
-    </div>
-  </div>
-</section>
+  </section>
 
-<section class="py-20 px-4">
-  <div class="max-w-4xl mx-auto text-center glass rounded-3xl p-10 sm:p-14 neon-glow">
-    <h2 class="text-3xl sm:text-4xl md:text-5xl font-black mb-6 text-white">Ready to Be <span class="gradient-text">Sovereign?</span></h2>
-    <p class="text-gray-400 mb-8 max-w-2xl mx-auto">Bergabung dengan ribuan profesional yang membangun hidup berdaulat dengan SparkMind V5. Gratis selamanya, no credit card.</p>
-    <a href="/app" class="btn-primary inline-flex items-center gap-2 text-white px-10 py-4 rounded-xl font-bold text-lg neon-glow">🚀 Mulai Gratis →</a>
-  </div>
-</section>
+  <footer class="py-8 px-4 text-center border-t border-white/5">
+    <p class="text-xs text-gray-500">© 2026 SparkMind V6.0 BULLETPROOF — AI Strategic Guide untuk Hidup Berdaulat 🇮🇩</p>
+  </footer>
 
-<footer class="border-t border-white/5 py-10 px-4">
-  <div class="max-w-6xl mx-auto text-center">
-    <div class="flex items-center justify-center gap-3 mb-3">
-      <div class="w-8 h-8 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-lg flex items-center justify-center text-white">🧠</div>
-      <span class="font-bold text-white">SparkMind V5 SOVEREIGN</span>
-    </div>
-    <p class="text-gray-500 text-xs">© 2026 SparkMind. Built with 💜 for sovereign minds.</p>
-  </div>
-</footer>
-
-<script>
-  const obs = new IntersectionObserver(es => es.forEach(e => e.isIntersecting && e.target.classList.add('visible')), { threshold: 0.1 });
-  document.querySelectorAll('.fade-up').forEach(el => obs.observe(el));
-</script>
+  <script>
+    // PWA register
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => navigator.serviceWorker.register('/sw.js').catch(()=>{}));
+    }
+    // Fade-up observer
+    const io = new IntersectionObserver(es => es.forEach(e => e.isIntersecting && e.target.classList.add('visible')), { threshold:0.15 });
+    document.querySelectorAll('.fade-up').forEach(el => io.observe(el));
+    // Auto-trigger first viewport
+    setTimeout(() => document.querySelectorAll('.fade-up').forEach(el => {
+      const r = el.getBoundingClientRect(); if (r.top < window.innerHeight) el.classList.add('visible');
+    }), 100);
+  </script>
 </body>
 </html>`
 
 // ============================================
-// APP DASHBOARD — V5.0 SOVEREIGN
+// PRICING PAGE
+// ============================================
+const PRICING_HTML = `<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Pricing — SparkMind V6.0</title>
+  <meta name="description" content="Pricing SparkMind. Free selamanya, Pro untuk power user, Team untuk organisasi.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='%234f46e5'/%3E%3Ctext x='50' y='68' font-size='60' text-anchor='middle' fill='white' font-family='system-ui' font-weight='bold'%3ES%3C/text%3E%3C/svg%3E">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css" rel="stylesheet">
+  <style>
+    body{background:#0a0a1a;color:#e5e7eb;font-family:-apple-system,BlinkMacSystemFont,sans-serif}
+    .glass{background:rgba(255,255,255,.04);backdrop-filter:blur(12px);border:1px solid rgba(255,255,255,.08)}
+    .gradient-text{background:linear-gradient(135deg,#a78bfa,#60a5fa,#34d399);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+    .grid-bg{background-image:linear-gradient(rgba(99,102,241,.06) 1px,transparent 1px),linear-gradient(90deg,rgba(99,102,241,.06) 1px,transparent 1px);background-size:50px 50px}
+    .btn-primary{background:linear-gradient(135deg,#4f46e5,#6366f1);transition:all .3s}
+    .btn-primary:hover{transform:translateY(-2px);box-shadow:0 10px 30px rgba(99,102,241,.4)}
+    .featured{position:relative;border-color:rgba(99,102,241,.5)!important;box-shadow:0 0 60px rgba(99,102,241,.25)}
+    .featured::before{content:'PALING POPULAR';position:absolute;top:-12px;left:50%;transform:translateX(-50%);background:linear-gradient(135deg,#4f46e5,#6366f1);color:#fff;font-size:10px;font-weight:bold;padding:4px 12px;border-radius:6px;letter-spacing:.05em}
+  </style>
+</head>
+<body class="min-h-screen relative">
+  <div class="fixed inset-0 grid-bg opacity-40 pointer-events-none"></div>
+  <nav class="fixed top-0 left-0 right-0 z-50 backdrop-blur-xl bg-slate-950/70 border-b border-white/5">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 py-3.5 flex items-center justify-between">
+      <a href="/" class="flex items-center gap-2.5">
+        <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-indigo-500 to-violet-600 flex items-center justify-center font-bold text-white">S</div>
+        <span class="text-base font-bold">SparkMind <span class="text-[10px] text-indigo-400 font-mono">V6.0</span></span>
+      </a>
+      <a href="/app" class="px-4 py-2 btn-primary text-white text-sm font-semibold rounded-lg">Buka App</a>
+    </div>
+  </nav>
+
+  <section class="relative pt-32 pb-12 px-4 sm:px-6 max-w-6xl mx-auto text-center">
+    <h1 class="text-4xl sm:text-5xl font-black mb-3">Pricing <span class="gradient-text">Sederhana</span></h1>
+    <p class="text-gray-400 text-sm mb-12">Mulai gratis. Upgrade kapan saja. Cancel kapan saja.</p>
+
+    <div class="grid md:grid-cols-3 gap-5 max-w-5xl mx-auto text-left">
+      <!-- FREE -->
+      <div class="glass rounded-2xl p-6">
+        <p class="text-xs text-gray-400 uppercase tracking-wider font-bold mb-2">Sovereign</p>
+        <p class="text-4xl font-black text-white mb-1">Gratis</p>
+        <p class="text-xs text-gray-500 mb-5">Selamanya. Tanpa syarat.</p>
+        <a href="/app" class="block w-full text-center py-2.5 bg-white/5 hover:bg-white/10 rounded-lg text-sm font-semibold transition">Mulai Sekarang</a>
+        <ul class="mt-6 space-y-2.5 text-sm text-gray-300">
+          <li class="flex gap-2"><i class="fas fa-check text-emerald-400 mt-1"></i> 18+ AI Categories</li>
+          <li class="flex gap-2"><i class="fas fa-check text-emerald-400 mt-1"></i> Pomodoro V2 + Journal</li>
+          <li class="flex gap-2"><i class="fas fa-check text-emerald-400 mt-1"></i> Goal + Habit + Vision</li>
+          <li class="flex gap-2"><i class="fas fa-check text-emerald-400 mt-1"></i> 21+ Resources</li>
+          <li class="flex gap-2"><i class="fas fa-check text-emerald-400 mt-1"></i> Backup/Restore JSON</li>
+          <li class="flex gap-2"><i class="fas fa-check text-emerald-400 mt-1"></i> PWA Offline Mode</li>
+          <li class="flex gap-2"><i class="fas fa-check text-emerald-400 mt-1"></i> Privacy-first (100% client)</li>
+        </ul>
+      </div>
+
+      <!-- PRO -->
+      <div class="glass featured rounded-2xl p-6">
+        <p class="text-xs text-indigo-400 uppercase tracking-wider font-bold mb-2">Pro</p>
+        <p class="text-4xl font-black text-white mb-1">Rp 49rb<span class="text-base text-gray-500 font-normal">/bln</span></p>
+        <p class="text-xs text-gray-500 mb-5">atau Rp 470rb/tahun (hemat 20%)</p>
+        <a href="mailto:hello@sparkmind.app?subject=Pro%20Subscription" class="block w-full text-center py-2.5 btn-primary text-white rounded-lg text-sm font-semibold">Dapatkan Pro</a>
+        <ul class="mt-6 space-y-2.5 text-sm text-gray-300">
+          <li class="flex gap-2"><i class="fas fa-check text-emerald-400 mt-1"></i> <b>Semua di Sovereign</b></li>
+          <li class="flex gap-2"><i class="fas fa-bolt text-amber-400 mt-1"></i> Real LLM (GPT-4 / Claude)</li>
+          <li class="flex gap-2"><i class="fas fa-cloud text-cyan-400 mt-1"></i> Cloud sync multi-device</li>
+          <li class="flex gap-2"><i class="fas fa-bell text-rose-400 mt-1"></i> Reminder via email/push</li>
+          <li class="flex gap-2"><i class="fas fa-magic text-violet-400 mt-1"></i> Custom AI persona</li>
+          <li class="flex gap-2"><i class="fas fa-chart-line text-green-400 mt-1"></i> Advanced analytics</li>
+          <li class="flex gap-2"><i class="fas fa-headset text-pink-400 mt-1"></i> Priority support</li>
+        </ul>
+      </div>
+
+      <!-- TEAM -->
+      <div class="glass rounded-2xl p-6">
+        <p class="text-xs text-gray-400 uppercase tracking-wider font-bold mb-2">Team</p>
+        <p class="text-4xl font-black text-white mb-1">Rp 149rb<span class="text-base text-gray-500 font-normal">/user/bln</span></p>
+        <p class="text-xs text-gray-500 mb-5">Min 5 user. Diskon volume tersedia.</p>
+        <a href="mailto:hello@sparkmind.app?subject=Team%20Plan" class="block w-full text-center py-2.5 bg-white/5 hover:bg-white/10 rounded-lg text-sm font-semibold transition">Hubungi Sales</a>
+        <ul class="mt-6 space-y-2.5 text-sm text-gray-300">
+          <li class="flex gap-2"><i class="fas fa-check text-emerald-400 mt-1"></i> <b>Semua di Pro</b></li>
+          <li class="flex gap-2"><i class="fas fa-users text-sky-400 mt-1"></i> Workspace tim &amp; sharing</li>
+          <li class="flex gap-2"><i class="fas fa-shield-alt text-emerald-400 mt-1"></i> SSO + role-based access</li>
+          <li class="flex gap-2"><i class="fas fa-chart-bar text-amber-400 mt-1"></i> Team productivity dashboard</li>
+          <li class="flex gap-2"><i class="fas fa-file-export text-violet-400 mt-1"></i> Audit log + export</li>
+          <li class="flex gap-2"><i class="fas fa-handshake text-pink-400 mt-1"></i> Dedicated success manager</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="mt-12 text-xs text-gray-500">
+      <p>💎 Pro &amp; Team coming soon — daftar email untuk early access &amp; lifetime deal.</p>
+      <p class="mt-2">📧 hello@sparkmind.app · 🇮🇩 Made with love in Indonesia</p>
+    </div>
+  </section>
+</body>
+</html>`
+
+// ============================================
+// APP PAGE V6.0 — BULLETPROOF
 // ============================================
 const APP_HTML = `<!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>SparkMind V5 SOVEREIGN — Dashboard</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <meta name="theme-color" content="#0a0a1a">
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧠</text></svg>">
+  <title>SparkMind V6.0 BULLETPROOF — Dashboard</title>
+  <meta name="description" content="SparkMind dashboard — AI strategic guide & productivity OS dengan 12 tools all-in-one.">
+  <link rel="manifest" href="/manifest.webmanifest">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='%234f46e5'/%3E%3Ctext x='50' y='68' font-size='60' text-anchor='middle' fill='white' font-family='system-ui' font-weight='bold'%3ES%3C/text%3E%3C/svg%3E">
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css" rel="stylesheet">
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
-    *{font-family:'Inter',sans-serif;margin:0;padding:0;box-sizing:border-box}
-    body{background:#0a0a1a;color:#e2e8f0;overflow-x:hidden;transition:background .3s,color .3s}
-    body.light{background:#f8fafc;color:#1e293b}
-    body.light .glass{background:rgba(255,255,255,0.7);border-color:rgba(0,0,0,0.06)}
-    body.light .text-white{color:#1e293b !important}
-    body.light .text-gray-400{color:#475569 !important}
-    body.light .text-gray-500{color:#64748b !important}
-    body.light .bg-surface-900{background:#ffffff !important}
-    body.light .border-white\\/5{border-color:rgba(0,0,0,0.06) !important}
-    body.light .bg-white\\/\\[0\\.02\\]{background:rgba(0,0,0,0.02) !important}
-    body.light .bg-white\\/\\[0\\.03\\]{background:rgba(0,0,0,0.03) !important}
-    .glass{background:rgba(255,255,255,0.03);backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,0.06)}
-    .gradient-text{background:linear-gradient(135deg,#818cf8,#f472b6,#fbbf24);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
-    ::-webkit-scrollbar{width:6px;height:6px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:#2a2a4a;border-radius:10px}
-    body.light ::-webkit-scrollbar-thumb{background:#cbd5e1}
-    .btn-primary{background:linear-gradient(135deg,#4f46e5,#6366f1);transition:all .3s}.btn-primary:hover{background:linear-gradient(135deg,#4338ca,#4f46e5);transform:translateY(-1px);box-shadow:0 10px 25px rgba(99,102,241,0.3)}
-    .nav-item{transition:all .3s}.nav-item:hover{background:rgba(99,102,241,0.08)}.nav-item.active{background:linear-gradient(90deg,rgba(99,102,241,0.15),rgba(139,92,246,0.05));border-left:3px solid #6366f1}
-    .typing::after{content:'▌';color:#818cf8;animation:bl 1s infinite}
-    @keyframes bl{0%,50%{opacity:1}51%,100%{opacity:0}}
-    .toast{animation:tin .4s cubic-bezier(.4,0,.2,1);min-width:280px}
-    @keyframes tin{0%{transform:translateX(120%);opacity:0}100%{transform:translateX(0);opacity:1}}
-    .toast.toast-out{animation:tout .3s cubic-bezier(.4,0,.2,1) forwards}
-    @keyframes tout{0%{transform:translateX(0);opacity:1}100%{transform:translateX(120%);opacity:0}}
-    .pulse-dot{animation:pd 2s ease-in-out infinite}
-    @keyframes pd{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(.9)}}
-    .ring-progress{transform:rotate(-90deg);transition:stroke-dashoffset 1s ease-out}
-    .resource-detail{max-height:0;overflow:hidden;transition:max-height .4s ease-out,padding .4s ease-out}
-    .resource-detail.open{max-height:300px}
-    .modal-backdrop{animation:mfade .2s ease-out}
-    @keyframes mfade{0%{opacity:0}100%{opacity:1}}
-    .modal-content{animation:mpop .3s cubic-bezier(.34,1.56,.64,1)}
-    @keyframes mpop{0%{transform:scale(.9);opacity:0}100%{transform:scale(1);opacity:1}}
-    .sidebar{transition:transform .35s cubic-bezier(.4,0,.2,1)}
-    .sidebar-backdrop{animation:bfade .25s ease-out}
-    @keyframes bfade{0%{opacity:0}100%{opacity:1}}
-    @media (max-width:1023px){
-      .sidebar{transform:translateX(-100%);position:fixed !important;z-index:60}
-      .sidebar.open{transform:translateX(0)}
-    }
-    .counter-num{font-variant-numeric:tabular-nums}
-    .bar-anim{transform-origin:bottom;animation:bgrow .8s cubic-bezier(.34,1.56,.64,1) forwards}
-    @keyframes bgrow{0%{transform:scaleY(0)}100%{transform:scaleY(1)}}
-    .kbd{display:inline-block;padding:2px 6px;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.12);border-radius:4px;font-family:monospace;font-size:11px;color:#a5b4fc}
-    body.light .kbd{background:rgba(0,0,0,0.05);border-color:rgba(0,0,0,0.1);color:#4f46e5}
+    *{font-family:-apple-system,BlinkMacSystemFont,'Inter',sans-serif}
+    body{background:#0a0a1a;color:#e5e7eb;overflow-x:hidden}
+    body.light{background:#f9fafb;color:#1f2937}
+    body.density-compact{font-size:13px}
+    .glass{background:rgba(255,255,255,.04);backdrop-filter:blur(12px);border:1px solid rgba(255,255,255,.08)}
+    body.light .glass{background:rgba(255,255,255,.7);border-color:rgba(0,0,0,.08)}
+    .gradient-text{background:linear-gradient(135deg,#a78bfa,#60a5fa,#34d399);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+    .tab-active{background:linear-gradient(135deg,rgba(99,102,241,.18),rgba(139,92,246,.12));border-color:rgba(99,102,241,.4)!important;color:#a5b4fc}
+    body.light .tab-active{background:linear-gradient(135deg,#eef2ff,#f5f3ff);color:#4f46e5}
+    .grid-bg{background-image:linear-gradient(rgba(99,102,241,.05) 1px,transparent 1px),linear-gradient(90deg,rgba(99,102,241,.05) 1px,transparent 1px);background-size:40px 40px}
+    .btn-primary{background:linear-gradient(135deg,#4f46e5,#6366f1);transition:all .3s}
+    .btn-primary:hover{background:linear-gradient(135deg,#4338ca,#4f46e5);transform:translateY(-1px)}
+    .btn-danger{background:linear-gradient(135deg,#dc2626,#ef4444)}
+    .typing::after{content:'.';animation:typ 1.4s infinite}
+    @keyframes typ{0%{content:'.'}33%{content:'..'}66%{content:'...'}}
+    .toast{animation:slide-in .3s cubic-bezier(.4,0,.2,1)}
+    @keyframes slide-in{from{opacity:0;transform:translateY(-20px)}to{opacity:1;transform:none}}
+    .modal-bg{animation:fade-in .2s}
+    @keyframes fade-in{from{opacity:0}to{opacity:1}}
+    .modal-content{animation:scale-in .25s cubic-bezier(.4,0,.2,1)}
+    @keyframes scale-in{from{opacity:0;transform:scale(.95)}to{opacity:1;transform:none}}
+    .sidebar-mobile{transform:translateX(-100%);transition:transform .3s cubic-bezier(.4,0,.2,1)}
+    .sidebar-mobile.open{transform:translateX(0)}
+    .counter{opacity:0;transform:translateY(20px);transition:all .6s}
+    .counter.visible{opacity:1;transform:none}
+    .fade-up{opacity:0;transform:translateY(20px);transition:all .5s}
+    .fade-up.visible{opacity:1;transform:none}
+    @media (prefers-reduced-motion: reduce){.toast,.modal-bg,.modal-content,.counter,.fade-up,.typing::after,.sidebar-mobile{animation:none!important;transition:none!important;opacity:1!important;transform:none!important}}
+    ::-webkit-scrollbar{width:6px;height:6px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:rgba(99,102,241,.3);border-radius:3px}::-webkit-scrollbar-thumb:hover{background:rgba(99,102,241,.5)}
+    .heatmap-cell{width:14px;height:14px;border-radius:3px;background:rgba(255,255,255,.05);transition:transform .2s}
+    .heatmap-cell:hover{transform:scale(1.3)}
+    .heat-1{background:rgba(99,102,241,.25)}.heat-2{background:rgba(99,102,241,.5)}.heat-3{background:rgba(99,102,241,.75)}.heat-4{background:rgba(99,102,241,1)}
+    button:focus-visible,input:focus-visible,textarea:focus-visible{outline:2px solid #6366f1;outline-offset:2px}
   </style>
 </head>
-<body>
+<body class="min-h-screen">
+  <div class="fixed inset-0 grid-bg opacity-30 pointer-events-none"></div>
 
-<div id="toast-container" class="fixed top-4 right-4 z-[100] flex flex-col gap-2"></div>
-
-<div id="modal-root"></div>
-
-<div class="flex min-h-screen">
-
-  <!-- SIDEBAR -->
-  <aside id="sidebar" class="sidebar w-64 glass border-r border-white/5 flex-shrink-0 flex flex-col h-screen sticky top-0 z-50">
-    <div class="p-5 border-b border-white/5 flex items-center justify-between">
-      <div class="flex items-center gap-3">
-        <div class="w-9 h-9 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-lg flex items-center justify-center text-white text-lg shadow-lg">🧠</div>
-        <div>
-          <h1 class="text-base font-bold text-white">SparkMind</h1>
-          <p class="text-[10px] text-indigo-400 font-bold tracking-widest -mt-0.5">V5 · SOVEREIGN</p>
-        </div>
-      </div>
-      <button onclick="toggleSidebar()" class="lg:hidden text-gray-400 hover:text-white p-1"><i class="fas fa-times"></i></button>
+  <!-- Top bar -->
+  <header class="sticky top-0 z-30 backdrop-blur-xl bg-slate-950/80 border-b border-white/5 px-3 sm:px-5 py-3 flex items-center justify-between">
+    <div class="flex items-center gap-2">
+      <button id="sidebar-toggle" aria-label="Menu" class="md:hidden p-2 hover:bg-white/5 rounded-lg"><i class="fas fa-bars"></i></button>
+      <a href="/" class="flex items-center gap-2">
+        <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-500 to-violet-600 flex items-center justify-center text-white font-bold shadow-lg shadow-indigo-500/30">S</div>
+        <span class="font-bold text-sm hidden sm:inline">SparkMind <span class="text-[10px] text-indigo-400 font-mono">V6.0</span></span>
+      </a>
     </div>
-    <nav class="flex-1 overflow-y-auto py-3">
-      ${[
-        ['dashboard','📊','Dashboard'],
-        ['analyzer','🧠','AI Analyzer'],
-        ['coach','🧭','AI Coach'],
-        ['swot','📊','SWOT'],
-        ['pomodoro','🍅','Pomodoro V2'],
-        ['journal','📓','Journal'],
-        ['goals','🎯','Goals'],
-        ['habits','🔥','Habits'],
-        ['vision','🎨','Vision Board'],
-        ['review','📋','Weekly Review'],
-        ['resources','📚','Resources'],
-        ['settings','⚙️','Settings'],
-      ].map(([id, icon, label], i) => `
-        <button onclick="switchTab('${id}')" data-tab="${id}" class="nav-item w-full text-left px-5 py-2.5 flex items-center gap-3 text-sm text-gray-400">
-          <span class="text-base">${icon}</span><span>${label}</span>
-          ${i < 9 ? `<span class="ml-auto kbd">⌘${i+1}</span>` : ''}
-        </button>
-      `).join('')}
-    </nav>
-    <div class="p-4 border-t border-white/5">
-      <button onclick="openShortcutsModal()" class="w-full text-left text-xs text-gray-500 hover:text-white transition flex items-center gap-2">
-        <i class="fas fa-keyboard"></i> Shortcuts <span class="kbd ml-auto">⌘/</span>
+    <div class="flex items-center gap-1.5">
+      <button onclick="openCommandPalette()" aria-label="Command palette" class="hidden sm:flex items-center gap-2 px-3 py-1.5 bg-white/5 hover:bg-white/10 rounded-lg text-xs text-gray-400 border border-white/5">
+        <i class="fas fa-search text-[10px]"></i> <span>Cari</span> <kbd class="text-[9px] px-1.5 py-0.5 bg-white/10 rounded font-mono">⌘K</kbd>
       </button>
+      <button onclick="openQuickAdd()" aria-label="Quick add" title="Quick Add (⌘N)" class="p-2 hover:bg-white/5 rounded-lg"><i class="fas fa-plus text-sm"></i></button>
+      <button onclick="openShortcutsModal()" aria-label="Shortcuts" title="Shortcuts (⌘/)" class="p-2 hover:bg-white/5 rounded-lg"><i class="fas fa-keyboard text-sm"></i></button>
+      <button onclick="toggleTheme()" aria-label="Toggle theme" title="Theme (⌘D)" class="p-2 hover:bg-white/5 rounded-lg"><i id="theme-icon" class="fas fa-moon text-sm"></i></button>
     </div>
-  </aside>
+  </header>
 
-  <div id="sidebar-backdrop" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-40 hidden lg:hidden sidebar-backdrop" onclick="toggleSidebar()"></div>
-
-  <!-- MAIN -->
-  <main class="flex-1 min-w-0 flex flex-col">
-    <header class="glass border-b border-white/5 px-4 sm:px-6 py-3 flex items-center justify-between gap-3 sticky top-0 z-30">
-      <div class="flex items-center gap-3 min-w-0">
-        <button onclick="toggleSidebar()" class="lg:hidden text-gray-400 hover:text-white p-2"><i class="fas fa-bars text-lg"></i></button>
-        <h2 id="page-title" class="text-base sm:text-lg font-bold text-white truncate">Dashboard</h2>
+  <div class="flex">
+    <!-- Sidebar -->
+    <aside id="sidebar" class="sidebar-mobile fixed md:sticky md:translate-x-0 top-[57px] left-0 h-[calc(100vh-57px)] w-64 bg-slate-950/95 md:bg-transparent backdrop-blur-xl border-r border-white/5 z-20 overflow-y-auto p-3">
+      <nav id="tab-nav" class="space-y-1 text-sm"></nav>
+      <div class="mt-6 px-3 py-3 glass rounded-xl">
+        <p class="text-[10px] text-gray-500 uppercase tracking-wider mb-1">Pro Tip</p>
+        <p class="text-xs text-gray-300">Tekan <kbd class="px-1.5 py-0.5 bg-white/10 rounded text-[10px] font-mono">⌘K</kbd> untuk pencarian cepat</p>
       </div>
-      <div class="flex items-center gap-2 sm:gap-3">
-        <button onclick="openCommandPalette()" class="hidden sm:flex items-center gap-2 px-3 py-1.5 glass rounded-lg text-xs text-gray-400 hover:text-white transition">
-          <i class="fas fa-search"></i> Cari... <span class="kbd ml-2">⌘K</span>
-        </button>
-        <button onclick="toggleTheme()" id="theme-toggle" class="w-9 h-9 glass rounded-lg flex items-center justify-center text-gray-400 hover:text-white transition" title="Toggle theme">
-          <i class="fas fa-moon"></i>
-        </button>
-        <span id="quote-ticker" class="hidden md:inline-block text-xs text-gray-500 italic max-w-[200px] truncate"></span>
-      </div>
-    </header>
+    </aside>
+    <div id="sidebar-backdrop" class="hidden fixed inset-0 bg-black/50 z-10 md:hidden"></div>
 
-    <div id="content" class="flex-1 overflow-y-auto p-4 sm:p-6 max-w-6xl w-full mx-auto"></div>
-  </main>
-</div>
+    <!-- Main -->
+    <main id="content" class="flex-1 px-3 sm:px-6 py-5 sm:py-7 max-w-6xl mx-auto w-full"></main>
+  </div>
 
-<script>
-// ============================================
-// STATE & STORAGE
-// ============================================
-const STORAGE = {
-  goals: 'sm_goals_v5', habits: 'sm_habits_v5', vision: 'sm_vision_v5',
-  review: 'sm_review_v5', journal: 'sm_journal_v5', focus: 'sm_focus_v5',
-  streak: 'sm_streak_v5', theme: 'sm_theme_v5', chat: 'sm_chat_v5',
-  pomoStats: 'sm_pomo_v5', activity: 'sm_activity_v5'
-};
-const load = (k, d) => { try { return JSON.parse(localStorage.getItem(k)) ?? d } catch { return d } };
-const save = (k, v) => localStorage.setItem(k, JSON.stringify(v));
+  <!-- Toast container -->
+  <div id="toast-root" class="fixed top-20 right-4 z-50 space-y-2 max-w-sm"></div>
+  <!-- Modal root -->
+  <div id="modal-root"></div>
+  <!-- Storage warning -->
+  <div id="storage-warn" class="hidden fixed bottom-4 right-4 z-40 bg-amber-500/20 border border-amber-500/40 text-amber-200 text-xs px-4 py-2 rounded-lg backdrop-blur"></div>
 
-let goals = load(STORAGE.goals, []);
-let habits = load(STORAGE.habits, []);
-let vision = load(STORAGE.vision, { big:'', y1:'', m3:'', w1:'' });
-let review = load(STORAGE.review, { wins:'', learnings:'', focus:'' });
-let journal = load(STORAGE.journal, []);
-let focusMin = load(STORAGE.focus, 0);
-let streak = load(STORAGE.streak, 0);
-let chatHistory = load(STORAGE.chat, []);
-let pomoStats = load(STORAGE.pomoStats, { sessions:0, totalMin:0 });
-let activityLog = load(STORAGE.activity, {}); // { 'YYYY-MM-DD': count }
-let currentTab = 'dashboard';
+  <script>
+  (function(){ // IIFE for clean scope
+  'use strict';
 
-// ============================================
-// TOAST SYSTEM
-// ============================================
-function toast(msg, type='success') {
-  const c = document.getElementById('toast-container');
-  const colors = { success:'emerald', error:'rose', info:'blue', warn:'amber' };
-  const icons = { success:'check-circle', error:'times-circle', info:'info-circle', warn:'exclamation-triangle' };
-  const color = colors[type] || 'emerald';
-  const t = document.createElement('div');
-  t.className = \`toast glass rounded-xl px-4 py-3 flex items-center gap-3 border border-\${color}-500/30 shadow-2xl\`;
-  t.innerHTML = \`<i class="fas fa-\${icons[type]} text-\${color}-400"></i><p class="text-sm text-white flex-1">\${msg}</p>\`;
-  c.appendChild(t);
-  setTimeout(() => { t.classList.add('toast-out'); setTimeout(() => t.remove(), 300) }, 3000);
-}
+  // ===== UTILITIES =====
+  const escapeHtml = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  const $ = id => document.getElementById(id);
+  const todayKey = () => new Date().toISOString().slice(0,10);
 
-// ============================================
-// MODAL SYSTEM (Smart Confirmation)
-// ============================================
-function showModal({ title, body, confirmText='Konfirmasi', cancelText='Batal', confirmClass='btn-primary', onConfirm }) {
-  const root = document.getElementById('modal-root');
-  root.innerHTML = \`
-    <div class="modal-backdrop fixed inset-0 z-[90] bg-black/70 backdrop-blur-sm flex items-center justify-center p-4" onclick="if(event.target===this)closeModal()">
-      <div class="modal-content glass rounded-2xl p-6 max-w-md w-full border border-white/10 shadow-2xl">
-        <h3 class="text-lg font-bold text-white mb-2">\${title}</h3>
-        <p class="text-gray-400 text-sm mb-5">\${body}</p>
-        <div class="flex gap-3 justify-end">
-          <button onclick="closeModal()" class="px-4 py-2 glass rounded-lg text-gray-300 text-sm font-semibold hover:bg-white/10 transition">\${cancelText}</button>
-          <button id="modal-confirm" class="\${confirmClass} text-white px-4 py-2 rounded-lg text-sm font-bold">\${confirmText}</button>
-        </div>
-      </div>
-    </div>\`;
-  document.getElementById('modal-confirm').onclick = () => { onConfirm && onConfirm(); closeModal() };
-}
-function closeModal() { document.getElementById('modal-root').innerHTML = '' }
-function openShortcutsModal() {
-  showModal({
-    title: '⌨️ Keyboard Shortcuts',
-    body: \`<div class="space-y-2 text-left"><div class="flex justify-between text-sm"><span>Search / Command</span><span class="kbd">⌘K</span></div><div class="flex justify-between text-sm"><span>Switch tabs</span><span class="kbd">⌘1-9</span></div><div class="flex justify-between text-sm"><span>Toggle theme</span><span class="kbd">⌘D</span></div><div class="flex justify-between text-sm"><span>Show shortcuts</span><span class="kbd">⌘/</span></div><div class="flex justify-between text-sm"><span>Close modal/sidebar</span><span class="kbd">Esc</span></div></div>\`,
-    confirmText: 'Mengerti',
-    onConfirm: () => {}
-  });
-  // Hide cancel button for info modal
-  setTimeout(() => { const btns = document.querySelectorAll('#modal-root button'); if (btns[0]) btns[0].style.display='none' }, 0);
-}
-function openCommandPalette() {
-  const tabs = ['dashboard','analyzer','coach','swot','pomodoro','journal','goals','habits','vision','review','resources','settings'];
-  showModal({
-    title: '🔍 Quick Navigation',
-    body: '<input id="cmd-input" type="text" placeholder="Ketik nama tab..." class="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-white text-sm mb-3 focus:outline-none focus:border-indigo-500" /><div id="cmd-results" class="space-y-1 max-h-60 overflow-y-auto"></div>',
-    confirmText: 'Tutup',
-    onConfirm: () => {}
-  });
-  setTimeout(() => {
-    const input = document.getElementById('cmd-input');
-    const results = document.getElementById('cmd-results');
-    const render = (filter='') => {
-      results.innerHTML = tabs.filter(t => t.includes(filter.toLowerCase())).map(t => \`<button onclick="closeModal();switchTab('\${t}')" class="w-full text-left px-3 py-2 hover:bg-white/5 rounded text-sm text-gray-300 capitalize">\${t}</button>\`).join('') || '<p class="text-gray-500 text-sm text-center p-3">Tidak ditemukan</p>';
+  // ===== STORAGE WITH QUOTA GUARD =====
+  const SAFE_LS = {
+    get(k, d) { try { const v = localStorage.getItem(k); return v == null ? d : JSON.parse(v); } catch { return d; } },
+    set(k, v) {
+      try { localStorage.setItem(k, JSON.stringify(v)); return true; }
+      catch (e) {
+        if (e.name === 'QuotaExceededError' || /quota/i.test(e.message)) {
+          showStorageWarning();
+          return false;
+        }
+        return false;
+      }
+    },
+    del(k) { try { localStorage.removeItem(k); } catch {} },
+  };
+  function showStorageWarning() {
+    const el = $('storage-warn');
+    el.textContent = '⚠️ Storage hampir penuh. Backup lalu hapus data lama di Settings.';
+    el.classList.remove('hidden');
+    setTimeout(() => el.classList.add('hidden'), 7000);
+  }
+  function checkStorageQuota() {
+    if (!navigator.storage?.estimate) return;
+    navigator.storage.estimate().then(({ usage, quota }) => {
+      if (usage && quota && (usage / quota) > 0.85) showStorageWarning();
+    }).catch(()=>{});
+  }
+
+  // ===== STATE =====
+  const KEYS = {
+    goals: 'sm_goals_v6', habits: 'sm_habits_v6', journal: 'sm_journal_v6',
+    chat: 'sm_chat_v6', vision: 'sm_vision_v6', review: 'sm_review_v6',
+    pomo: 'sm_pomo_v6', activity: 'sm_activity_v6', focus: 'sm_focus_v6',
+    streak: 'sm_streak_v6', theme: 'sm_theme_v6', tour: 'sm_tour_v6',
+    pomoState: 'sm_pomo_state_v6', density: 'sm_density_v6', motion: 'sm_motion_v6',
+    lastActive: 'sm_last_active_v6'
+  };
+
+  let state = {
+    activeTab: 'dashboard',
+    goals: SAFE_LS.get(KEYS.goals, []),
+    habits: SAFE_LS.get(KEYS.habits, []),
+    journal: SAFE_LS.get(KEYS.journal, []),
+    chat: SAFE_LS.get(KEYS.chat, []),
+    vision: SAFE_LS.get(KEYS.vision, { big:'', y1:'', m3:'', w1:'' }),
+    review: SAFE_LS.get(KEYS.review, { wins:'', learnings:'', focus:'' }),
+    pomo: SAFE_LS.get(KEYS.pomo, { sessions:0, totalMin:0, lastDay:'' }),
+    activity: SAFE_LS.get(KEYS.activity, {}),
+    focus: SAFE_LS.get(KEYS.focus, 0),
+    streak: SAFE_LS.get(KEYS.streak, 0),
+    theme: SAFE_LS.get(KEYS.theme, 'dark'),
+    density: SAFE_LS.get(KEYS.density, 'normal'),
+    journalDraft: '',
+    journalMood: '',
+    chatMode: 'strategic',
+    searchTerm: '',
+  };
+
+  // Pomodoro state with persistent end time (resume on tab switch)
+  let pomoTick = null;
+
+  // ===== TABS =====
+  const TABS = [
+    { id:'dashboard',  icon:'fa-chart-pie',     label:'Dashboard',     n:1 },
+    { id:'analyzer',   icon:'fa-brain',         label:'AI Analyzer',   n:2 },
+    { id:'coach',      icon:'fa-compass',       label:'AI Coach V6',   n:3 },
+    { id:'swot',       icon:'fa-bullseye',      label:'SWOT',          n:4 },
+    { id:'pomodoro',   icon:'fa-stopwatch',     label:'Pomodoro V2',   n:5 },
+    { id:'journal',    icon:'fa-book-open',     label:'Journal',       n:6 },
+    { id:'goals',      icon:'fa-flag',          label:'Goals',         n:7 },
+    { id:'habits',     icon:'fa-fire',          label:'Habits',        n:8 },
+    { id:'vision',     icon:'fa-mountain',      label:'Vision Board',  n:9 },
+    { id:'review',     icon:'fa-clipboard-list',label:'Weekly Review' },
+    { id:'resources',  icon:'fa-graduation-cap',label:'Resources' },
+    { id:'settings',   icon:'fa-cog',           label:'Settings' },
+  ];
+
+  function renderSidebar() {
+    const nav = $('tab-nav');
+    nav.innerHTML = TABS.map(t => \`
+      <button data-tab="\${t.id}" class="tab-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-lg border border-transparent text-gray-400 hover:bg-white/5 hover:text-white transition\">
+        <i class="fas \${t.icon} text-sm w-4 text-center"></i>
+        <span class="flex-1 text-left">\${t.label}</span>
+        \${t.n ? \`<kbd class="text-[9px] px-1.5 py-0.5 bg-white/5 rounded font-mono text-gray-500">\${t.n}</kbd>\` : ''}
+      </button>\`).join('');
+    nav.querySelectorAll('.tab-btn').forEach(b => b.addEventListener('click', () => switchTab(b.dataset.tab)));
+    updateActiveTab();
+  }
+  function updateActiveTab() {
+    document.querySelectorAll('.tab-btn').forEach(b => {
+      b.classList.toggle('tab-active', b.dataset.tab === state.activeTab);
+    });
+  }
+  function switchTab(id) {
+    if (!TABS.find(t => t.id === id)) return;
+    state.activeTab = id;
+    closeSidebar();
+    updateActiveTab();
+    renderActive();
+    logActivity();
+  }
+  function renderActive() {
+    const map = {
+      dashboard: renderDashboard, analyzer: renderAnalyzer, coach: renderCoach,
+      swot: renderSWOT, pomodoro: renderPomodoro, journal: renderJournal,
+      goals: renderGoals, habits: renderHabits, vision: renderVision,
+      review: renderReview, resources: renderResources, settings: renderSettings,
     };
-    render();
-    input.focus();
-    input.oninput = e => render(e.target.value);
-  }, 50);
-}
-
-// ============================================
-// THEME
-// ============================================
-function toggleTheme() {
-  document.body.classList.toggle('light');
-  const isLight = document.body.classList.contains('light');
-  save(STORAGE.theme, isLight ? 'light' : 'dark');
-  document.querySelector('#theme-toggle i').className = isLight ? 'fas fa-sun' : 'fas fa-moon';
-  toast(\`Mode \${isLight ? 'Light' : 'Dark'} aktif\`, 'info');
-}
-if (load(STORAGE.theme, 'dark') === 'light') {
-  document.body.classList.add('light');
-  setTimeout(() => { const i = document.querySelector('#theme-toggle i'); if (i) i.className = 'fas fa-sun' }, 50);
-}
-
-// ============================================
-// SIDEBAR (Mobile fix)
-// ============================================
-function toggleSidebar() {
-  const sb = document.getElementById('sidebar');
-  const bd = document.getElementById('sidebar-backdrop');
-  const open = sb.classList.toggle('open');
-  bd.classList.toggle('hidden', !open);
-  document.body.style.overflow = open ? 'hidden' : '';
-}
-
-// ============================================
-// ACTIVITY TRACKING (for trend chart)
-// ============================================
-function logActivity() {
-  const today = new Date().toISOString().split('T')[0];
-  activityLog[today] = (activityLog[today] || 0) + 1;
-  save(STORAGE.activity, activityLog);
-}
-
-// ============================================
-// TABS
-// ============================================
-const TABS = {
-  dashboard: { title:'Dashboard', render: renderDashboard },
-  analyzer: { title:'AI Analyzer', render: renderAnalyzer },
-  coach: { title:'AI Coach', render: renderCoach },
-  swot: { title:'SWOT Analyzer', render: renderSWOT },
-  pomodoro: { title:'Pomodoro V2', render: renderPomodoro },
-  journal: { title:'Journal', render: renderJournal },
-  goals: { title:'Goals', render: renderGoals },
-  habits: { title:'Habits', render: renderHabits },
-  vision: { title:'Vision Board', render: renderVision },
-  review: { title:'Weekly Review', render: renderReview },
-  resources: { title:'Resource Library', render: renderResources },
-  settings: { title:'Settings', render: renderSettings },
-};
-
-function switchTab(id) {
-  if (!TABS[id]) return;
-  currentTab = id;
-  document.querySelectorAll('[data-tab]').forEach(b => b.classList.toggle('active', b.dataset.tab === id));
-  document.getElementById('page-title').textContent = TABS[id].title;
-  TABS[id].render();
-  // Auto-close sidebar on mobile after navigation
-  if (window.innerWidth < 1024) {
-    const sb = document.getElementById('sidebar');
-    if (sb.classList.contains('open')) toggleSidebar();
+    try { (map[state.activeTab] || renderDashboard)(); }
+    catch (e) {
+      console.error('Render error:', e);
+      $('content').innerHTML = \`<div class="glass rounded-2xl p-8 text-center"><div class="text-5xl mb-3">⚠️</div><p class="font-bold mb-2">Terjadi error</p><p class="text-xs text-gray-400 mb-4">\${escapeHtml(e.message || 'Unknown')}</p><button onclick="location.reload()" class="px-4 py-2 btn-primary text-white rounded-lg text-sm">Reload</button></div>\`;
+    }
   }
-  document.getElementById('content').scrollTop = 0;
-  logActivity();
-}
+  window.switchTab = switchTab;
 
-// ============================================
-// DASHBOARD with Weekly Trend
-// ============================================
-function renderDashboard() {
-  const completedGoals = goals.filter(g => g.progress >= 100).length;
-  const totalHabits = habits.length;
-  const journalEntries = journal.length;
-
-  // Weekly trend: last 7 days
-  const days = [];
-  for (let i = 6; i >= 0; i--) {
-    const d = new Date(); d.setDate(d.getDate() - i);
-    const key = d.toISOString().split('T')[0];
-    days.push({ key, label: ['Min','Sen','Sel','Rab','Kam','Jum','Sab'][d.getDay()], count: activityLog[key] || 0 });
+  // ===== SIDEBAR MOBILE =====
+  function toggleSidebar() {
+    const sb = $('sidebar'); const bd = $('sidebar-backdrop');
+    sb.classList.toggle('open');
+    bd.classList.toggle('hidden');
   }
-  const maxCount = Math.max(...days.map(d => d.count), 1);
+  function closeSidebar() {
+    $('sidebar').classList.remove('open');
+    $('sidebar-backdrop').classList.add('hidden');
+  }
+  $('sidebar-toggle').addEventListener('click', toggleSidebar);
+  $('sidebar-backdrop').addEventListener('click', closeSidebar);
 
-  const hour = new Date().getHours();
-  const greet = hour < 11 ? 'Selamat pagi' : hour < 15 ? 'Selamat siang' : hour < 18 ? 'Selamat sore' : 'Selamat malam';
+  // ===== TOAST =====
+  function toast(msg, type='success', duration=2500) {
+    const colors = { success:'emerald', error:'rose', info:'sky', warn:'amber' };
+    const icons = { success:'check-circle', error:'circle-exclamation', info:'info-circle', warn:'triangle-exclamation' };
+    const c = colors[type] || 'sky';
+    const ic = icons[type] || 'info-circle';
+    const div = document.createElement('div');
+    div.className = \`toast glass rounded-xl px-4 py-3 flex items-center gap-3 border-l-4 border-\${c}-500\`;
+    div.innerHTML = \`<i class="fas fa-\${ic} text-\${c}-400"></i><p class="text-sm flex-1">\${escapeHtml(msg)}</p>\`;
+    $('toast-root').appendChild(div);
+    setTimeout(() => { div.style.opacity = '0'; div.style.transform = 'translateX(20px)'; div.style.transition = 'all .3s'; setTimeout(() => div.remove(), 300); }, duration);
+  }
 
-  document.getElementById('content').innerHTML = \`
-    <div class="space-y-6">
-      <div class="glass rounded-2xl p-5 sm:p-6">
-        <p class="text-sm text-gray-400">\${greet}, Sovereign 👋</p>
-        <h2 class="text-2xl sm:text-3xl font-bold text-white mt-1">Mari mulai hari penuh kemenangan</h2>
-        <p class="text-xs text-gray-500 mt-2">V5.0 SOVEREIGN · 18+ AI Categories · Semua data tersimpan aman di browser</p>
+  // ===== MODAL =====
+  function openModal(html) {
+    const root = $('modal-root');
+    root.innerHTML = \`<div class="modal-bg fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4" onclick="if(event.target===this)closeModal()"><div class="modal-content max-w-md w-full">\${html}</div></div>\`;
+  }
+  function closeModal() { $('modal-root').innerHTML = ''; }
+  window.closeModal = closeModal;
+
+  function showConfirm({ title, body, danger=false, confirmText='Konfirmasi', onConfirm }) {
+    const id = 'cf' + Date.now();
+    openModal(\`<div class="glass rounded-2xl p-6">
+      <p class="text-xl font-bold mb-2">\${escapeHtml(title)}</p>
+      <p class="text-sm text-gray-400 mb-5">\${escapeHtml(body)}</p>
+      <div class="flex gap-2 justify-end">
+        <button onclick="closeModal()" class="px-4 py-2 bg-white/5 hover:bg-white/10 rounded-lg text-sm">Batal</button>
+        <button id="\${id}" class="px-4 py-2 \${danger ? 'btn-danger' : 'btn-primary'} text-white rounded-lg text-sm font-semibold">\${escapeHtml(confirmText)}</button>
+      </div></div>\`);
+    setTimeout(() => $(id)?.addEventListener('click', () => { closeModal(); onConfirm?.(); }), 0);
+  }
+
+  // ===== KEYBOARD SHORTCUTS =====
+  document.addEventListener('keydown', e => {
+    const isInput = ['INPUT','TEXTAREA','SELECT'].includes(document.activeElement?.tagName);
+    if (e.key === 'Escape') { closeModal(); closeSidebar(); return; }
+    if (!(e.metaKey || e.ctrlKey)) return;
+    const k = e.key.toLowerCase();
+    if (k === 'k') { e.preventDefault(); openCommandPalette(); }
+    else if (k === 'n' && !isInput) { e.preventDefault(); openQuickAdd(); }
+    else if (k === 'd' && !isInput) { e.preventDefault(); toggleTheme(); }
+    else if (k === '/' || e.key === '/') { e.preventDefault(); openShortcutsModal(); }
+    else if (k >= '1' && k <= '9' && !isInput) {
+      const tab = TABS.find(t => t.n === parseInt(k));
+      if (tab) { e.preventDefault(); switchTab(tab.id); }
+    }
+  });
+
+  function openShortcutsModal() {
+    const sc = [
+      ['⌘K / Ctrl+K','Command palette'],
+      ['⌘N / Ctrl+N','Quick Add (goal/habit/journal)'],
+      ['⌘1-9','Switch tab cepat'],
+      ['⌘D','Toggle dark/light mode'],
+      ['⌘/','Show shortcuts (modal ini)'],
+      ['Esc','Close modal / sidebar'],
+    ];
+    openModal(\`<div class="glass rounded-2xl p-6">
+      <p class="text-xl font-bold mb-4">⌨️ Keyboard Shortcuts</p>
+      <div class="space-y-2">
+        \${sc.map(([k,d]) => \`<div class="flex items-center justify-between py-2 border-b border-white/5"><span class="text-sm text-gray-300">\${d}</span><kbd class="text-[11px] px-2 py-1 bg-white/10 rounded font-mono text-indigo-300">\${k}</kbd></div>\`).join('')}
       </div>
+      <button onclick="closeModal()" class="mt-5 w-full py-2.5 btn-primary text-white rounded-lg text-sm font-semibold">Tutup</button>
+    </div>\`);
+  }
+  window.openShortcutsModal = openShortcutsModal;
 
-      <div class="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
-        \${[
-          ['🎯', goals.length, 'Total Goals', 'indigo'],
-          ['✅', completedGoals, 'Completed', 'emerald'],
-          ['🔥', totalHabits, 'Active Habits', 'amber'],
-          ['📓', journalEntries, 'Journal Entries', 'pink'],
-        ].map(([icon, val, label, color]) => \`
+  function openCommandPalette() {
+    openModal(\`<div class="glass rounded-2xl p-4">
+      <input id="cmd-input" type="text" placeholder="Cari tab atau aksi..." class="w-full bg-transparent border-b border-white/10 px-2 py-3 text-sm focus:outline-none focus:border-indigo-500">
+      <div id="cmd-results" class="mt-3 max-h-72 overflow-y-auto"></div>
+    </div>\`);
+    const input = $('cmd-input');
+    const results = $('cmd-results');
+    function paint(filter='') {
+      const f = filter.toLowerCase();
+      const items = [
+        ...TABS.map(t => ({ label: t.label, action: () => switchTab(t.id), icon: t.icon })),
+        { label:'Quick Add', action: openQuickAdd, icon:'fa-plus' },
+        { label:'Toggle Theme', action: toggleTheme, icon:'fa-moon' },
+        { label:'Show Shortcuts', action: openShortcutsModal, icon:'fa-keyboard' },
+        { label:'Backup Data (JSON)', action: () => { closeModal(); switchTab('settings'); setTimeout(exportData, 200); }, icon:'fa-download' },
+      ].filter(i => i.label.toLowerCase().includes(f));
+      results.innerHTML = items.length === 0
+        ? '<p class="text-gray-500 text-sm text-center py-4">Tidak ada hasil</p>'
+        : items.map((i, idx) => \`<button data-idx="\${idx}" class="cmd-item w-full text-left px-3 py-2.5 hover:bg-white/5 rounded text-sm flex items-center gap-3"><i class="fas \${i.icon} text-indigo-400 w-4"></i><span>\${escapeHtml(i.label)}</span></button>\`).join('');
+      results.querySelectorAll('.cmd-item').forEach((b, idx) => b.addEventListener('click', () => { closeModal(); items[idx].action(); }));
+    }
+    setTimeout(() => { input.focus(); paint(); }, 50);
+    input.addEventListener('input', () => paint(input.value));
+    input.addEventListener('keydown', e => { if (e.key === 'Enter') results.querySelector('.cmd-item')?.click(); });
+  }
+  window.openCommandPalette = openCommandPalette;
+
+  // ===== QUICK ADD =====
+  function openQuickAdd() {
+    openModal(\`<div class="glass rounded-2xl p-6">
+      <p class="text-lg font-bold mb-4">⚡ Quick Add</p>
+      <div class="space-y-3">
+        <button data-qa="goal" class="qa-btn w-full p-3 bg-white/5 hover:bg-indigo-500/10 rounded-lg text-left flex items-center gap-3"><i class="fas fa-flag text-indigo-400"></i><span class="text-sm">Tambah Goal</span></button>
+        <button data-qa="habit" class="qa-btn w-full p-3 bg-white/5 hover:bg-emerald-500/10 rounded-lg text-left flex items-center gap-3"><i class="fas fa-fire text-emerald-400"></i><span class="text-sm">Tambah Habit</span></button>
+        <button data-qa="journal" class="qa-btn w-full p-3 bg-white/5 hover:bg-rose-500/10 rounded-lg text-left flex items-center gap-3"><i class="fas fa-book-open text-rose-400"></i><span class="text-sm">Journal Baru</span></button>
+      </div>
+      <button onclick="closeModal()" class="mt-4 w-full py-2 bg-white/5 hover:bg-white/10 rounded-lg text-sm">Batal</button>
+    </div>\`);
+    setTimeout(() => {
+      document.querySelectorAll('.qa-btn').forEach(b => b.addEventListener('click', () => {
+        const t = b.dataset.qa;
+        closeModal();
+        if (t === 'goal') { switchTab('goals'); setTimeout(() => $('goal-input')?.focus(), 200); }
+        else if (t === 'habit') { switchTab('habits'); setTimeout(() => $('habit-input')?.focus(), 200); }
+        else { switchTab('journal'); setTimeout(() => $('journal-input')?.focus(), 200); }
+      }));
+    }, 0);
+  }
+  window.openQuickAdd = openQuickAdd;
+
+  // ===== THEME =====
+  function applyTheme() {
+    document.body.classList.toggle('light', state.theme === 'light');
+    const ic = $('theme-icon');
+    if (ic) ic.className = state.theme === 'light' ? 'fas fa-sun text-sm' : 'fas fa-moon text-sm';
+  }
+  function toggleTheme() {
+    state.theme = state.theme === 'dark' ? 'light' : 'dark';
+    SAFE_LS.set(KEYS.theme, state.theme);
+    applyTheme();
+    toast('Theme: ' + state.theme, 'info', 1500);
+  }
+  window.toggleTheme = toggleTheme;
+  applyTheme();
+  document.body.classList.toggle('density-compact', state.density === 'compact');
+
+  // ===== ACTIVITY LOG =====
+  function logActivity() {
+    const k = todayKey();
+    state.activity[k] = (state.activity[k] || 0) + 1;
+    SAFE_LS.set(KEYS.activity, state.activity);
+    SAFE_LS.set(KEYS.lastActive, k);
+  }
+
+  // ===== STREAK =====
+  function updateStreak() {
+    const last = SAFE_LS.get(KEYS.lastActive, '');
+    const today = todayKey();
+    const yesterday = new Date(Date.now() - 86400000).toISOString().slice(0,10);
+    if (last === today) return;
+    if (last === yesterday) state.streak += 1;
+    else if (last && last !== today) state.streak = 1;
+    else state.streak = 1;
+    SAFE_LS.set(KEYS.streak, state.streak);
+  }
+
+  // ===== DASHBOARD =====
+  function renderDashboard() {
+    updateStreak();
+    const totalGoals = state.goals.length;
+    const completed = state.goals.filter(g => g.progress >= 100).length;
+    const streakHabits = state.habits.reduce((s, h) => s + (h.streak || 0), 0);
+    const journalCount = state.journal.length;
+    const focusToday = Math.round((state.pomo.lastDay === todayKey() ? state.pomo.sessions : 0) * 25);
+
+    // Weekly trend (last 7 days)
+    const days = [];
+    for (let i = 6; i >= 0; i--) {
+      const d = new Date(Date.now() - i * 86400000);
+      const k = d.toISOString().slice(0,10);
+      days.push({ label: d.toLocaleDateString('id-ID',{ weekday:'short' }), count: state.activity[k] || 0 });
+    }
+    const max = Math.max(...days.map(d => d.count), 1);
+
+    $('content').innerHTML = \`
+      <div class="space-y-5">
+        <div class="fade-up">
+          <p class="text-xs text-gray-500 uppercase tracking-wider mb-1">Selamat datang di SparkMind</p>
+          <h1 class="text-2xl sm:text-3xl font-black gradient-text">Dashboard Anda</h1>
+          <p class="text-xs text-gray-400 mt-1">Streak <b class="text-emerald-400">\${state.streak}</b> hari · \${new Date().toLocaleDateString('id-ID',{ weekday:'long', day:'numeric', month:'long' })}</p>
+        </div>
+
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+          \${[
+            ['flag','indigo','Total Goals',totalGoals],
+            ['check-double','emerald','Completed',completed],
+            ['fire','orange','Habit Streaks',streakHabits],
+            ['book-open','rose','Journal Entries',journalCount],
+          ].map(([ic,c,l,v]) => \`
+            <div class="glass rounded-xl p-4 counter">
+              <div class="flex items-center justify-between mb-1.5">
+                <i class="fas fa-\${ic} text-\${c}-400 text-sm"></i>
+                <span class="text-2xl font-black gradient-text">\${v}</span>
+              </div>
+              <p class="text-[10px] text-gray-500 uppercase tracking-wider">\${l}</p>
+            </div>\`).join('')}
+        </div>
+
+        <div class="glass rounded-2xl p-5 fade-up">
+          <div class="flex items-center justify-between mb-4">
+            <div>
+              <p class="text-xs text-gray-500 uppercase tracking-wider">Aktivitas 7 Hari</p>
+              <p class="text-lg font-bold mt-0.5">Trend Mingguan</p>
+            </div>
+            <span class="text-xs text-emerald-400">\${days.reduce((s,d)=>s+d.count,0)} interaksi total</span>
+          </div>
+          <div class="flex items-end gap-2 h-32">
+            \${days.map(d => \`
+              <div class="flex-1 flex flex-col items-center gap-1.5">
+                <div class="w-full rounded-t bg-gradient-to-t from-indigo-500 to-violet-500 transition-all" style="height:\${(d.count/max)*100}%;min-height:4px" title="\${d.count} aktivitas"></div>
+                <span class="text-[10px] text-gray-500">\${d.label}</span>
+              </div>\`).join('')}
+          </div>
+        </div>
+
+        <div class="grid sm:grid-cols-2 gap-3">
           <div class="glass rounded-xl p-4">
-            <div class="text-2xl mb-2">\${icon}</div>
-            <div class="text-2xl sm:text-3xl font-black text-\${color}-400 counter-num">\${val}</div>
-            <div class="text-xs text-gray-500 mt-1">\${label}</div>
+            <p class="text-xs text-gray-500 uppercase tracking-wider mb-2">Focus Today (Pomodoro)</p>
+            <p class="text-3xl font-black text-orange-400">\${focusToday} <span class="text-base text-gray-500">menit</span></p>
+            <button onclick="switchTab('pomodoro')" class="text-xs text-orange-400 hover:underline mt-1">Mulai Pomodoro →</button>
           </div>
-        \`).join('')}
-      </div>
+          <div class="glass rounded-xl p-4">
+            <p class="text-xs text-gray-500 uppercase tracking-wider mb-2">Quick Actions</p>
+            <div class="grid grid-cols-3 gap-2 mt-2">
+              <button onclick="switchTab('analyzer')" class="text-2xl hover:scale-110 transition" title="AI Analyzer">🧠</button>
+              <button onclick="openQuickAdd()" class="text-2xl hover:scale-110 transition" title="Quick Add">⚡</button>
+              <button onclick="switchTab('journal')" class="text-2xl hover:scale-110 transition" title="Journal">📓</button>
+            </div>
+          </div>
+        </div>
 
-      <div class="glass rounded-2xl p-5 sm:p-6">
-        <div class="flex items-center justify-between mb-5">
-          <div>
-            <h3 class="text-lg font-bold text-white">📊 Weekly Activity Trend</h3>
-            <p class="text-xs text-gray-500 mt-0.5">7 hari terakhir</p>
-          </div>
-          <span class="text-xs text-indigo-400 font-bold">\${days.reduce((a, d) => a + d.count, 0)} actions</span>
+        <div class="glass rounded-2xl p-5 fade-up">
+          <p class="text-xs text-gray-500 uppercase tracking-wider mb-2">💡 Insight Hari Ini</p>
+          <p id="quote-text" class="text-sm text-gray-200 italic leading-relaxed">Memuat...</p>
+          <p id="quote-author" class="text-xs text-indigo-400 mt-2 font-semibold">— SparkMind</p>
         </div>
-        <div class="flex items-end gap-2 sm:gap-3 h-40">
-          \${days.map((d, i) => {
-            const h = (d.count / maxCount) * 100;
-            return \`<div class="flex-1 flex flex-col items-center gap-2">
-              <div class="text-[10px] font-bold text-gray-400">\${d.count}</div>
-              <div class="w-full bg-white/[0.03] rounded-lg flex items-end" style="height:120px"><div class="w-full bar-anim rounded-lg bg-gradient-to-t from-indigo-600 to-purple-500" style="height:\${h}%;animation-delay:\${i*60}ms"></div></div>
-              <div class="text-[10px] text-gray-500">\${d.label}</div>
-            </div>\`;
-          }).join('')}
-        </div>
-      </div>
+      </div>\`;
+    setTimeout(() => {
+      document.querySelectorAll('.counter').forEach((el, i) => setTimeout(() => el.classList.add('visible'), 60 * i));
+      document.querySelectorAll('.fade-up').forEach((el, i) => setTimeout(() => el.classList.add('visible'), 50 * i));
+    }, 30);
+    fetch('/api/quotes').then(r => r.json()).then(q => {
+      $('quote-text').textContent = '"' + q.text + '"';
+      $('quote-author').textContent = '— ' + q.author;
+    }).catch(() => {});
+  }
 
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div class="glass rounded-2xl p-5">
-          <h3 class="font-bold text-white mb-4">⚡ Quick Actions</h3>
-          <div class="grid grid-cols-2 gap-2">
-            <button onclick="switchTab('analyzer')" class="glass rounded-lg p-3 text-left hover:bg-white/[0.05] transition"><div class="text-xl mb-1">🧠</div><div class="text-xs font-semibold text-white">AI Analyze</div></button>
-            <button onclick="switchTab('pomodoro')" class="glass rounded-lg p-3 text-left hover:bg-white/[0.05] transition"><div class="text-xl mb-1">🍅</div><div class="text-xs font-semibold text-white">Start Focus</div></button>
-            <button onclick="switchTab('journal')" class="glass rounded-lg p-3 text-left hover:bg-white/[0.05] transition"><div class="text-xl mb-1">📓</div><div class="text-xs font-semibold text-white">New Journal</div></button>
-            <button onclick="switchTab('goals')" class="glass rounded-lg p-3 text-left hover:bg-white/[0.05] transition"><div class="text-xl mb-1">🎯</div><div class="text-xs font-semibold text-white">Add Goal</div></button>
-          </div>
+  // ===== ANALYZER =====
+  function renderAnalyzer() {
+    $('content').innerHTML = \`
+      <div class="max-w-3xl mx-auto space-y-4">
+        <div>
+          <h1 class="text-2xl font-black gradient-text mb-1">🧠 AI Strategic Analyzer</h1>
+          <p class="text-xs text-gray-400">Tanya apa saja — 18+ kategori AI siap memandu. Memory tersimpan otomatis.</p>
         </div>
-        <div class="glass rounded-2xl p-5">
-          <h3 class="font-bold text-white mb-4">🍅 Pomodoro Stats</h3>
-          <div class="space-y-3">
-            <div class="flex justify-between text-sm"><span class="text-gray-400">Total Sessions</span><span class="text-white font-bold counter-num">\${pomoStats.sessions}</span></div>
-            <div class="flex justify-between text-sm"><span class="text-gray-400">Total Focus Time</span><span class="text-white font-bold counter-num">\${pomoStats.totalMin}m</span></div>
-            <div class="flex justify-between text-sm"><span class="text-gray-400">Streak</span><span class="text-amber-400 font-bold">🔥 \${streak} hari</span></div>
-            <button onclick="switchTab('pomodoro')" class="w-full mt-3 btn-primary text-white py-2 rounded-lg text-sm font-bold">Start Session</button>
-          </div>
-        </div>
-      </div>
-    </div>\`;
-}
-
-// ============================================
-// AI ANALYZER (Chat with persistent memory)
-// ============================================
-function renderAnalyzer() {
-  document.getElementById('content').innerHTML = \`
-    <div class="space-y-4">
-      <div class="glass rounded-2xl p-5">
-        <div class="flex items-center justify-between flex-wrap gap-2 mb-3">
-          <div>
-            <h3 class="text-lg font-bold text-white">🧠 AI Sovereign Engine V5</h3>
-            <p class="text-xs text-gray-500">18+ kategori · Chat memory persist</p>
-          </div>
-          <button onclick="clearChat()" class="text-xs text-gray-500 hover:text-rose-400 transition"><i class="fas fa-trash"></i> Clear</button>
-        </div>
-        <div id="chat-box" class="space-y-3 max-h-[480px] overflow-y-auto p-3 bg-white/[0.02] border border-white/5 rounded-xl mb-3"></div>
+        <div id="chat-box" class="glass rounded-2xl p-4 h-[55vh] overflow-y-auto space-y-3"></div>
         <div class="flex gap-2">
-          <input id="chat-input" type="text" placeholder="Tanya apa saja: bisnis, karir, spiritual, side hustle..." class="flex-1 bg-white/5 border border-white/10 rounded-lg px-3 py-2.5 text-white text-sm focus:outline-none focus:border-indigo-500" onkeypress="if(event.key==='Enter')sendChat()" />
-          <button onclick="sendChat()" class="btn-primary text-white px-5 py-2.5 rounded-lg text-sm font-bold"><i class="fas fa-paper-plane"></i></button>
+          <input id="chat-input" type="text" placeholder="Tanya apa saja... (mis. cara mulai side hustle)" class="flex-1 bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-indigo-500" maxlength="2000">
+          <button id="chat-send" class="px-5 btn-primary text-white font-semibold rounded-xl"><i class="fas fa-paper-plane"></i></button>
         </div>
-        <div class="flex flex-wrap gap-2 mt-3">
-          \${['Bisnis online','Karir tech','Side hustle','Spiritual','Mental health','Parenting'].map(s => \`<button onclick="document.getElementById('chat-input').value='\${s}';sendChat()" class="text-[10px] px-2.5 py-1 glass rounded-full text-gray-400 hover:text-white transition">\${s}</button>\`).join('')}
+        <div class="flex items-center justify-between text-xs">
+          <button onclick="clearChat()" class="text-gray-500 hover:text-rose-400"><i class="fas fa-trash mr-1"></i>Hapus chat</button>
+          <span class="text-gray-500">\${state.chat.length} pesan tersimpan</span>
         </div>
-      </div>
-    </div>\`;
-  // Restore history
-  const box = document.getElementById('chat-box');
-  if (chatHistory.length === 0) {
-    box.innerHTML = '<div class="text-center text-gray-500 text-sm py-8">💬 Mulai percakapan strategis...</div>';
-  } else {
-    box.innerHTML = chatHistory.map(msg => msg.role === 'user'
-      ? \`<div class="flex justify-end"><div class="bg-indigo-500/20 border border-indigo-500/30 rounded-xl px-4 py-2.5 max-w-[80%] text-sm text-white">\${msg.content}</div></div>\`
-      : \`<div class="flex justify-start"><div class="glass rounded-xl px-4 py-3 max-w-[90%]">\${msg.content}</div></div>\`
+      </div>\`;
+    paintChat();
+    $('chat-input').addEventListener('keydown', e => { if (e.key === 'Enter') sendChat(); });
+    $('chat-send').addEventListener('click', sendChat);
+    setTimeout(() => $('chat-input').focus(), 200);
+  }
+
+  function paintChat() {
+    const box = $('chat-box');
+    if (state.chat.length === 0) {
+      box.innerHTML = \`<div class="text-center text-gray-500 text-sm py-12">
+        <div class="text-4xl mb-3">💬</div>
+        <p class="mb-2">Mulai percakapan strategis</p>
+        <p class="text-xs">Coba: <i>"Bagaimana mulai side hustle freelance?"</i></p>
+      </div>\`;
+      return;
+    }
+    box.innerHTML = state.chat.map((msg, i) => msg.role === 'user'
+      ? \`<div class="flex justify-end"><div class="bg-indigo-500/20 border border-indigo-500/30 rounded-xl px-4 py-2.5 max-w-[80%] text-sm">\${escapeHtml(msg.content)}</div></div>\`
+      : \`<div class="space-y-2"><div class="flex justify-start"><div class="glass rounded-xl px-4 py-3 max-w-[92%] text-sm">\${msg.content}</div></div>
+         <div class="flex gap-2 ml-2"><button data-copy="\${i}" class="text-[11px] text-gray-500 hover:text-indigo-400"><i class="fas fa-copy mr-1"></i>Copy</button><button data-share="\${i}" class="text-[11px] text-gray-500 hover:text-indigo-400"><i class="fas fa-share mr-1"></i>Share</button><button data-savej="\${i}" class="text-[11px] text-gray-500 hover:text-rose-400"><i class="fas fa-book mr-1"></i>Save to Journal</button></div></div>\`
     ).join('');
     box.scrollTop = box.scrollHeight;
+    box.querySelectorAll('[data-copy]').forEach(b => b.addEventListener('click', () => copyAi(parseInt(b.dataset.copy))));
+    box.querySelectorAll('[data-share]').forEach(b => b.addEventListener('click', () => shareAi(parseInt(b.dataset.share))));
+    box.querySelectorAll('[data-savej]').forEach(b => b.addEventListener('click', () => saveAiToJournal(parseInt(b.dataset.savej))));
   }
-}
 
-async function sendChat() {
-  const input = document.getElementById('chat-input');
-  const msg = input.value.trim();
-  if (!msg) return;
-  const box = document.getElementById('chat-box');
-  if (chatHistory.length === 0) box.innerHTML = '';
-  box.innerHTML += \`<div class="flex justify-end"><div class="bg-indigo-500/20 border border-indigo-500/30 rounded-xl px-4 py-2.5 max-w-[80%] text-sm text-white">\${msg}</div></div>\`;
-  chatHistory.push({ role:'user', content:msg });
-  input.value = '';
-  box.scrollTop = box.scrollHeight;
-
-  // Typing indicator
-  const tid = 'typing-' + Date.now();
-  box.innerHTML += \`<div id="\${tid}" class="flex justify-start"><div class="glass rounded-xl px-4 py-3 text-sm text-gray-400 typing">Berpikir</div></div>\`;
-  box.scrollTop = box.scrollHeight;
-
-  try {
-    const r = await fetch('/api/analyze', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ message: msg, history: chatHistory.slice(-10) }) });
-    const data = await r.json();
-    document.getElementById(tid)?.remove();
-    box.innerHTML += \`<div class="flex justify-start"><div class="glass rounded-xl px-4 py-3 max-w-[90%]">\${data.response}</div></div>\`;
-    chatHistory.push({ role:'ai', content: data.response });
-    save(STORAGE.chat, chatHistory);
-    box.scrollTop = box.scrollHeight;
-    logActivity();
-  } catch (e) {
-    document.getElementById(tid)?.remove();
-    toast('Gagal terhubung. Coba lagi.', 'error');
+  function copyAi(idx) {
+    const msg = state.chat[idx]; if (!msg) return;
+    const txt = msg.content.replace(/<[^>]+>/g, '').replace(/&[a-z]+;/g, ' ').replace(/\\s+/g, ' ').trim();
+    navigator.clipboard.writeText(txt).then(() => toast('Copied to clipboard', 'success'));
   }
-}
+  function shareAi(idx) {
+    const msg = state.chat[idx]; if (!msg) return;
+    const txt = msg.content.replace(/<[^>]+>/g, '').replace(/&[a-z]+;/g, ' ').replace(/\\s+/g, ' ').trim();
+    if (navigator.share) navigator.share({ title:'SparkMind AI', text: txt }).catch(()=>{});
+    else { navigator.clipboard.writeText(txt); toast('Disalin (share API tidak tersedia)', 'info'); }
+  }
+  function saveAiToJournal(idx) {
+    const msg = state.chat[idx]; if (!msg) return;
+    const txt = msg.content.replace(/<[^>]+>/g, '').replace(/&[a-z]+;/g, ' ').replace(/\\s+/g, ' ').trim();
+    state.journal.unshift({ id: Date.now(), text: '[AI Insight] ' + txt.slice(0, 800), mood:'💡', date: new Date().toISOString() });
+    SAFE_LS.set(KEYS.journal, state.journal);
+    toast('Tersimpan ke Journal', 'success');
+  }
+  window.copyAi = copyAi; window.shareAi = shareAi; window.saveAiToJournal = saveAiToJournal;
 
-function clearChat() {
-  showModal({
-    title: 'Hapus Riwayat Chat?',
-    body: 'Semua percakapan akan dihapus permanen. Aksi ini tidak bisa dibatalkan.',
-    confirmText: 'Hapus Semua',
-    confirmClass: 'bg-rose-500 hover:bg-rose-600',
-    onConfirm: () => {
-      chatHistory = [];
-      save(STORAGE.chat, chatHistory);
-      renderAnalyzer();
-      toast('Chat history dihapus', 'success');
+  async function sendChat() {
+    const input = $('chat-input');
+    const msg = input.value.trim();
+    if (!msg) return;
+    input.value = '';
+    state.chat.push({ role:'user', content: msg });
+    SAFE_LS.set(KEYS.chat, state.chat);
+    paintChat();
+
+    // typing indicator
+    const box = $('chat-box');
+    const typingId = 'typ-' + Date.now();
+    const ti = document.createElement('div');
+    ti.id = typingId;
+    ti.className = 'flex justify-start';
+    ti.innerHTML = '<div class="glass rounded-xl px-4 py-3 text-sm text-gray-400 typing">Berpikir</div>';
+    box.appendChild(ti); box.scrollTop = box.scrollHeight;
+
+    try {
+      const r = await fetch('/api/analyze', {
+        method:'POST', headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({ message: msg, mode: state.chatMode, history: state.chat.slice(-6) }),
+      });
+      const data = await r.json();
+      $(typingId)?.remove();
+      if (!r.ok || data.error) throw new Error(data.error || 'AI gagal merespon');
+      state.chat.push({ role:'ai', content: data.response });
+      // Cap chat to last 50 msgs
+      if (state.chat.length > 50) state.chat = state.chat.slice(-50);
+      SAFE_LS.set(KEYS.chat, state.chat);
+      paintChat(); logActivity();
+    } catch (e) {
+      $(typingId)?.remove();
+      toast('Gagal: ' + (e.message || 'unknown'), 'error');
     }
-  });
-}
+  }
+  function clearChat() {
+    showConfirm({ title:'Hapus chat?', body:'Semua percakapan AI akan dihapus permanen.', danger:true, confirmText:'Hapus',
+      onConfirm: () => { state.chat = []; SAFE_LS.set(KEYS.chat, []); paintChat(); toast('Chat dihapus', 'success'); }});
+  }
+  window.clearChat = clearChat;
 
-// ============================================
-// AI COACH
-// ============================================
-function renderCoach() {
-  document.getElementById('content').innerHTML = \`
-    <div class="space-y-4">
-      <div class="glass rounded-2xl p-5">
-        <h3 class="text-lg font-bold text-white mb-1">🧭 AI Coach V5</h3>
-        <p class="text-xs text-gray-500 mb-4">Personal coaching session</p>
+  // ===== COACH =====
+  function renderCoach() {
+    $('content').innerHTML = \`
+      <div class="max-w-2xl mx-auto space-y-4">
+        <div>
+          <h1 class="text-2xl font-black gradient-text mb-1">🧭 AI Coach V6</h1>
+          <p class="text-xs text-gray-400">Personal coaching dengan analisis goal, kondisi, hambatan.</p>
+        </div>
         <div class="space-y-3">
-          <div><label class="text-xs text-gray-400 font-semibold">🎯 Goal kamu</label><input id="coach-goal" type="text" placeholder="Mau achieve apa dalam 3 bulan?" class="w-full mt-1 bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-indigo-500" /></div>
-          <div><label class="text-xs text-gray-400 font-semibold">📍 Posisi sekarang</label><input id="coach-state" type="text" placeholder="Di mana posisimu sekarang?" class="w-full mt-1 bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-indigo-500" /></div>
-          <div><label class="text-xs text-gray-400 font-semibold">⚠️ Hambatan utama</label><input id="coach-blockers" type="text" placeholder="Apa yang menghalangi?" class="w-full mt-1 bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-indigo-500" /></div>
-          <button onclick="getCoaching()" class="btn-primary text-white w-full py-2.5 rounded-lg text-sm font-bold">Dapatkan Coaching</button>
+          <input id="coach-goal" placeholder="Goal kamu (mis. naik gaji 50% dalam 12 bulan)" class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-indigo-500" maxlength="300">
+          <textarea id="coach-state" placeholder="Kondisi saat ini..." rows="2" class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-indigo-500" maxlength="300"></textarea>
+          <textarea id="coach-blockers" placeholder="3 hambatan utama..." rows="2" class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-indigo-500" maxlength="300"></textarea>
+          <button id="coach-go" class="w-full py-3 btn-primary text-white font-semibold rounded-xl">Generate Coaching Plan <i class="fas fa-arrow-right ml-1"></i></button>
         </div>
-      </div>
-      <div id="coach-result"></div>
-    </div>\`;
-}
-async function getCoaching() {
-  const goal = document.getElementById('coach-goal').value.trim();
-  const currentState = document.getElementById('coach-state').value.trim();
-  const obstacles = document.getElementById('coach-blockers').value.trim();
-  if (!goal) return toast('Goal wajib diisi', 'warn');
-  document.getElementById('coach-result').innerHTML = '<div class="glass rounded-2xl p-5 text-center text-gray-400 text-sm typing">Coach sedang menyusun...</div>';
-  try {
-    const r = await fetch('/api/coach', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ goal, currentState, obstacles }) });
-    const data = await r.json();
-    document.getElementById('coach-result').innerHTML = \`<div class="glass rounded-2xl p-5">\${data.response}</div>\`;
-    logActivity();
-    toast('Coaching tersusun!', 'success');
-  } catch (e) { toast('Gagal terhubung', 'error') }
-}
+        <div id="coach-result"></div>
+      </div>\`;
+    $('coach-go').addEventListener('click', getCoaching);
+  }
+  async function getCoaching() {
+    const goal = $('coach-goal').value.trim();
+    if (!goal) return toast('Goal wajib diisi', 'warn');
+    const out = $('coach-result');
+    out.innerHTML = '<div class="glass rounded-2xl p-5 text-center text-gray-400 text-sm typing">Coach sedang menyusun</div>';
+    try {
+      const r = await fetch('/api/coach', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ goal, currentState: $('coach-state').value, obstacles: $('coach-blockers').value })});
+      const data = await r.json();
+      if (!r.ok || data.error) throw new Error(data.error || 'Coach error');
+      out.innerHTML = \`<div class="glass rounded-2xl p-5">\${data.response}</div>\`;
+      logActivity();
+    } catch (e) { out.innerHTML = ''; toast('Gagal: ' + e.message, 'error'); }
+  }
 
-// ============================================
-// SWOT
-// ============================================
-function renderSWOT() {
-  document.getElementById('content').innerHTML = \`
-    <div class="space-y-4">
-      <div class="glass rounded-2xl p-5">
-        <h3 class="text-lg font-bold text-white mb-1">📊 SWOT Analyzer</h3>
-        <p class="text-xs text-gray-500 mb-4">Generate analisis SWOT instan</p>
+  // ===== SWOT =====
+  function renderSWOT() {
+    $('content').innerHTML = \`
+      <div class="max-w-2xl mx-auto space-y-4">
+        <div>
+          <h1 class="text-2xl font-black gradient-text mb-1">📊 SWOT Analyzer</h1>
+          <p class="text-xs text-gray-400">Generate analisis SWOT instan untuk bisnis/proyek/diri.</p>
+        </div>
         <div class="flex gap-2">
-          <input id="swot-input" type="text" placeholder="Bisnis/ide kamu (cth: jasa desain grafis)" class="flex-1 bg-white/5 border border-white/10 rounded-lg px-3 py-2.5 text-white text-sm focus:outline-none focus:border-indigo-500" onkeypress="if(event.key==='Enter')getSWOT()" />
-          <button onclick="getSWOT()" class="btn-primary text-white px-5 py-2.5 rounded-lg text-sm font-bold">Analyze</button>
+          <input id="swot-input" type="text" placeholder="Bisnis/proyek (mis. Jasa desain freelance)" class="flex-1 bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-indigo-500" maxlength="200">
+          <button id="swot-go" class="px-5 btn-primary text-white font-semibold rounded-xl">Analisis</button>
         </div>
-      </div>
-      <div id="swot-result"></div>
-    </div>\`;
-}
-async function getSWOT() {
-  const business = document.getElementById('swot-input').value.trim();
-  if (!business) return toast('Isi dulu bisnis/ide', 'warn');
-  document.getElementById('swot-result').innerHTML = '<div class="glass rounded-2xl p-5 text-center text-gray-400 text-sm typing">Menganalisis</div>';
-  try {
-    const r = await fetch('/api/swot', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ business }) });
-    const data = await r.json();
-    document.getElementById('swot-result').innerHTML = \`<div class="glass rounded-2xl p-5">\${data.response}</div>\`;
-    logActivity();
-    toast('SWOT tergenerate', 'success');
-  } catch (e) { toast('Gagal terhubung', 'error') }
-}
+        <div id="swot-result"></div>
+      </div>\`;
+    $('swot-go').addEventListener('click', getSWOT);
+    $('swot-input').addEventListener('keydown', e => { if (e.key === 'Enter') getSWOT(); });
+  }
+  async function getSWOT() {
+    const v = $('swot-input').value.trim(); if (!v) return toast('Isi dulu', 'warn');
+    const out = $('swot-result');
+    out.innerHTML = '<div class="glass rounded-2xl p-5 text-center text-gray-400 text-sm typing">Menganalisis</div>';
+    try {
+      const r = await fetch('/api/swot', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ business: v })});
+      const data = await r.json();
+      if (!r.ok || data.error) throw new Error(data.error || 'SWOT error');
+      out.innerHTML = \`<div class="glass rounded-2xl p-5">\${data.response}</div>\`;
+      logActivity();
+    } catch (e) { out.innerHTML = ''; toast('Gagal: ' + e.message, 'error'); }
+  }
 
-// ============================================
-// POMODORO V2
-// ============================================
-let pomoTimer = null, pomoMode = 'focus', pomoTime = 25*60, pomoOriginal = 25*60, pomoRunning = false, pomoAuto = load('sm_pomo_auto', false);
-function renderPomodoro() {
-  const pct = ((pomoOriginal - pomoTime) / pomoOriginal) * 100;
-  const offset = 565 - (565 * pct / 100);
-  document.getElementById('content').innerHTML = \`
-    <div class="space-y-4">
-      <div class="glass rounded-2xl p-6 sm:p-8 text-center">
-        <div class="flex justify-center gap-2 mb-6 flex-wrap">
-          <button onclick="setPomoMode('focus',25)" class="px-4 py-1.5 rounded-lg text-xs font-bold \${pomoMode==='focus'?'bg-indigo-500 text-white':'glass text-gray-400'}">🎯 Focus 25</button>
-          <button onclick="setPomoMode('break',5)" class="px-4 py-1.5 rounded-lg text-xs font-bold \${pomoMode==='break'?'bg-emerald-500 text-white':'glass text-gray-400'}">☕ Break 5</button>
-          <button onclick="setPomoMode('long',15)" class="px-4 py-1.5 rounded-lg text-xs font-bold \${pomoMode==='long'?'bg-amber-500 text-white':'glass text-gray-400'}">🌴 Long 15</button>
+  // ===== POMODORO V2 (with persistent end-time) =====
+  const POMO_PRESETS = { focus: 25, short: 5, long: 15 };
+  function getPomoState() { return SAFE_LS.get(KEYS.pomoState, { mode:'focus', running:false, endAt:0, total:25*60, auto:false }); }
+  function setPomoState(s) { SAFE_LS.set(KEYS.pomoState, s); }
+
+  function renderPomodoro() {
+    let s = getPomoState();
+    const remaining = s.running ? Math.max(0, Math.round((s.endAt - Date.now())/1000)) : (s.total || POMO_PRESETS[s.mode]*60);
+    const today = todayKey();
+    if (state.pomo.lastDay !== today) state.pomo = { sessions:0, totalMin:0, lastDay: today };
+
+    const pretty = sec => \`\${String(Math.floor(sec/60)).padStart(2,'0')}:\${String(sec%60).padStart(2,'0')}\`;
+    $('content').innerHTML = \`
+      <div class="max-w-md mx-auto space-y-5 text-center">
+        <div>
+          <h1 class="text-2xl font-black gradient-text mb-1">🍅 Pomodoro V2</h1>
+          <p class="text-xs text-gray-400">Focus 25 · Break 5 · Long 15 — auto-resume saat pindah tab</p>
         </div>
-        <div class="relative w-56 h-56 sm:w-64 sm:h-64 mx-auto">
-          <svg class="w-full h-full" viewBox="0 0 200 200">
-            <circle cx="100" cy="100" r="90" fill="none" stroke="rgba(255,255,255,0.05)" stroke-width="8"/>
-            <circle id="pomo-ring" class="ring-progress" cx="100" cy="100" r="90" fill="none" stroke="url(#pgr)" stroke-width="8" stroke-linecap="round" stroke-dasharray="565" stroke-dashoffset="\${offset}"/>
-            <defs><linearGradient id="pgr" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#818cf8"/><stop offset="100%" stop-color="#f472b6"/></linearGradient></defs>
-          </svg>
-          <div class="absolute inset-0 flex flex-col items-center justify-center">
-            <div id="pomo-display" class="text-5xl sm:text-6xl font-black text-white counter-num">\${fmtTime(pomoTime)}</div>
-            <div class="text-xs text-gray-500 mt-2 uppercase tracking-widest">\${pomoMode === 'focus' ? 'Deep Work' : pomoMode === 'break' ? 'Short Break' : 'Long Break'}</div>
-          </div>
+        <div class="flex justify-center gap-2">
+          \${[['focus','Focus','25'],['short','Break','5'],['long','Long','15']].map(([m,l,d]) =>
+            \`<button data-pmode="\${m}" class="px-4 py-2 rounded-lg text-sm \${s.mode === m ? 'btn-primary text-white' : 'bg-white/5 hover:bg-white/10'}">\${l} \${d}</button>\`).join('')}
         </div>
-        <div class="flex gap-3 justify-center mt-6">
-          <button onclick="togglePomo()" id="pomo-btn" class="btn-primary text-white px-7 py-2.5 rounded-lg text-sm font-bold">\${pomoRunning ? '⏸ Pause' : '▶ Start'}</button>
-          <button onclick="resetPomo()" class="glass text-gray-300 px-5 py-2.5 rounded-lg text-sm font-bold hover:bg-white/10 transition">↺ Reset</button>
+        <div class="glass rounded-3xl p-10">
+          <div id="pomo-display" class="text-7xl sm:text-8xl font-black font-mono gradient-text mb-2">\${pretty(remaining)}</div>
+          <p class="text-xs text-gray-500 uppercase tracking-wider">\${s.mode === 'focus' ? '🔥 Deep Focus' : s.mode === 'short' ? '☕ Short Break' : '🌿 Long Break'}</p>
         </div>
-        <label class="inline-flex items-center gap-2 mt-4 text-xs text-gray-400 cursor-pointer"><input type="checkbox" \${pomoAuto ? 'checked' : ''} onchange="pomoAuto=this.checked;localStorage.setItem('sm_pomo_auto',this.checked)"> Auto-start next session</label>
-      </div>
-      <div class="grid grid-cols-3 gap-3">
-        <div class="glass rounded-xl p-4 text-center"><div class="text-2xl font-black text-indigo-400 counter-num">\${pomoStats.sessions}</div><div class="text-xs text-gray-500 mt-1">Sessions</div></div>
-        <div class="glass rounded-xl p-4 text-center"><div class="text-2xl font-black text-emerald-400 counter-num">\${pomoStats.totalMin}m</div><div class="text-xs text-gray-500 mt-1">Focus Time</div></div>
-        <div class="glass rounded-xl p-4 text-center"><div class="text-2xl font-black text-amber-400 counter-num">\${focusMin}</div><div class="text-xs text-gray-500 mt-1">Today (min)</div></div>
-      </div>
-    </div>\`;
-}
-function fmtTime(s) { return \`\${String(Math.floor(s/60)).padStart(2,'0')}:\${String(s%60).padStart(2,'0')}\` }
-function setPomoMode(m, min) { pomoMode = m; pomoTime = min * 60; pomoOriginal = min * 60; pomoRunning = false; clearInterval(pomoTimer); renderPomodoro() }
-function togglePomo() {
-  if (pomoRunning) { clearInterval(pomoTimer); pomoRunning = false }
-  else {
-    pomoRunning = true;
-    pomoTimer = setInterval(() => {
-      pomoTime--;
-      if (pomoTime <= 0) {
-        clearInterval(pomoTimer); pomoRunning = false;
-        // Audio beep
-        try { const ctx = new (window.AudioContext || window.webkitAudioContext)(); const o = ctx.createOscillator(); const g = ctx.createGain(); o.connect(g); g.connect(ctx.destination); o.frequency.value = 880; g.gain.value = 0.3; o.start(); setTimeout(()=>{ g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.5); o.stop(ctx.currentTime + 0.5)}, 300) } catch {}
-        if (pomoMode === 'focus') {
-          pomoStats.sessions++; pomoStats.totalMin += pomoOriginal/60; focusMin += pomoOriginal/60;
-          save(STORAGE.pomoStats, pomoStats); save(STORAGE.focus, focusMin);
-          showModal({ title:'🎉 Focus Selesai!', body:\`Hebat! \${pomoOriginal/60} menit deep work tercapai. Saatnya istirahat.\`, confirmText:'Mulai Break', onConfirm: () => { setPomoMode('break', 5); if(pomoAuto) togglePomo() }});
-        } else {
-          showModal({ title:'☕ Break Selesai!', body:'Saatnya kembali fokus. Siap?', confirmText:'Lanjut Focus', onConfirm: () => { setPomoMode('focus', 25); if(pomoAuto) togglePomo() }});
-        }
-        logActivity();
-        return;
+        <div class="flex justify-center gap-2">
+          <button id="pomo-toggle" class="px-6 py-2.5 btn-primary text-white font-semibold rounded-xl">\${s.running ? '⏸ Pause' : '▶ Start'}</button>
+          <button id="pomo-reset" class="px-4 py-2.5 bg-white/5 hover:bg-white/10 rounded-xl text-sm">Reset</button>
+        </div>
+        <label class="inline-flex items-center gap-2 text-xs text-gray-400 cursor-pointer">
+          <input id="pomo-auto" type="checkbox" \${s.auto ? 'checked' : ''}> Auto-start sesi berikutnya
+        </label>
+        <div class="grid grid-cols-2 gap-3">
+          <div class="glass rounded-xl p-3"><p class="text-xs text-gray-500">Sesi Hari Ini</p><p class="text-2xl font-black text-orange-400">\${state.pomo.sessions}</p></div>
+          <div class="glass rounded-xl p-3"><p class="text-xs text-gray-500">Menit Fokus</p><p class="text-2xl font-black text-emerald-400">\${state.pomo.sessions * 25}</p></div>
+        </div>
+      </div>\`;
+
+    document.querySelectorAll('[data-pmode]').forEach(b => b.addEventListener('click', () => {
+      const m = b.dataset.pmode;
+      stopTick();
+      setPomoState({ ...getPomoState(), mode: m, running: false, total: POMO_PRESETS[m]*60, endAt: 0 });
+      renderPomodoro();
+    }));
+    $('pomo-toggle').addEventListener('click', togglePomo);
+    $('pomo-reset').addEventListener('click', () => { stopTick(); setPomoState({ ...getPomoState(), running:false, endAt:0 }); renderPomodoro(); });
+    $('pomo-auto').addEventListener('change', e => setPomoState({ ...getPomoState(), auto: e.target.checked }));
+
+    // resume tick if running
+    if (s.running) startTick();
+  }
+  function togglePomo() {
+    let s = getPomoState();
+    if (s.running) { s.running = false; s.total = Math.max(0, Math.round((s.endAt - Date.now())/1000)); stopTick(); }
+    else { s.running = true; s.endAt = Date.now() + (s.total || POMO_PRESETS[s.mode]*60) * 1000; startTick(); }
+    setPomoState(s);
+    renderPomodoro();
+  }
+  function startTick() {
+    stopTick();
+    pomoTick = setInterval(() => {
+      const s = getPomoState();
+      if (!s.running) { stopTick(); return; }
+      const remain = Math.max(0, Math.round((s.endAt - Date.now())/1000));
+      if (state.activeTab === 'pomodoro' && $('pomo-display')) {
+        $('pomo-display').textContent = \`\${String(Math.floor(remain/60)).padStart(2,'0')}:\${String(remain%60).padStart(2,'0')}\`;
       }
-      const display = document.getElementById('pomo-display');
-      const ring = document.getElementById('pomo-ring');
-      if (display) display.textContent = fmtTime(pomoTime);
-      if (ring) ring.setAttribute('stroke-dashoffset', 565 - (565 * ((pomoOriginal - pomoTime) / pomoOriginal)));
+      if (remain <= 0) {
+        stopTick();
+        s.running = false; s.endAt = 0; s.total = POMO_PRESETS[s.mode]*60;
+        setPomoState(s);
+        if (s.mode === 'focus') {
+          state.pomo.sessions += 1;
+          state.pomo.totalMin += 25;
+          state.pomo.lastDay = todayKey();
+          SAFE_LS.set(KEYS.pomo, state.pomo);
+        }
+        showPomoComplete(s.mode);
+      }
     }, 1000);
   }
-  document.getElementById('pomo-btn').textContent = pomoRunning ? '⏸ Pause' : '▶ Start';
-}
-function resetPomo() { clearInterval(pomoTimer); pomoTime = pomoOriginal; pomoRunning = false; renderPomodoro() }
-
-// ============================================
-// JOURNAL with mood + edit/delete
-// ============================================
-let currentMood = '';
-function renderJournal() {
-  const moods = [['😄','great'],['🙂','good'],['😐','okay'],['😞','sad'],['😡','angry'],['😴','tired']];
-  document.getElementById('content').innerHTML = \`
-    <div class="space-y-4">
-      <div class="glass rounded-2xl p-5">
-        <h3 class="text-lg font-bold text-white mb-1">📓 Daily Journal</h3>
-        <p class="text-xs text-gray-500 mb-4">Mood tracker + refleksi harian</p>
-        <p class="text-xs text-gray-400 font-semibold mb-2">Mood hari ini:</p>
-        <div class="flex gap-2 mb-4 flex-wrap">
-          \${moods.map(([emoji, val]) => \`<button onclick="selectMood('\${val}', this)" data-mood="\${val}" class="mood-btn text-2xl p-2 rounded-lg glass hover:bg-white/10 transition">\${emoji}</button>\`).join('')}
-        </div>
-        <textarea id="journal-text" placeholder="Apa yang terjadi hari ini? Apa yang kamu syukuri? Pelajaran apa?" rows="5" class="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-indigo-500"></textarea>
-        <button onclick="saveJournal()" class="btn-primary text-white w-full mt-3 py-2.5 rounded-lg text-sm font-bold">💾 Save Entry</button>
-      </div>
-      <div id="journal-list" class="space-y-3"></div>
-    </div>\`;
-  renderJournalList();
-}
-function selectMood(mood, btn) {
-  currentMood = mood;
-  document.querySelectorAll('.mood-btn').forEach(b => b.classList.remove('bg-indigo-500/20', 'border-indigo-500'));
-  btn.classList.add('bg-indigo-500/20', 'border-indigo-500');
-}
-function saveJournal() {
-  const text = document.getElementById('journal-text').value.trim();
-  if (!text) return toast('Tulis sesuatu dulu', 'warn');
-  if (!currentMood) return toast('Pilih mood dulu', 'warn');
-  journal.unshift({ id: Date.now(), text, mood: currentMood, date: new Date().toLocaleString('id-ID') });
-  save(STORAGE.journal, journal);
-  document.getElementById('journal-text').value = '';
-  currentMood = '';
-  document.querySelectorAll('.mood-btn').forEach(b => b.classList.remove('bg-indigo-500/20', 'border-indigo-500'));
-  renderJournalList();
-  logActivity();
-  toast('Journal tersimpan ✨', 'success');
-}
-function renderJournalList() {
-  const moodMap = { great:'😄', good:'🙂', okay:'😐', sad:'😞', angry:'😡', tired:'😴' };
-  const list = document.getElementById('journal-list');
-  if (!list) return;
-  list.innerHTML = journal.length === 0 ? '<div class="glass rounded-xl p-8 text-center text-gray-500 text-sm">📓 Belum ada entry. Mulai journal-mu hari ini!</div>' :
-    journal.map(j => \`
-      <div class="glass rounded-xl p-4">
-        <div class="flex items-start justify-between mb-2">
-          <div class="flex items-center gap-2">
-            <span class="text-2xl">\${moodMap[j.mood]||'📝'}</span>
-            <span class="text-xs text-gray-500">\${j.date}</span>
-          </div>
-          <button onclick="deleteJournal(\${j.id})" class="text-gray-500 hover:text-rose-400 text-xs"><i class="fas fa-trash"></i></button>
-        </div>
-        <p class="text-gray-300 text-sm whitespace-pre-wrap">\${j.text}</p>
-      </div>
-    \`).join('');
-}
-function deleteJournal(id) {
-  showModal({
-    title: 'Hapus Entry?', body: 'Entry journal akan dihapus permanen.',
-    confirmText: 'Hapus', confirmClass: 'bg-rose-500 hover:bg-rose-600',
-    onConfirm: () => { journal = journal.filter(j => j.id !== id); save(STORAGE.journal, journal); renderJournalList(); toast('Entry dihapus', 'success') }
-  });
-}
-
-// ============================================
-// GOALS
-// ============================================
-function renderGoals() {
-  document.getElementById('content').innerHTML = \`
-    <div class="space-y-4">
-      <div class="glass rounded-2xl p-5">
-        <h3 class="text-lg font-bold text-white mb-3">🎯 Goal Tracker Pro</h3>
-        <div class="flex flex-col sm:flex-row gap-2">
-          <input id="goal-input" type="text" placeholder="Goal baru (cth: Revenue 10jt/bulan)" class="flex-1 bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-indigo-500" onkeypress="if(event.key==='Enter')addGoal()" />
-          <button onclick="addGoal()" class="btn-primary text-white px-5 py-2 rounded-lg text-sm font-bold">+ Add</button>
-        </div>
-      </div>
-      <div id="goals-list" class="space-y-3"></div>
-    </div>\`;
-  renderGoalsList();
-}
-function addGoal() {
-  const t = document.getElementById('goal-input').value.trim();
-  if (!t) return toast('Goal kosong', 'warn');
-  goals.push({ id: Date.now(), title: t, progress: 0 });
-  save(STORAGE.goals, goals);
-  document.getElementById('goal-input').value = '';
-  renderGoalsList(); logActivity(); toast('Goal ditambahkan', 'success');
-}
-function updateGoal(id, p) { const g = goals.find(x => x.id === id); if (g) { g.progress = Math.max(0, Math.min(100, p)); save(STORAGE.goals, goals); renderGoalsList() } }
-function deleteGoal(id) {
-  const g = goals.find(x => x.id === id); if (!g) return;
-  showModal({ title:'Hapus Goal?', body:\`"\${g.title}" akan dihapus permanen.\`, confirmText:'Hapus', confirmClass:'bg-rose-500 hover:bg-rose-600',
-    onConfirm: () => { goals = goals.filter(x => x.id !== id); save(STORAGE.goals, goals); renderGoalsList(); toast('Goal dihapus', 'success') }});
-}
-function renderGoalsList() {
-  const list = document.getElementById('goals-list'); if (!list) return;
-  list.innerHTML = goals.length === 0 ? '<div class="glass rounded-xl p-8 text-center text-gray-500 text-sm">🎯 Belum ada goal. Tambahkan satu!</div>' :
-    goals.map(g => \`
-      <div class="glass rounded-xl p-4">
-        <div class="flex items-start justify-between mb-3 gap-3">
-          <p class="text-white text-sm font-semibold flex-1 \${g.progress >= 100 ? 'line-through text-gray-500' : ''}">\${g.title}</p>
-          <button onclick="deleteGoal(\${g.id})" class="text-gray-500 hover:text-rose-400 text-xs"><i class="fas fa-trash"></i></button>
-        </div>
-        <div class="flex items-center gap-3">
-          <div class="flex-1 bg-white/5 rounded-full h-2 overflow-hidden"><div class="bg-gradient-to-r from-indigo-500 to-purple-500 h-full transition-all" style="width:\${g.progress}%"></div></div>
-          <span class="text-xs font-bold text-indigo-400 counter-num min-w-[40px] text-right">\${g.progress}%</span>
-        </div>
-        <div class="flex gap-2 mt-3">
-          <button onclick="updateGoal(\${g.id},\${g.progress-10})" class="text-xs px-2 py-1 glass rounded text-gray-400 hover:text-white">-10</button>
-          <button onclick="updateGoal(\${g.id},\${g.progress+10})" class="text-xs px-2 py-1 glass rounded text-gray-400 hover:text-white">+10</button>
-          <button onclick="updateGoal(\${g.id},100)" class="text-xs px-2 py-1 bg-emerald-500/20 text-emerald-400 rounded hover:bg-emerald-500/30">✓ Done</button>
-        </div>
-      </div>
-    \`).join('');
-}
-
-// ============================================
-// HABITS
-// ============================================
-function renderHabits() {
-  document.getElementById('content').innerHTML = \`
-    <div class="space-y-4">
-      <div class="glass rounded-2xl p-5">
-        <h3 class="text-lg font-bold text-white mb-3">🔥 Habit Tracker</h3>
-        <div class="flex flex-col sm:flex-row gap-2">
-          <input id="habit-input" type="text" placeholder="Habit baru (cth: Olahraga 30 menit)" class="flex-1 bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-indigo-500" onkeypress="if(event.key==='Enter')addHabit()" />
-          <button onclick="addHabit()" class="btn-primary text-white px-5 py-2 rounded-lg text-sm font-bold">+ Add</button>
-        </div>
-      </div>
-      <div id="habits-list" class="space-y-3"></div>
-    </div>\`;
-  renderHabitsList();
-}
-function addHabit() {
-  const t = document.getElementById('habit-input').value.trim();
-  if (!t) return toast('Habit kosong', 'warn');
-  habits.push({ id: Date.now(), title: t, streak: 0, lastCheck: null });
-  save(STORAGE.habits, habits);
-  document.getElementById('habit-input').value = '';
-  renderHabitsList(); logActivity(); toast('Habit ditambahkan', 'success');
-}
-function checkHabit(id) {
-  const h = habits.find(x => x.id === id); if (!h) return;
-  const today = new Date().toDateString();
-  if (h.lastCheck === today) return toast('Sudah check-in hari ini', 'info');
-  h.streak++; h.lastCheck = today;
-  save(STORAGE.habits, habits); renderHabitsList(); logActivity();
-  toast(\`🔥 Streak \${h.streak} hari!\`, 'success');
-}
-function deleteHabit(id) {
-  const h = habits.find(x => x.id === id); if (!h) return;
-  showModal({ title:'Hapus Habit?', body:\`"\${h.title}" akan dihapus.\`, confirmText:'Hapus', confirmClass:'bg-rose-500 hover:bg-rose-600',
-    onConfirm: () => { habits = habits.filter(x => x.id !== id); save(STORAGE.habits, habits); renderHabitsList(); toast('Habit dihapus', 'success') }});
-}
-function renderHabitsList() {
-  const list = document.getElementById('habits-list'); if (!list) return;
-  const today = new Date().toDateString();
-  list.innerHTML = habits.length === 0 ? '<div class="glass rounded-xl p-8 text-center text-gray-500 text-sm">🔥 Belum ada habit. Mulai bangun satu!</div>' :
-    habits.map(h => \`
-      <div class="glass rounded-xl p-4 flex items-center gap-3">
-        <button onclick="checkHabit(\${h.id})" class="w-10 h-10 rounded-lg flex items-center justify-center text-lg \${h.lastCheck === today ? 'bg-emerald-500 text-white' : 'glass text-gray-400 hover:bg-white/10'}">\${h.lastCheck === today ? '✓' : '○'}</button>
-        <div class="flex-1"><p class="text-white text-sm font-semibold">\${h.title}</p><p class="text-xs text-amber-400 mt-0.5">🔥 \${h.streak} hari streak</p></div>
-        <button onclick="deleteHabit(\${h.id})" class="text-gray-500 hover:text-rose-400"><i class="fas fa-trash text-xs"></i></button>
-      </div>
-    \`).join('');
-}
-
-// ============================================
-// VISION BOARD
-// ============================================
-function renderVision() {
-  document.getElementById('content').innerHTML = \`
-    <div class="space-y-4">
-      <div class="glass rounded-2xl p-5">
-        <h3 class="text-lg font-bold text-white mb-1">🎨 Vision Board</h3>
-        <p class="text-xs text-gray-500 mb-4">Kristalkan visi & cita-citamu</p>
-        <div class="space-y-3">
-          <div><label class="text-xs text-violet-400 font-bold uppercase tracking-wider">Big Vision (5-10 thn)</label><textarea id="v-big" rows="2" placeholder="Hidup ideal kamu..." class="w-full mt-1 bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-indigo-500">\${vision.big}</textarea></div>
-          <div><label class="text-xs text-indigo-400 font-bold uppercase tracking-wider">1 Tahun</label><textarea id="v-y1" rows="2" placeholder="Achievement 1 tahun..." class="w-full mt-1 bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-indigo-500">\${vision.y1}</textarea></div>
-          <div><label class="text-xs text-blue-400 font-bold uppercase tracking-wider">3 Bulan</label><textarea id="v-m3" rows="2" placeholder="Target 3 bulan..." class="w-full mt-1 bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-indigo-500">\${vision.m3}</textarea></div>
-          <div><label class="text-xs text-emerald-400 font-bold uppercase tracking-wider">Minggu Ini</label><textarea id="v-w1" rows="2" placeholder="Yang akan kamu lakukan minggu ini..." class="w-full mt-1 bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-indigo-500">\${vision.w1}</textarea></div>
-          <button onclick="saveVision()" class="btn-primary text-white w-full py-2.5 rounded-lg text-sm font-bold">💾 Save Vision</button>
-        </div>
-      </div>
-    </div>\`;
-}
-function saveVision() {
-  vision = {
-    big: document.getElementById('v-big').value,
-    y1: document.getElementById('v-y1').value,
-    m3: document.getElementById('v-m3').value,
-    w1: document.getElementById('v-w1').value,
-  };
-  save(STORAGE.vision, vision); logActivity(); toast('Vision tersimpan ✨', 'success');
-}
-
-// ============================================
-// WEEKLY REVIEW
-// ============================================
-function renderReview() {
-  document.getElementById('content').innerHTML = \`
-    <div class="space-y-4">
-      <div class="glass rounded-2xl p-5">
-        <h3 class="text-lg font-bold text-white mb-1">📋 Weekly Review</h3>
-        <p class="text-xs text-gray-500 mb-4">Refleksi mingguan = pertumbuhan eksponensial</p>
-        <div class="space-y-3">
-          <div><label class="text-xs text-emerald-400 font-bold uppercase tracking-wider">🏆 3 Wins Minggu Ini</label><textarea id="r-wins" rows="3" class="w-full mt-1 bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-indigo-500">\${review.wins}</textarea></div>
-          <div><label class="text-xs text-amber-400 font-bold uppercase tracking-wider">📚 3 Pelajaran</label><textarea id="r-learn" rows="3" class="w-full mt-1 bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-indigo-500">\${review.learnings}</textarea></div>
-          <div><label class="text-xs text-indigo-400 font-bold uppercase tracking-wider">🎯 Focus Minggu Depan</label><textarea id="r-focus" rows="3" class="w-full mt-1 bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-indigo-500">\${review.focus}</textarea></div>
-          <button onclick="saveReview()" class="btn-primary text-white w-full py-2.5 rounded-lg text-sm font-bold">💾 Save Review</button>
-        </div>
-      </div>
-    </div>\`;
-}
-function saveReview() {
-  review = {
-    wins: document.getElementById('r-wins').value,
-    learnings: document.getElementById('r-learn').value,
-    focus: document.getElementById('r-focus').value,
-  };
-  save(STORAGE.review, review); logActivity(); toast('Review tersimpan', 'success');
-}
-
-// ============================================
-// RESOURCES with debounced search
-// ============================================
-let resourceData = [], searchTimer = null;
-async function renderResources() {
-  document.getElementById('content').innerHTML = \`
-    <div class="space-y-4">
-      <div class="glass rounded-2xl p-5">
-        <h3 class="text-lg font-bold text-white mb-1">📚 Resource Library</h3>
-        <p class="text-xs text-gray-500 mb-4">21+ frameworks · Klik untuk detail</p>
-        <input id="res-search" type="text" placeholder="🔍 Cari framework..." class="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-indigo-500" />
-      </div>
-      <div id="res-list" class="grid grid-cols-1 md:grid-cols-2 gap-3"></div>
-    </div>\`;
-  if (resourceData.length === 0) {
-    try { const r = await fetch('/api/resources'); const d = await r.json(); resourceData = d.resources } catch { resourceData = [] }
-  }
-  renderResourcesList('');
-  document.getElementById('res-search').oninput = e => {
-    clearTimeout(searchTimer);
-    const q = e.target.value;
-    searchTimer = setTimeout(() => renderResourcesList(q), 300);
-  };
-}
-function renderResourcesList(q) {
-  const list = document.getElementById('res-list'); if (!list) return;
-  const filtered = resourceData.filter(r => !q || r.title.toLowerCase().includes(q.toLowerCase()) || r.category.toLowerCase().includes(q.toLowerCase()));
-  list.innerHTML = filtered.length === 0 ? '<div class="col-span-full glass rounded-xl p-8 text-center text-gray-500 text-sm">🔍 Tidak ditemukan</div>' :
-    filtered.map(r => \`
-      <div class="glass rounded-xl p-4 cursor-pointer hover:bg-white/[0.05] transition" onclick="toggleResource(\${r.id})">
-        <div class="flex items-start gap-3">
-          <span class="text-2xl">\${r.icon}</span>
-          <div class="flex-1 min-w-0">
-            <div class="flex items-center justify-between gap-2 mb-1">
-              <p class="text-white text-sm font-bold truncate">\${r.title}</p>
-              <span class="text-[10px] text-indigo-400 bg-indigo-500/10 px-2 py-0.5 rounded-full whitespace-nowrap">\${r.category}</span>
-            </div>
-            <p class="text-gray-400 text-xs leading-relaxed">\${r.description}</p>
-            <div id="res-detail-\${r.id}" class="resource-detail">
-              <div class="mt-3 pt-3 border-t border-white/5"><p class="text-emerald-400 text-xs font-bold mb-1">💡 Detail</p><p class="text-gray-300 text-xs">\${r.detail}</p></div>
-            </div>
-          </div>
-        </div>
-      </div>
-    \`).join('');
-}
-function toggleResource(id) { document.getElementById(\`res-detail-\${id}\`)?.classList.toggle('open') }
-
-// ============================================
-// SETTINGS (Backup/Restore + Theme)
-// ============================================
-function renderSettings() {
-  document.getElementById('content').innerHTML = \`
-    <div class="space-y-4">
-      <div class="glass rounded-2xl p-5">
-        <h3 class="text-lg font-bold text-white mb-1">⚙️ Settings</h3>
-        <p class="text-xs text-gray-500 mb-4">Backup, restore & manage data</p>
-      </div>
-
-      <div class="glass rounded-2xl p-5">
-        <h4 class="font-bold text-white mb-2">💾 Backup & Restore</h4>
-        <p class="text-xs text-gray-500 mb-4">Export semua data ke JSON file. Import balik kapan saja.</p>
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
-          <button onclick="exportData()" class="btn-primary text-white py-2.5 rounded-lg text-sm font-bold">📤 Export JSON</button>
-          <label class="glass text-gray-300 py-2.5 rounded-lg text-sm font-bold text-center cursor-pointer hover:bg-white/10 transition">📥 Import JSON<input type="file" accept=".json" onchange="importData(event)" class="hidden"/></label>
-        </div>
-      </div>
-
-      <div class="glass rounded-2xl p-5">
-        <h4 class="font-bold text-white mb-2">📊 Data Stats</h4>
-        <div class="space-y-2 text-sm">
-          <div class="flex justify-between"><span class="text-gray-400">Goals</span><span class="text-white font-bold">\${goals.length}</span></div>
-          <div class="flex justify-between"><span class="text-gray-400">Habits</span><span class="text-white font-bold">\${habits.length}</span></div>
-          <div class="flex justify-between"><span class="text-gray-400">Journal Entries</span><span class="text-white font-bold">\${journal.length}</span></div>
-          <div class="flex justify-between"><span class="text-gray-400">Chat Messages</span><span class="text-white font-bold">\${chatHistory.length}</span></div>
-          <div class="flex justify-between"><span class="text-gray-400">Pomodoro Sessions</span><span class="text-white font-bold">\${pomoStats.sessions}</span></div>
-        </div>
-      </div>
-
-      <div class="glass rounded-2xl p-5 border border-rose-500/20">
-        <h4 class="font-bold text-rose-400 mb-2">⚠️ Danger Zone</h4>
-        <p class="text-xs text-gray-500 mb-3">Reset semua data. Tidak bisa di-undo.</p>
-        <button onclick="resetAll()" class="bg-rose-500/20 hover:bg-rose-500/30 text-rose-400 border border-rose-500/30 px-4 py-2 rounded-lg text-sm font-bold transition">🗑️ Reset All Data</button>
-      </div>
-    </div>\`;
-}
-
-function exportData() {
-  const data = {
-    version: '5.0', exported: new Date().toISOString(),
-    goals, habits, vision, review, journal, focusMin, streak, chatHistory, pomoStats, activityLog
-  };
-  const blob = new Blob([JSON.stringify(data, null, 2)], { type:'application/json' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url; a.download = \`sparkmind-backup-\${new Date().toISOString().split('T')[0]}.json\`;
-  a.click(); URL.revokeObjectURL(url);
-  toast('Data ter-export!', 'success');
-}
-
-function importData(e) {
-  const file = e.target.files[0]; if (!file) return;
-  const reader = new FileReader();
-  reader.onload = ev => {
+  function stopTick() { if (pomoTick) { clearInterval(pomoTick); pomoTick = null; } }
+  function showPomoComplete(mode) {
     try {
-      const data = JSON.parse(ev.target.result);
-      showModal({
-        title: 'Import Backup?',
-        body: \`Akan replace semua data lokal dengan backup dari \${new Date(data.exported).toLocaleString('id-ID')}. Lanjutkan?\`,
-        confirmText: 'Import',
-        onConfirm: () => {
-          if (data.goals) { goals = data.goals; save(STORAGE.goals, goals) }
-          if (data.habits) { habits = data.habits; save(STORAGE.habits, habits) }
-          if (data.vision) { vision = data.vision; save(STORAGE.vision, vision) }
-          if (data.review) { review = data.review; save(STORAGE.review, review) }
-          if (data.journal) { journal = data.journal; save(STORAGE.journal, journal) }
-          if (data.chatHistory) { chatHistory = data.chatHistory; save(STORAGE.chat, chatHistory) }
-          if (data.pomoStats) { pomoStats = data.pomoStats; save(STORAGE.pomoStats, pomoStats) }
-          if (data.activityLog) { activityLog = data.activityLog; save(STORAGE.activity, activityLog) }
-          if (typeof data.focusMin === 'number') { focusMin = data.focusMin; save(STORAGE.focus, focusMin) }
-          if (typeof data.streak === 'number') { streak = data.streak; save(STORAGE.streak, streak) }
-          toast('Data ter-import!', 'success');
-          renderSettings();
-        }
-      });
-    } catch (err) { toast('File JSON invalid', 'error') }
-  };
-  reader.readAsText(file);
-}
-
-function resetAll() {
-  showModal({
-    title: '⚠️ Reset Semua Data?',
-    body: 'Semua data (goals, habits, journal, chat, vision, review, dll) akan dihapus PERMANEN. Tindakan ini tidak bisa dibatalkan.',
-    confirmText: 'Reset Semuanya',
-    confirmClass: 'bg-rose-500 hover:bg-rose-600',
-    onConfirm: () => {
-      Object.values(STORAGE).forEach(k => { if (k !== STORAGE.theme) localStorage.removeItem(k) });
-      goals = []; habits = []; vision = { big:'', y1:'', m3:'', w1:'' }; review = { wins:'', learnings:'', focus:'' };
-      journal = []; focusMin = 0; streak = 0; chatHistory = []; pomoStats = { sessions:0, totalMin:0 }; activityLog = {};
-      toast('Semua data direset', 'success');
-      switchTab('dashboard');
-    }
-  });
-}
-
-// ============================================
-// KEYBOARD SHORTCUTS
-// ============================================
-const tabKeys = ['dashboard','analyzer','coach','swot','pomodoro','journal','goals','habits','vision'];
-document.addEventListener('keydown', (e) => {
-  const cmd = e.metaKey || e.ctrlKey;
-  if (cmd && e.key === 'k') { e.preventDefault(); openCommandPalette() }
-  else if (cmd && e.key === '/') { e.preventDefault(); openShortcutsModal() }
-  else if (cmd && e.key === 'd') { e.preventDefault(); toggleTheme() }
-  else if (cmd && e.key >= '1' && e.key <= '9') {
-    const idx = parseInt(e.key) - 1;
-    if (tabKeys[idx]) { e.preventDefault(); switchTab(tabKeys[idx]) }
+      const ctx = new (window.AudioContext || window.webkitAudioContext)();
+      const o = ctx.createOscillator(); const g = ctx.createGain();
+      o.connect(g); g.connect(ctx.destination);
+      o.frequency.value = mode === 'focus' ? 880 : 660;
+      g.gain.setValueAtTime(.2, ctx.currentTime);
+      g.gain.exponentialRampToValueAtTime(.001, ctx.currentTime + .8);
+      o.start(); o.stop(ctx.currentTime + .8);
+    } catch {}
+    if ('vibrate' in navigator) try { navigator.vibrate([200, 100, 200]); } catch {}
+    const next = mode === 'focus' ? 'short' : 'focus';
+    openModal(\`<div class="glass rounded-2xl p-6 text-center">
+      <div class="text-5xl mb-3">\${mode === 'focus' ? '🎉' : '🚀'}</div>
+      <p class="text-xl font-bold mb-2">\${mode === 'focus' ? 'Sesi Selesai!' : 'Break Selesai!'}</p>
+      <p class="text-sm text-gray-400 mb-5">\${mode === 'focus' ? 'Kerja bagus! Saatnya istirahat 5 menit.' : 'Saatnya kembali fokus!'}</p>
+      <div class="flex gap-2 justify-center">
+        <button onclick="closeModal()" class="px-4 py-2 bg-white/5 hover:bg-white/10 rounded-lg text-sm">Tutup</button>
+        <button id="pomo-next" class="px-4 py-2 btn-primary text-white rounded-lg text-sm font-semibold">Mulai \${next === 'focus' ? 'Fokus' : 'Break'}</button>
+      </div></div>\`);
+    setTimeout(() => $('pomo-next')?.addEventListener('click', () => {
+      closeModal();
+      const auto = getPomoState().auto;
+      setPomoState({ mode: next, running: auto, total: POMO_PRESETS[next]*60, endAt: auto ? Date.now() + POMO_PRESETS[next]*60*1000 : 0, auto });
+      if (state.activeTab === 'pomodoro') renderPomodoro();
+      if (auto) startTick();
+    }), 0);
+    if (state.activeTab === 'pomodoro') renderPomodoro();
   }
-  else if (e.key === 'Escape') { closeModal(); const sb = document.getElementById('sidebar'); if (sb && sb.classList.contains('open')) toggleSidebar() }
-});
+  // Resume on load
+  (function resumeIfRunning() { const s = getPomoState(); if (s.running && s.endAt > Date.now()) startTick(); })();
 
-// ============================================
-// INIT
-// ============================================
-async function loadQuote() {
-  try {
-    const r = await fetch('/api/quotes');
-    const q = await r.json();
-    const el = document.getElementById('quote-ticker');
-    if (el) el.textContent = \`"\${q.text}"\`;
-  } catch {}
-}
-loadQuote();
-setInterval(loadQuote, 60000);
+  // ===== JOURNAL =====
+  const MOODS = ['😊','😐','😢','🔥','😴','💡'];
+  function renderJournal() {
+    $('content').innerHTML = \`
+      <div class="max-w-3xl mx-auto space-y-4">
+        <div>
+          <h1 class="text-2xl font-black gradient-text mb-1">📓 Journal</h1>
+          <p class="text-xs text-gray-400">Catatan mood + refleksi harian. Tersimpan permanen.</p>
+        </div>
+        <div class="glass rounded-2xl p-4 space-y-3">
+          <div class="flex gap-2 flex-wrap">
+            \${MOODS.map(m => \`<button data-mood="\${m}" class="mood-btn text-2xl px-3 py-1.5 rounded-lg \${state.journalMood === m ? 'bg-indigo-500/30 ring-2 ring-indigo-500' : 'bg-white/5 hover:bg-white/10'}">\${m}</button>\`).join('')}
+          </div>
+          <textarea id="journal-input" rows="4" placeholder="Apa yang ada di pikiranmu?" class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-indigo-500" maxlength="3000">\${escapeHtml(state.journalDraft)}</textarea>
+          <div class="flex justify-end gap-2">
+            <button id="journal-clear" class="px-3 py-2 bg-white/5 hover:bg-white/10 rounded-lg text-sm">Clear</button>
+            <button id="journal-save" class="px-4 py-2 btn-primary text-white rounded-lg text-sm font-semibold">Simpan</button>
+          </div>
+        </div>
+        <div id="journal-list" class="space-y-2"></div>
+      </div>\`;
+    document.querySelectorAll('.mood-btn').forEach(b => b.addEventListener('click', () => { state.journalMood = b.dataset.mood; renderJournal(); }));
+    $('journal-input').addEventListener('input', e => { state.journalDraft = e.target.value; });
+    $('journal-clear').addEventListener('click', () => { state.journalDraft = ''; state.journalMood = ''; renderJournal(); });
+    $('journal-save').addEventListener('click', saveJournal);
+    paintJournalList();
+  }
+  function paintJournalList() {
+    $('journal-list').innerHTML = state.journal.length === 0
+      ? '<p class="text-center text-gray-500 text-sm py-6">Belum ada entry</p>'
+      : state.journal.map(j => \`<div class="glass rounded-xl p-4 group">
+          <div class="flex items-start gap-3">
+            <span class="text-2xl">\${j.mood || '📝'}</span>
+            <div class="flex-1 min-w-0">
+              <p class="text-sm leading-relaxed whitespace-pre-wrap break-words">\${escapeHtml(j.text)}</p>
+              <p class="text-[10px] text-gray-500 mt-2">\${new Date(j.date).toLocaleString('id-ID')}</p>
+            </div>
+            <button data-jdel="\${j.id}" class="opacity-0 group-hover:opacity-100 transition text-gray-500 hover:text-rose-400 p-1"><i class="fas fa-trash text-xs"></i></button>
+          </div></div>\`).join('');
+    $('journal-list').querySelectorAll('[data-jdel]').forEach(b => b.addEventListener('click', () => deleteJournal(parseInt(b.dataset.jdel))));
+  }
+  function saveJournal() {
+    const txt = $('journal-input').value.trim();
+    if (!txt) return toast('Tulis dulu', 'warn');
+    if (!state.journalMood) return toast('Pilih mood dulu', 'warn');
+    state.journal.unshift({ id: Date.now(), text: txt, mood: state.journalMood, date: new Date().toISOString() });
+    if (state.journal.length > 200) state.journal = state.journal.slice(0, 200);
+    SAFE_LS.set(KEYS.journal, state.journal);
+    state.journalDraft = ''; state.journalMood = '';
+    renderJournal(); logActivity();
+    toast('Journal tersimpan', 'success');
+  }
+  function deleteJournal(id) {
+    showConfirm({ title:'Hapus entry?', body:'Tidak bisa di-undo.', danger:true, confirmText:'Hapus',
+      onConfirm: () => { state.journal = state.journal.filter(j => j.id !== id); SAFE_LS.set(KEYS.journal, state.journal); paintJournalList(); toast('Dihapus', 'success'); }});
+  }
 
-switchTab('dashboard');
-setTimeout(() => toast('🚀 SparkMind V5 SOVEREIGN aktif! Tekan ⌘/ untuk shortcuts.', 'info'), 800);
-</script>
+  // ===== GOALS =====
+  function renderGoals() {
+    $('content').innerHTML = \`
+      <div class="max-w-2xl mx-auto space-y-4">
+        <div>
+          <h1 class="text-2xl font-black gradient-text mb-1">🎯 Goal Tracker</h1>
+          <p class="text-xs text-gray-400">Track progress dengan +10/-10/Done.</p>
+        </div>
+        <div class="flex gap-2">
+          <input id="goal-input" placeholder="Goal baru..." class="flex-1 bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-indigo-500" maxlength="200">
+          <button id="goal-add" class="px-4 btn-primary text-white rounded-xl">Tambah</button>
+        </div>
+        <div id="goal-list" class="space-y-2"></div>
+      </div>\`;
+    $('goal-add').addEventListener('click', addGoal);
+    $('goal-input').addEventListener('keydown', e => { if (e.key === 'Enter') addGoal(); });
+    paintGoals();
+  }
+  function paintGoals() {
+    $('goal-list').innerHTML = state.goals.length === 0
+      ? '<p class="text-center text-gray-500 text-sm py-6">Belum ada goal</p>'
+      : state.goals.map(g => \`<div class="glass rounded-xl p-4 group">
+          <div class="flex items-center justify-between mb-2">
+            <p class="font-semibold text-sm \${g.progress >= 100 ? 'line-through text-emerald-400' : ''}">\${escapeHtml(g.title)}</p>
+            <button data-gdel="\${g.id}" class="opacity-0 group-hover:opacity-100 transition text-gray-500 hover:text-rose-400"><i class="fas fa-trash text-xs"></i></button>
+          </div>
+          <div class="w-full bg-white/5 rounded-full h-2 overflow-hidden">
+            <div class="h-full bg-gradient-to-r from-indigo-500 to-violet-500 transition-all" style="width:\${g.progress}%"></div>
+          </div>
+          <div class="flex items-center justify-between mt-3">
+            <span class="text-xs text-gray-400">\${g.progress}%</span>
+            <div class="flex gap-1">
+              <button data-gdec="\${g.id}" class="px-2.5 py-1 bg-white/5 hover:bg-white/10 rounded text-xs">−10</button>
+              <button data-ginc="\${g.id}" class="px-2.5 py-1 bg-white/5 hover:bg-white/10 rounded text-xs">+10</button>
+              <button data-gdone="\${g.id}" class="px-2.5 py-1 bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 rounded text-xs">✓ Done</button>
+            </div>
+          </div></div>\`).join('');
+    const list = $('goal-list');
+    list.querySelectorAll('[data-gdel]').forEach(b => b.addEventListener('click', () => delGoal(parseInt(b.dataset.gdel))));
+    list.querySelectorAll('[data-gdec]').forEach(b => b.addEventListener('click', () => updGoal(parseInt(b.dataset.gdec), -10)));
+    list.querySelectorAll('[data-ginc]').forEach(b => b.addEventListener('click', () => updGoal(parseInt(b.dataset.ginc), 10)));
+    list.querySelectorAll('[data-gdone]').forEach(b => b.addEventListener('click', () => updGoal(parseInt(b.dataset.gdone), 100, true)));
+  }
+  function addGoal() {
+    const t = $('goal-input').value.trim(); if (!t) return;
+    state.goals.unshift({ id: Date.now(), title: t, progress: 0 });
+    SAFE_LS.set(KEYS.goals, state.goals); $('goal-input').value = ''; paintGoals(); logActivity();
+  }
+  function updGoal(id, delta, set=false) {
+    const g = state.goals.find(x => x.id === id); if (!g) return;
+    g.progress = set ? delta : Math.max(0, Math.min(100, g.progress + delta));
+    SAFE_LS.set(KEYS.goals, state.goals); paintGoals();
+    if (g.progress >= 100) toast('Selamat! Goal tercapai 🎉', 'success');
+  }
+  function delGoal(id) {
+    showConfirm({ title:'Hapus goal?', body:'Tindakan permanen.', danger:true, confirmText:'Hapus',
+      onConfirm: () => { state.goals = state.goals.filter(g => g.id !== id); SAFE_LS.set(KEYS.goals, state.goals); paintGoals(); toast('Dihapus', 'success'); }});
+  }
+
+  // ===== HABITS WITH HEATMAP =====
+  function renderHabits() {
+    $('content').innerHTML = \`
+      <div class="max-w-3xl mx-auto space-y-4">
+        <div>
+          <h1 class="text-2xl font-black gradient-text mb-1">🔥 Habit Tracker</h1>
+          <p class="text-xs text-gray-400">Daily check + streak counter + 30-day heatmap.</p>
+        </div>
+        <div class="flex gap-2">
+          <input id="habit-input" placeholder="Habit baru (mis. Olahraga 30 menit)" class="flex-1 bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-indigo-500" maxlength="100">
+          <button id="habit-add" class="px-4 btn-primary text-white rounded-xl">Tambah</button>
+        </div>
+        <div id="habit-list" class="space-y-2"></div>
+      </div>\`;
+    $('habit-add').addEventListener('click', addHabit);
+    $('habit-input').addEventListener('keydown', e => { if (e.key === 'Enter') addHabit(); });
+    paintHabits();
+  }
+  function paintHabits() {
+    const today = todayKey();
+    $('habit-list').innerHTML = state.habits.length === 0
+      ? '<p class="text-center text-gray-500 text-sm py-6">Belum ada habit</p>'
+      : state.habits.map(h => {
+        const checked = h.lastCheck === today;
+        const days = [];
+        for (let i = 29; i >= 0; i--) {
+          const d = new Date(Date.now() - i * 86400000);
+          const k = d.toISOString().slice(0,10);
+          const has = (h.history || []).includes(k);
+          days.push({ k, has, label: d.toLocaleDateString('id-ID', { day:'numeric', month:'short' }) });
+        }
+        return \`<div class="glass rounded-xl p-4 group">
+          <div class="flex items-center justify-between mb-3">
+            <div class="flex-1 min-w-0">
+              <p class="font-semibold text-sm">\${escapeHtml(h.title)}</p>
+              <p class="text-xs text-gray-500 mt-0.5">🔥 Streak: \${h.streak || 0} hari</p>
+            </div>
+            <div class="flex gap-1">
+              <button data-hcheck="\${h.id}" class="px-3 py-1.5 \${checked ? 'bg-emerald-500/30 text-emerald-300' : 'bg-white/5 hover:bg-white/10'} rounded text-xs font-semibold">\${checked ? '✓ Done' : 'Check'}</button>
+              <button data-hdel="\${h.id}" class="opacity-0 group-hover:opacity-100 transition text-gray-500 hover:text-rose-400 p-1.5"><i class="fas fa-trash text-xs"></i></button>
+            </div>
+          </div>
+          <div class="grid grid-cols-15 sm:grid-cols-30 gap-1" style="grid-template-columns:repeat(15,1fr)">
+            \${days.map(d => \`<div class="heatmap-cell \${d.has ? 'heat-4' : ''}" title="\${d.label}\${d.has ? ' ✓' : ''}"></div>\`).join('')}
+          </div>
+          <p class="text-[10px] text-gray-500 mt-2">30 hari terakhir</p>
+        </div>\`;
+      }).join('');
+    $('habit-list').querySelectorAll('[data-hcheck]').forEach(b => b.addEventListener('click', () => checkHabit(parseInt(b.dataset.hcheck))));
+    $('habit-list').querySelectorAll('[data-hdel]').forEach(b => b.addEventListener('click', () => delHabit(parseInt(b.dataset.hdel))));
+  }
+  function addHabit() {
+    const t = $('habit-input').value.trim(); if (!t) return;
+    state.habits.unshift({ id: Date.now(), title: t, streak: 0, lastCheck: '', history: [] });
+    SAFE_LS.set(KEYS.habits, state.habits); $('habit-input').value = ''; paintHabits(); logActivity();
+  }
+  function checkHabit(id) {
+    const h = state.habits.find(x => x.id === id); if (!h) return;
+    const today = todayKey();
+    const yesterday = new Date(Date.now() - 86400000).toISOString().slice(0,10);
+    if (h.lastCheck === today) return toast('Sudah dicheck hari ini', 'info');
+    h.streak = h.lastCheck === yesterday ? (h.streak || 0) + 1 : 1;
+    h.lastCheck = today;
+    h.history = [...(h.history || []), today];
+    SAFE_LS.set(KEYS.habits, state.habits);
+    paintHabits(); logActivity();
+    toast('Streak +1! 🔥', 'success');
+  }
+  function delHabit(id) {
+    showConfirm({ title:'Hapus habit?', body:'Riwayat streak akan hilang.', danger:true, confirmText:'Hapus',
+      onConfirm: () => { state.habits = state.habits.filter(h => h.id !== id); SAFE_LS.set(KEYS.habits, state.habits); paintHabits(); toast('Dihapus', 'success'); }});
+  }
+
+  // ===== VISION BOARD =====
+  function renderVision() {
+    $('content').innerHTML = \`
+      <div class="max-w-2xl mx-auto space-y-4">
+        <div>
+          <h1 class="text-2xl font-black gradient-text mb-1">🎨 Vision Board</h1>
+          <p class="text-xs text-gray-400">Big vision · 1 tahun · 3 bulan · 1 minggu</p>
+        </div>
+        \${[
+          ['big','🌟 Big Vision (10 tahun)','Versi terbesar dari diri kamu...'],
+          ['y1','📅 1 Tahun ke Depan','Apa yang akan tercapai...'],
+          ['m3','🎯 3 Bulan ke Depan','Fokus 90 hari...'],
+          ['w1','📝 Minggu Ini','Goal mingguan...'],
+        ].map(([k,l,p]) => \`
+          <div class="glass rounded-xl p-4">
+            <p class="text-xs text-gray-400 font-bold uppercase tracking-wider mb-2">\${l}</p>
+            <textarea data-vk="\${k}" rows="3" placeholder="\${p}" class="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-indigo-500" maxlength="500">\${escapeHtml(state.vision[k] || '')}</textarea>
+          </div>\`).join('')}
+        <button id="vision-save" class="w-full py-3 btn-primary text-white font-semibold rounded-xl">💾 Simpan Vision</button>
+      </div>\`;
+    $('vision-save').addEventListener('click', () => {
+      document.querySelectorAll('[data-vk]').forEach(t => state.vision[t.dataset.vk] = t.value);
+      SAFE_LS.set(KEYS.vision, state.vision);
+      toast('Vision tersimpan', 'success'); logActivity();
+    });
+  }
+
+  // ===== REVIEW =====
+  function renderReview() {
+    $('content').innerHTML = \`
+      <div class="max-w-2xl mx-auto space-y-4">
+        <div>
+          <h1 class="text-2xl font-black gradient-text mb-1">📋 Weekly Review</h1>
+          <p class="text-xs text-gray-400">Refleksi mingguan: wins, learnings, focus.</p>
+        </div>
+        \${[
+          ['wins','🏆 3 Wins minggu ini'],
+          ['learnings','💡 3 Pelajaran utama'],
+          ['focus','🎯 Fokus minggu depan'],
+        ].map(([k,l]) => \`
+          <div class="glass rounded-xl p-4">
+            <p class="text-xs text-gray-400 font-bold uppercase mb-2">\${l}</p>
+            <textarea data-rk="\${k}" rows="3" class="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-indigo-500" maxlength="800">\${escapeHtml(state.review[k] || '')}</textarea>
+          </div>\`).join('')}
+        <button id="review-save" class="w-full py-3 btn-primary text-white font-semibold rounded-xl">💾 Simpan Review</button>
+      </div>\`;
+    $('review-save').addEventListener('click', () => {
+      document.querySelectorAll('[data-rk]').forEach(t => state.review[t.dataset.rk] = t.value);
+      SAFE_LS.set(KEYS.review, state.review);
+      toast('Review tersimpan', 'success'); logActivity();
+    });
+  }
+
+  // ===== RESOURCES =====
+  let resourcesCache = null;
+  let searchDebounce = null;
+  function renderResources() {
+    $('content').innerHTML = \`
+      <div class="max-w-3xl mx-auto space-y-4">
+        <div>
+          <h1 class="text-2xl font-black gradient-text mb-1">📚 Resources</h1>
+          <p class="text-xs text-gray-400">21+ frameworks &amp; mental models. Search debounced 300ms.</p>
+        </div>
+        <input id="res-search" type="text" placeholder="Cari resource..." value="\${escapeHtml(state.searchTerm)}" class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-indigo-500">
+        <div id="res-list" class="grid sm:grid-cols-2 gap-3"><p class="text-gray-500 text-sm text-center col-span-2 py-6">Loading...</p></div>
+      </div>\`;
+    $('res-search').addEventListener('input', e => {
+      clearTimeout(searchDebounce);
+      searchDebounce = setTimeout(() => { state.searchTerm = e.target.value; paintResources(); }, 300);
+    });
+    if (resourcesCache) paintResources();
+    else fetch('/api/resources').then(r => r.json()).then(d => { resourcesCache = d.resources; paintResources(); }).catch(() => toast('Gagal load resources', 'error'));
+  }
+  function paintResources() {
+    if (!resourcesCache) return;
+    const f = state.searchTerm.toLowerCase().trim();
+    const filtered = resourcesCache.filter(r => !f || r.title.toLowerCase().includes(f) || r.cat.toLowerCase().includes(f) || r.desc.toLowerCase().includes(f));
+    $('res-list').innerHTML = filtered.length === 0
+      ? '<p class="text-gray-500 text-sm text-center col-span-2 py-6">Tidak ditemukan</p>'
+      : filtered.map(r => \`<div class="glass rounded-xl p-4">
+          <div class="flex items-start gap-3">
+            <span class="text-3xl">\${r.icon}</span>
+            <div class="flex-1 min-w-0">
+              <p class="font-bold text-sm">\${escapeHtml(r.title)}</p>
+              <p class="text-[10px] text-indigo-400 uppercase tracking-wider mb-1.5">\${escapeHtml(r.cat)}</p>
+              <p class="text-xs text-gray-400 leading-relaxed">\${r.desc}</p>
+            </div>
+          </div></div>\`).join('');
+  }
+
+  // ===== SETTINGS =====
+  function renderSettings() {
+    const dataSize = JSON.stringify(state).length;
+    $('content').innerHTML = \`
+      <div class="max-w-2xl mx-auto space-y-4">
+        <div>
+          <h1 class="text-2xl font-black gradient-text mb-1">⚙️ Settings</h1>
+          <p class="text-xs text-gray-400">Backup, restore, density, motion, reset.</p>
+        </div>
+
+        <div class="glass rounded-xl p-5">
+          <p class="font-bold text-sm mb-2">💾 Data &amp; Backup</p>
+          <p class="text-xs text-gray-500 mb-3">Total data: ~\${(dataSize/1024).toFixed(1)} KB · Goals: \${state.goals.length} · Habits: \${state.habits.length} · Journal: \${state.journal.length} · Chat: \${state.chat.length}</p>
+          <div class="flex flex-wrap gap-2">
+            <button id="export-btn" class="px-4 py-2 btn-primary text-white rounded-lg text-sm font-semibold"><i class="fas fa-download mr-1"></i>Export JSON</button>
+            <button id="import-btn" class="px-4 py-2 bg-white/5 hover:bg-white/10 rounded-lg text-sm"><i class="fas fa-upload mr-1"></i>Import JSON</button>
+            <input id="import-file" type="file" accept=".json" class="hidden">
+          </div>
+        </div>
+
+        <div class="glass rounded-xl p-5">
+          <p class="font-bold text-sm mb-3">🎨 Appearance</p>
+          <div class="space-y-2">
+            <label class="flex items-center justify-between"><span class="text-sm">Theme</span>
+              <button onclick="toggleTheme()" class="px-3 py-1.5 bg-white/5 rounded text-xs">\${state.theme === 'dark' ? '🌙 Dark' : '☀️ Light'}</button></label>
+            <label class="flex items-center justify-between"><span class="text-sm">Density</span>
+              <select id="density-sel" class="bg-white/5 border border-white/10 rounded px-2 py-1 text-xs">
+                <option value="normal" \${state.density === 'normal' ? 'selected' : ''}>Normal</option>
+                <option value="compact" \${state.density === 'compact' ? 'selected' : ''}>Compact</option>
+              </select></label>
+          </div>
+        </div>
+
+        <div class="glass rounded-xl p-5">
+          <p class="font-bold text-sm mb-2 text-rose-400">⚠️ Danger Zone</p>
+          <p class="text-xs text-gray-500 mb-3">Hapus semua data. Tidak bisa di-undo. Export dulu untuk safety.</p>
+          <button id="reset-btn" class="px-4 py-2 btn-danger text-white rounded-lg text-sm font-semibold"><i class="fas fa-trash mr-1"></i>Reset Semua Data</button>
+        </div>
+
+        <p class="text-center text-[10px] text-gray-600">SparkMind V6.0 BULLETPROOF · 2026 · Made with ❤️ in Indonesia</p>
+      </div>\`;
+    $('export-btn').addEventListener('click', exportData);
+    $('import-btn').addEventListener('click', () => $('import-file').click());
+    $('import-file').addEventListener('change', importData);
+    $('reset-btn').addEventListener('click', resetAll);
+    $('density-sel').addEventListener('change', e => {
+      state.density = e.target.value;
+      SAFE_LS.set(KEYS.density, state.density);
+      document.body.classList.toggle('density-compact', state.density === 'compact');
+      toast('Density: ' + state.density, 'info');
+    });
+  }
+  function exportData() {
+    const data = {
+      version:'6.0', exported: new Date().toISOString(),
+      goals: state.goals, habits: state.habits, journal: state.journal,
+      vision: state.vision, review: state.review, chat: state.chat,
+      pomo: state.pomo, activity: state.activity,
+    };
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type:'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = \`sparkmind-backup-\${todayKey()}.json\`;
+    a.click(); URL.revokeObjectURL(url);
+    toast('Backup ter-export', 'success');
+  }
+  window.exportData = exportData;
+  function importData(e) {
+    const file = e.target.files[0]; if (!file) return;
+    const reader = new FileReader();
+    reader.onload = ev => {
+      try {
+        const d = JSON.parse(ev.target.result);
+        showConfirm({ title:'Import data?', body:'Data saat ini akan ditimpa. Pastikan kamu sudah backup.', confirmText:'Import',
+          onConfirm: () => {
+            if (Array.isArray(d.goals)) state.goals = d.goals;
+            if (Array.isArray(d.habits)) state.habits = d.habits;
+            if (Array.isArray(d.journal)) state.journal = d.journal;
+            if (d.vision && typeof d.vision === 'object') state.vision = d.vision;
+            if (d.review && typeof d.review === 'object') state.review = d.review;
+            if (Array.isArray(d.chat)) state.chat = d.chat;
+            if (d.pomo && typeof d.pomo === 'object') state.pomo = d.pomo;
+            if (d.activity && typeof d.activity === 'object') state.activity = d.activity;
+            SAFE_LS.set(KEYS.goals, state.goals); SAFE_LS.set(KEYS.habits, state.habits);
+            SAFE_LS.set(KEYS.journal, state.journal); SAFE_LS.set(KEYS.vision, state.vision);
+            SAFE_LS.set(KEYS.review, state.review); SAFE_LS.set(KEYS.chat, state.chat);
+            SAFE_LS.set(KEYS.pomo, state.pomo); SAFE_LS.set(KEYS.activity, state.activity);
+            renderActive(); toast('Data ter-import', 'success');
+          }});
+      } catch { toast('File tidak valid', 'error'); }
+    };
+    reader.readAsText(file);
+    e.target.value = '';
+  }
+  function resetAll() {
+    showConfirm({ title:'Reset semua data?', body:'PERMANEN. Tidak bisa di-undo. Export backup dulu!', danger:true, confirmText:'YA, RESET',
+      onConfirm: () => { Object.values(KEYS).forEach(k => SAFE_LS.del(k)); location.reload(); }});
+  }
+
+  // ===== ONBOARDING TOUR (first visit) =====
+  function maybeShowTour() {
+    if (SAFE_LS.get(KEYS.tour, false)) return;
+    setTimeout(() => {
+      openModal(\`<div class="glass rounded-2xl p-6">
+        <div class="text-4xl mb-3 text-center">🚀</div>
+        <p class="text-xl font-bold text-center mb-2">Selamat datang di SparkMind V6!</p>
+        <p class="text-sm text-gray-400 text-center mb-5">5 hal yang harus kamu tahu:</p>
+        <ul class="text-sm text-gray-300 space-y-2 mb-5">
+          <li>🧠 <b>AI Analyzer</b> — tanya 18+ kategori (chat tersimpan)</li>
+          <li>🍅 <b>Pomodoro V2</b> — auto-resume saat pindah tab</li>
+          <li>🎯 <b>Goals + Habits</b> — track progress + heatmap 30 hari</li>
+          <li>⌨️ <b>⌘K / ⌘N / ⌘D</b> — shortcuts power user</li>
+          <li>📲 <b>Install ke home screen</b> — buka offline</li>
+        </ul>
+        <button id="tour-done" class="w-full py-2.5 btn-primary text-white rounded-lg text-sm font-semibold">Mulai 🚀</button>
+      </div>\`);
+      setTimeout(() => $('tour-done')?.addEventListener('click', () => { SAFE_LS.set(KEYS.tour, true); closeModal(); }), 0);
+    }, 800);
+  }
+
+  // ===== INIT =====
+  renderSidebar();
+  renderActive();
+  maybeShowTour();
+  checkStorageQuota();
+
+  // Resume pomodoro tick if active
+  setTimeout(() => { const s = getPomoState(); if (s.running && s.endAt > Date.now()) startTick(); }, 50);
+
+  // Re-render dashboard when tab regains focus (refresh trends)
+  document.addEventListener('visibilitychange', () => {
+    if (!document.hidden && state.activeTab === 'pomodoro') renderPomodoro();
+    if (!document.hidden && state.activeTab === 'dashboard') renderDashboard();
+  });
+
+  // Global error handler
+  window.addEventListener('error', e => {
+    console.error('Global error:', e.error);
+    toast('Error: ' + (e.message || 'unknown'), 'error', 4000);
+  });
+  window.addEventListener('unhandledrejection', e => {
+    console.error('Unhandled rejection:', e.reason);
+    toast('Network error', 'error', 3000);
+  });
+
+  // Service worker
+  if ('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js').catch(()=>{});
+
+  })(); // end IIFE
+  </script>
 </body>
 </html>`
 
