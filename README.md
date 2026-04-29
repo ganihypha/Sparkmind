@@ -1,208 +1,171 @@
-# SparkMind V6.1 PAYMENT-READY — AI Strategic Guide + Duitku Payment Gateway
+# SparkMind V7.0 CLARITY EDITION — AI Strategic Guide + Painkiller Coach
 
 ## Project Overview
-- **Name**: SparkMind V6.1 PAYMENT-READY
-- **Goal**: AI Strategic Guide untuk hidup berdaulat — sekarang dengan **Duitku Payment Gateway** terintegrasi sepenuhnya untuk monetisasi production-ready.
-- **Features**: 18+ AI Categories + 12 Productivity Tools + PWA + Pricing/Pro/Lifetime Deal + **Duitku Pop JS Checkout (VA, QRIS, OVO, DANA, ShopeePay, Credit Card)**
+- **Name**: SparkMind V7.0 CLARITY EDITION
+- **Goal**: AI Strategic Guide untuk hidup berdaulat — sekarang dengan **AI Clarity & Recovery Coach** (Painkiller Module) yang etis, boundary-first, no-manipulation, untuk situasi hubungan / overthinking / pasca-blokir / decision-paralysis.
+- **Features**: 19+ AI Categories + 12 Productivity Tools + PWA + Pricing/Pro/Lifetime Deal + **Duitku Pop JS Checkout** + **6 Clarity Coach modules** + 10 pricing plans (4 core + 6 painkiller packs).
 
 ## 🔗 URLs
-- **Production**: https://sparkmind-v2.pages.dev
+- **Production (main domain)**: https://sparkmind-v2.pages.dev ✅ V7.0
+- **Clarity & Recovery Coach**: https://sparkmind-v2.pages.dev/clarity
 - **Pricing & Pay**: https://sparkmind-v2.pages.dev/pricing
-- **Latest Deploy**: https://6e71b26b.sparkmind-v2.pages.dev
-- **GitHub**: https://github.com/ganihypha/Sparkmind
+- **App (Dashboard)**: https://sparkmind-v2.pages.dev/app
+- **Latest Deploy**: https://f5d805c9.sparkmind-v2.pages.dev
+- **GitHub**: https://github.com/ganihypha/Sparkmind (branch: `main`, tag: `v7.0`)
 - **Duitku Docs**: https://docs.duitku.com/pop/en/
 
-## 💳 Currently Completed Features
+## 🩹 Root-Cause Fix (V6.x → V7.0)
+Sebelum V7.0, domain utama (`sparkmind-v2.pages.dev`) menampilkan versi lama padahal preview hash punya feature baru. Akar masalah:
 
-### V6.1 Payment Integration (NEW)
-- ✅ **Duitku Pop JS** loaded di pricing page (sandbox mode)
-- ✅ **Server-side pricing catalog** (anti-tamper) — harga di-validate di backend
-- ✅ **SHA-256 signature** via Web Crypto API (Cloudflare Workers compatible)
-- ✅ **MD5 callback verification** (pure JS, signature mandatory)
-- ✅ **Payment modal** dengan email/name/phone form + validation
-- ✅ **Auto-fallback redirect** jika Pop JS gagal load
-- ✅ **Payment return page** dengan success/pending/failed states + auto-poll
-- ✅ **localStorage tracking** untuk last order + Pro active flag
-- ✅ **4 plans**: Pro Monthly, Pro Yearly, Team, Lifetime Deal
+1. **Source code V7.0 hilang dari repo** — hanya metadata `/api/health` yang advertise V7.0, tapi route handler `/clarity` & `/api/clarity/*` belum di-commit ke `main`.
+2. **Callback URL Duitku auto-resolve dari request URL** — bisa pakai hash deployment yang ephemeral, bahaya untuk production.
+3. **HTML routes cache-able** — main domain bisa serve versi stale dari CDN.
+
+**Fix yang di-ship di V7.0:**
+- ✅ V7.0 source code di-rebuild lengkap di local repo, di-commit ke `main`, push ke GitHub, deploy ke production main branch.
+- ✅ `CANONICAL_BASE_URL = 'https://sparkmind-v2.pages.dev'` hardcoded fallback → Duitku callback / return URL **selalu** ke domain utama.
+- ✅ `noCacheHTML` middleware → `Cache-Control: no-cache, no-store, must-revalidate` di semua HTML routes.
+- ✅ Git tag `v7.0` sebagai version mark.
+- ✅ Cloudflare Pages production branch = `main`.
+
+## ✅ Currently Completed Features
+
+### V7.0 — AI Clarity & Recovery Coach (NEW Painkiller Module)
+- ✅ **`/clarity` page** — UI 6-tab dengan glassmorphism, sticky nav, char counters, async fetch
+- ✅ **Situation Decoder** — baca situasi dalam **probabilitas** (~50%/~25%/~25%), bukan kepastian
+- ✅ **Draft Review (Tone Analyzer)** — scan needy/emotional/pressure/length → verdict KIRIM / REVISI / JANGAN KIRIM
+- ✅ **Boundary Checker** — auto-detect block/mute/ghosting → no-contact mode lock
+- ✅ **Recovery Plan 7/21/30 hari** — phased plan: Detox → Stabilisasi → Rebuild → Glow-up; per fase ada Habit + Journal Prompt + Mini Goal
+- ✅ **Decision Mode** — 5-option framework: Lanjut Pelan / 1 Pesan Terakhir / Pause / Move On Total / Fokus Diri 30 Hari
+- ✅ **Relationship SWOT** — 4-dimensi analisis hubungan + Strategic Move
+- ✅ **Crisis Detector** — keywords self-harm/suicide → redirect ke Into the Light Indonesia (119 ext 8)
+- ✅ **Probability language** — etis, no fake certainty
+- ✅ **Boundary-first** — tidak bantu menembus block / manipulasi
+
+### V6.1 PAYMENT-READY (carry over)
+- ✅ Duitku Pop JS, SHA-256 signature, MD5 callback verify
+- ✅ Server-side pricing catalog (anti-tamper)
+- ✅ 4 core plans + **6 NEW Painkiller packs** = 10 total plans
+- ✅ Payment return page + auto-poll status
 
 ### V6.0 BULLETPROOF (carry over)
-- ✅ XSS-safe rendering (escapeHtml di semua user input)
-- ✅ PWA installable + service worker offline cache
-- ✅ Error boundary global (window.onerror + try-catch)
-- ✅ Pomodoro persistent end-time (resume akurat saat tab pindah)
-- ✅ Storage quota guard (warning > 85%)
-- ✅ Quick Add modal (⌘N)
-- ✅ Onboarding tour V6
-- ✅ Density compact + reduced-motion respect
-- ✅ SEO + OG tags + JSON-LD + Twitter cards
-- ✅ Copy/Share/Save AI response buttons
-- ✅ Habit heatmap 30 hari
+- ✅ XSS-safe rendering, PWA installable, service worker offline
+- ✅ Pomodoro persistent end-time, storage quota guard
+- ✅ Quick Add modal, onboarding tour, density toggle
+- ✅ SEO + OG tags + JSON-LD
 
 ### Core Platform
-- ✅ 18+ AI Categories (Spiritual, Side Hustle, Career, Business, Investment, Coding, English, Health, Mental Health, Relationship, dll.)
-- ✅ AI Coach V6 + SWOT Analyzer
-- ✅ Pomodoro V2 + Journal + Goals + Habits + Vision Board + Weekly Review
-- ✅ 21+ Curated Resources
-- ✅ Backup/Restore JSON
+- ✅ 19+ AI Categories (Spiritual, Side Hustle, Career, Business, Investment, Coding, English, Health, Mental Health, Relationship, dll.)
+- ✅ AI Coach + SWOT Analyzer
+- ✅ Pomodoro + Journal + Goals + Habits + Vision Board + Weekly Review
+- ✅ 21+ Curated Resources, Backup/Restore JSON
 - ✅ Keyboard Shortcuts (⌘K, ⌘1-9, ⌘D, ⌘/)
-- ✅ Privacy-first (data tersimpan di browser user)
 
 ## 📋 API Endpoints
+
+### AI Clarity & Recovery Coach (V7.0 NEW)
+| Method | Path | Body | Description |
+|--------|------|------|-------------|
+| `POST` | `/api/clarity/decode` | `{story}` | Situation decoder dengan probability language + boundary detection |
+| `POST` | `/api/clarity/draft-review` | `{draft}` | Tone analyzer (needy/emotional/pressure) → verdict |
+| `POST` | `/api/clarity/boundary` | `{story}` | Detect block/mute/ghosting → no-contact mode |
+| `POST` | `/api/clarity/recovery-plan` | `{days: 7\|21\|30, context?}` | Phased recovery plan (Habit+Journal+Goal) |
+| `POST` | `/api/clarity/decision` | `{story}` | 5-option decision framework |
+| `POST` | `/api/clarity/relationship-swot` | `{context}` | Relationship SWOT analysis |
 
 ### Payment Gateway (Duitku)
 | Method | Path | Description |
 |--------|------|-------------|
-| `GET` | `/api/payment/plans` | List available pricing plans |
-| `POST` | `/api/payment/create-invoice` | Create Duitku invoice. Body: `{planId, email, firstName?, lastName?, phoneNumber?}`. Returns `{reference, paymentUrl, merchantOrderId}` |
-| `POST` | `/api/payment/callback` | Duitku webhook. Verifies MD5 signature. Form-urlencoded. |
-| `GET` | `/api/payment/status/:merchantOrderId` | Query transaction status from Duitku |
-| `GET` | `/payment/return` | User return landing page (auto-polls status) |
+| `GET` | `/api/payment/plans` | List 10 plans (4 core + 6 painkiller) |
+| `POST` | `/api/payment/create-invoice` | Create Duitku invoice |
+| `POST` | `/api/payment/callback` | Duitku webhook (MD5 signature verified) |
+| `GET` | `/api/payment/status/:merchantOrderId` | Query transaction status |
+| `GET` | `/payment/return` | User return landing page |
 
 ### AI & Core
 | Method | Path | Description |
 |--------|------|-------------|
-| `POST` | `/api/analyze` | Strategic AI response. Body: `{message, mode?, history?}` |
-| `POST` | `/api/swot` | SWOT analysis. Body: `{business}` |
-| `POST` | `/api/coach` | AI Coach response. Body: `{goal, currentState?, obstacles?}` |
-| `GET` | `/api/resources` | 21+ curated resources |
-| `GET` | `/api/insights` | Strategic insights |
-| `GET` | `/api/quotes` | Random quote |
-| `GET` | `/api/health` | Service health + version + features |
+| `POST` | `/api/analyze` | Strategic AI response |
+| `POST` | `/api/swot` | SWOT analysis |
+| `POST` | `/api/coach` | AI Coach response |
+| `GET`  | `/api/resources` | 21+ curated resources |
+| `GET`  | `/api/insights` | Strategic insights |
+| `GET`  | `/api/quotes` | Random quote |
+| `GET`  | `/api/health` | Service health (V7.0 + modules taxonomy + Duitku config) |
 
 ### Pages
 | Path | Description |
 |------|-------------|
 | `/` | Landing page (SEO + JSON-LD) |
-| `/app` | Main dashboard (12 tabs) |
-| `/pricing` | Pricing page with Duitku checkout |
+| `/app` | Main dashboard |
+| `/clarity` | **NEW** — Painkiller Coach UI (6 tabs) |
+| `/pricing` | Pricing page (10 plans) |
 | `/payment/return` | Post-payment return page |
 | `/manifest.webmanifest` | PWA manifest |
 | `/sw.js` | Service worker |
 
-## 💰 Pricing Plans (Server-Side Catalog)
+## 💳 Pricing (10 plans)
 
-| Plan ID | Amount | Description |
-|---------|--------|-------------|
-| `pro-monthly` | Rp 49.000 | SparkMind Pro - 1 bulan |
-| `pro-yearly` | Rp 470.000 | SparkMind Pro - 1 tahun (-20%) |
-| `team-monthly` | Rp 745.000 | Team - 5 user x 1 bulan |
-| `lifetime` | Rp 1.490.000 | Akses Pro selamanya (limited 100 slot) |
+### Core SparkMind
+| Plan ID | Name | Price |
+|---------|------|-------|
+| `pro-monthly` | SparkMind Pro (Monthly) | Rp 49,000 |
+| `pro-yearly` | SparkMind Pro (Yearly, hemat 20%) | Rp 470,000 |
+| `team-monthly` | SparkMind Team (5 user) | Rp 745,000 |
+| `lifetime` | SparkMind Lifetime Deal | Rp 1,490,000 |
 
-## 🏗️ Data Architecture
+### Painkiller — AI Clarity Coach (V7.0 NEW)
+| Plan ID | Name | Price |
+|---------|------|-------|
+| `clarity-monthly` | AI Clarity Coach (Monthly) | Rp 59,000 |
+| `clarity-yearly` | AI Clarity Coach (Yearly, hemat 44%) | Rp 399,000 |
+| `pack-after-block` | "After Block" Recovery Pack (lifetime) | Rp 39,000 |
+| `pack-stop-overthinking` | "Stop Overthinking" 21-Day Pack | Rp 29,000 |
+| `pack-mature-comm` | "Mature Communication" Pack | Rp 49,000 |
+| `pack-healthy-closure` | "Healthy Closure" Pack | Rp 39,000 |
 
-### Storage Services
-- **Browser localStorage** — primary user data store (privacy-first, zero database)
-  - `sm_chat_*`, `sm_journal`, `sm_goals`, `sm_habits`, `sm_vision`, `sm_pomo_*`, `sm_settings`
-  - `sm_email`, `sm_last_order`, `sm_pro_active` (NEW V6.1)
-- **Duitku Sandbox API** — payment provider (external)
-  - Endpoint: `https://api-sandbox.duitku.com/api/merchant/createInvoice`
-  - Endpoint: `https://api-sandbox.duitku.com/api/merchant/transactionStatus`
+## 🧱 Data Architecture
+- **Storage**: client-side localStorage (privacy-first; no user data leaves browser)
+- **Pricing source-of-truth**: server-side catalog di `src/index.tsx` (anti-tamper)
+- **Payment processor**: Duitku Pop JS + REST API (sandbox/production toggleable via env)
+- **Tech stack**: Hono + TypeScript + TailwindCSS (CDN) + Cloudflare Pages/Workers
+- **Bindings**: `DUITKU_API_KEY`, `DUITKU_MERCHANT_CODE`, `DUITKU_ENV`, `PUBLIC_BASE_URL` (semua optional, ada fallback)
 
-### Server-Side State
-- **Pricing catalog** hardcoded di `PRICING_PLANS` (anti-tamper)
-- **API credentials** via Cloudflare env vars (`DUITKU_API_KEY`, `DUITKU_MERCHANT_CODE`, `DUITKU_ENV`) dengan fallback hardcoded untuk sandbox
+## 📲 User Guide (Quick Start)
+1. **Buka `/clarity`** kalau lagi overthinking, habis di-block, ghosting, atau bingung mau lanjut/berhenti hubungan.
+2. **Pilih tab** sesuai kebutuhan: Decode (baca situasi), Draft (review chat sebelum kirim), Boundary (cek block/no-contact mode), Recovery (plan 7/21/30 hari), Decision (5 opsi), SWOT (analisa hubungan).
+3. **Tulis cerita / paste draft** → klik tombol → AI kasih breakdown etis dengan probability language + action plan.
+4. **Untuk situasi berat** (depresi, ide menyakiti diri): hubungi langsung **Into the Light Indonesia 119 ext 8** (24/7 gratis).
 
-### Payment Flow
-```
-User klik plan → Modal form (email, name, phone)
-  → POST /api/payment/create-invoice
-  → Backend: SHA256(merchantCode + timestamp + apiKey)
-  → POST ke Duitku createInvoice
-  → Return {reference, paymentUrl}
-User: checkout.process(reference) [Duitku Pop JS]
-  → User bayar di popup overlay (VA/QRIS/E-wallet/CC)
-  → Duitku → callback (POST /api/payment/callback)
-    → Verify MD5(merchantCode + amount + orderId + apiKey)
-    → Update DB / activate Pro user
-  → User → /payment/return (success/pending/failed)
-```
+## 🛡️ Etika & Safety
+- ❌ TIDAK bantu mengejar / menembus block / manipulasi orang
+- ❌ Bukan pengganti terapis profesional
+- ✅ Probability language only (~50%/~25%/~25%) — no fake certainty
+- ✅ Boundary-first — auto-detect block/mute/ghost → lock no-contact mode
+- ✅ Crisis-aware — auto-redirect ke mental health hotline
+- ✅ Privacy-first — semua data tetap di browser user
 
-## 🚀 User Guide
+## 🚀 Deployment
+- **Platform**: Cloudflare Pages (Workers runtime)
+- **Status**: ✅ **LIVE on main domain** (V7.0 CLARITY EDITION)
+- **Production branch**: `main`
+- **Project name**: `sparkmind-v2`
+- **Latest commit**: `dbb434f` — feat: SparkMind V7.0 CLARITY EDITION
+- **Git tag**: `v7.0`
+- **Compatibility flags**: `nodejs_compat`
+- **Build output**: `dist/_worker.js` (~205 kB)
+- **Last Updated**: 2026-04-29
 
-### Untuk User
-1. Buka https://sparkmind-v2.pages.dev/pricing
-2. Klik tombol "Bayar Rp 49rb/bln" (atau plan lain)
-3. Isi modal: email (wajib), nama, no HP
-4. Klik "Lanjut Bayar" → popup Duitku muncul
-5. Pilih metode: VA, QRIS, OVO, DANA, ShopeePay, Credit Card, dll.
-6. Bayar → otomatis redirect ke `/payment/return` (auto-detect status)
-
-### Untuk Developer (Test Mode Sandbox Duitku)
-- **Merchant Code**: `DS30026`
-- **API Key**: stored as fallback (production should override via env vars)
-- **Test Cards 3DS**: lihat https://docs.duitku.com/pop/en/#testing
-- **Sandbox VA**: bisa pakai BCA/Mandiri/BRI/BNI dummy
-
-### Production Deployment Notes
-Untuk production, set environment variables di Cloudflare Pages:
-```bash
-npx wrangler pages secret put DUITKU_API_KEY --project-name sparkmind-v2
-npx wrangler pages secret put DUITKU_MERCHANT_CODE --project-name sparkmind-v2
-npx wrangler pages secret put DUITKU_ENV --project-name sparkmind-v2  # set to 'production'
-npx wrangler pages secret put PUBLIC_BASE_URL --project-name sparkmind-v2  # https://sparkmind-v2.pages.dev
-```
-Dan update `<script src="https://app-sandbox.duitku.com/lib/js/duitku.js">` ke `app-prod.duitku.com` di PRICING_HTML.
-
-## 🛡️ Security Hardening
-
-| Layer | Implementation |
-|-------|---------------|
-| Signature | SHA-256 (Web Crypto API) untuk x-duitku-signature header |
-| Callback verify | MD5 (pure JS) untuk verify signature dari Duitku — wajib |
-| Anti-tamper | Pricing catalog **server-side**, client tidak bisa rubah harga |
-| Validation | Email regex, phone digit-only sanitize, name maxlength |
-| HTTPS | Cloudflare Pages auto-TLS |
-| Secrets | Env vars via wrangler (production) |
-| XSS | escapeHtml di app dashboard |
-| CORS | Hono cors middleware untuk /api/* |
-
-## 🚧 Features Not Yet Implemented
-
-1. **Database persistence** — saat ini callback hanya log ke console; production butuh D1/KV untuk simpan order history
-2. **Email confirmation** — kirim email konfirmasi ke user setelah pembayaran sukses (butuh SendGrid/Mailgun)
-3. **Real LLM integration** — saat ini AI pakai rule-based; bisa upgrade ke OpenAI/Claude API
-4. **Multi-user accounts** — saat ini single-user (localStorage); butuh auth (Auth0/Clerk) untuk multi-device sync
-5. **Subscription auto-renewal** — saat ini one-time payment; butuh Duitku Tokenize feature untuk recurring
-6. **Refund flow** — UI untuk request refund + admin approval
-7. **Analytics dashboard** — admin view untuk lihat transaction stats
-
-## 🎯 Recommended Next Steps
-
-### Phase 1 — Production Readiness (high priority)
-1. **Add Cloudflare D1 database** untuk simpan orders + user states
-2. **Set production env vars** untuk Duitku API key + switch ke production mode
-3. **Switch Duitku JS** dari `app-sandbox` ke `app-prod` untuk live payments
-4. **Add Sentry/error tracking** untuk monitor production errors
-5. **Verify domain di Duitku Dashboard** (callback URL whitelisting)
-
-### Phase 2 — User Account System (medium)
-6. **Add auth** (magic link via Resend atau Auth0)
-7. **Add D1 schema**: `users`, `subscriptions`, `orders`
-8. **Sync localStorage data** ke server saat user login
-
-### Phase 3 — Growth Features (low)
-9. **Email automation** (welcome, payment confirmation, churn prevention)
-10. **Affiliate / referral program** (komisi per Pro signup)
-11. **Multi-language (English version)**
-12. **Real LLM** untuk Pro tier (OpenAI/Claude/Gemini)
-
-## 📊 Technical Specs
-
-- **Framework**: Hono 4 + TypeScript
-- **Edge**: Cloudflare Pages (Workers runtime)
-- **Frontend**: Tailwind CSS (CDN) + FontAwesome (CDN) + Vanilla JS (zero npm frontend deps)
-- **Payment**: Duitku Pop JS + REST API (sandbox)
-- **Bundle**: 166.82 kB (compiled worker)
-- **Cold start**: < 50ms (edge runtime)
-- **Routes**: 13 (5 pages + 8 API)
-- **Last Updated**: 2026-04-28
-- **Version**: 6.1.0 PAYMENT-READY
-
-## 🚢 Deployment Status
-
-- **Platform**: Cloudflare Pages
-- **Status**: ✅ Active (Production live)
-- **Tech Stack**: Hono + TypeScript + TailwindCSS + Cloudflare Workers + Duitku
-- **Project Name**: `sparkmind-v2`
-- **Compatibility Date**: 2024-01-01
-- **Compatibility Flags**: nodejs_compat
+## 📋 Recommended Next Steps
+1. **Production Duitku**: ajukan ke tim Duitku untuk production access. Kirim email berisi:
+   - Callback URL: `https://sparkmind-v2.pages.dev/api/payment/callback`
+   - Return URL: `https://sparkmind-v2.pages.dev/payment/return`
+   - Domain whitelist: `https://sparkmind-v2.pages.dev`
+   - Set secret: `npx wrangler pages secret put DUITKU_API_KEY --project-name sparkmind-v2`
+   - Set secret: `npx wrangler pages secret put DUITKU_MERCHANT_CODE --project-name sparkmind-v2`
+   - Set secret: `npx wrangler pages secret put DUITKU_ENV --project-name sparkmind-v2` (value: `production`)
+2. **Custom domain**: kalau punya domain sendiri (e.g. `sparkmind.id`), tambah lewat dashboard + update `CANONICAL_BASE_URL`.
+3. **Auth & Pro flag persistence**: integrate D1 atau Supabase untuk simpan Pro status per email setelah callback success.
+4. **Email notifications**: invoice/receipt via Resend/SendGrid setelah callback `resultCode=00`.
+5. **Analytics**: Cloudflare Web Analytics atau Plausible untuk track conversion `/pricing` → `/payment/return?status=success`.
+6. **A/B test landing copy** untuk Clarity Coach (Indonesia market: "AI buat hubungan kacau" vs "Painkiller untuk overthinking").
