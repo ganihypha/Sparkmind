@@ -1,19 +1,70 @@
-# SparkMind V7.2 PRODUCTION HARDENED — Duitku Live + HTML Reconciliation
+# SparkMind V7.3 PRODUCTION HARDENED — Duitku Callback Lockdown (IP+MD5+Idempotent)
 
 ## Project Overview
-- **Name**: SparkMind V7.2 PRODUCTION HARDENED (Duitku Deep-Research)
+- **Name**: SparkMind V7.3 PRODUCTION HARDENED (Callback Lockdown — IP+Sig+Idempotent)
 - **Goal**: AI Strategic Guide untuk hidup berdaulat — dengan **AI Clarity & Recovery Coach** (Painkiller Module) yang etis, boundary-first, no-manipulation, untuk situasi hubungan / overthinking / pasca-blokir / decision-paralysis.
-- **Features**: 19+ AI Categories + 12 Productivity Tools + PWA + Pricing/Pro/Lifetime Deal + **Duitku Pop JS Checkout (PRODUCTION)** + **6 Clarity Coach modules** + 10 pricing plans (4 core + 6 painkiller packs).
+- **Features**: 19+ AI Categories + 12 Productivity Tools + PWA + Pricing/Pro/Lifetime Deal + **Duitku Pop JS Checkout (PRODUCTION)** + **Hardened Callback (IP whitelist 10 prod IPs + MD5 sig verify + idempotent)** + **6 Clarity Coach modules (all with `disclaimer` field)** + 10 pricing plans (4 core + 6 painkiller packs).
 
 ## 🔗 URLs
-- **Production (main domain)**: https://sparkmind-v2.pages.dev ✅ V7.2 PRODUCTION HARDENED (Duitku Live)
+- **Production (main domain)**: https://sparkmind-v2.pages.dev ✅ V7.3 PRODUCTION HARDENED (Callback Lockdown)
 - **Clarity & Recovery Coach**: https://sparkmind-v2.pages.dev/clarity
+- **Clarity Tools API (NEW v7.3)**: https://sparkmind-v2.pages.dev/api/clarity/tools — returns 6 tools with `disclaimer` field
 - **Pricing & Pay (LIVE)**: https://sparkmind-v2.pages.dev/pricing
 - **App (Dashboard)**: https://sparkmind-v2.pages.dev/app
-- **Health (live API status)**: https://sparkmind-v2.pages.dev/api/health
-- **GitHub**: https://github.com/ganihypha/Sparkmind (branch: `main`, tag: `v7.2-prod-hardened`)
+- **Health (live API status)**: https://sparkmind-v2.pages.dev/api/health — reports `callbackHardening{ipWhitelist,ipCount,signatureVerify,idempotent}`
+- **Callback (Duitku → us)**: https://sparkmind-v2.pages.dev/api/payment/callback — 3-layer hardened (IP whitelist → merchant check → MD5 sig → idempotency)
+- **GitHub**: https://github.com/ganihypha/Sparkmind (branch: `main`, tag: `v7.3-prod-hardened`)
 - **Master Session Architect Prompt (handoff)**: `AI_DEV_HANDOFF.md` (root) — paste as first message in every dev session
-- **Duitku Docs**: https://docs.duitku.com/pop/en/ + https://docs.duitku.com/api/en/
+- **Duitku Docs**: https://docs.duitku.com/pop/en/ + https://docs.duitku.com/api/en/ + https://docs.duitku.com/api/id/#callback
+
+## 🛡️ V7.3 PRODUCTION HARDENED (Duitku Callback Lockdown)
+
+**Source of truth**: Email Rieza Camelia (Duitku Customer Care, 2026-04, Merchant `D22457`) — directive untuk whitelist IP callback Duitku di server.
+
+### What v7.3 adds (on top of v7.2)
+
+| Layer | v7.2 | **v7.3 (NEW)** |
+|---|---|---|
+| Callback IP whitelist | ❌ none | ✅ **10 production IPs** (`DUITKU_PROD_CALLBACK_IPS`) — uses `CF-Connecting-IP` (spoof-proof) |
+| Callback signature | ✅ MD5 verify | ✅ MD5 verify (kept) |
+| Callback idempotency | ❌ none | ✅ In-memory cache (1h TTL, max 1000) — duplicate `merchantOrderId` returns `{ok:true,idempotent:true}` |
+| Callback error format | text/plain | ✅ JSON `{ok:false,error:CODE}` (`IP_NOT_WHITELISTED`, `MERCHANT_MISMATCH`, `BAD_SIGNATURE`, `BAD_PARAMETER`) |
+| Merchant code check | ❌ implicit | ✅ Explicit fail-closed before sig verify |
+| `/api/health` payload | basic | ✅ Reports `payment.callbackHardening{ipWhitelist:true, ipCount:10, signatureVerify:'md5', idempotent:true}` + `payment.merchantCode:D22457` |
+| `/api/clarity/tools` | ❌ missing | ✅ NEW endpoint — returns 6 painkiller tools, **all with `disclaimer` field** (ethical pain-killer mode) |
+| Version badges (LANDING/PRICING/APP/CLARITY) | mixed (V7.2 + V7.0) | ✅ All `V7.3` (CLARITY page badge fixed from V7.0 → V7.3) |
+
+### 🔐 Whitelisted Production Callback IPs (10)
+
+```
+182.23.85.8,  182.23.85.9,  182.23.85.10
+182.23.85.13, 182.23.85.14   ← Primary
+103.177.101.184, 103.177.101.185, 103.177.101.186
+103.177.101.189, 103.177.101.190 ← Primary
+```
+
+### v7.3 Test Suite Results (2026-04-30)
+
+| # | Test | Result |
+|---|------|--------|
+| 1 | `/api/health` v7.3 + `callbackHardening` payload | ✅ PASS |
+| 2 | Callback non-whitelisted IP → `403 IP_NOT_WHITELISTED` | ✅ PASS |
+| 2b | Callback bad-sig from non-WL IP → IP guard fires first | ✅ PASS (correct order) |
+| 2c | Callback empty body → 403 (IP guard before parser) | ✅ PASS |
+| 7 | `/api/payment/plans` returns 10 plans | ✅ PASS |
+| 8 | `/api/clarity/tools` 6 tools, all with disclaimer | ✅ PASS (6/6, 92-133 chars each) |
+| 9 | E2E `createInvoice` → `api-prod.duitku.com` | ⏳ `Unauthorized` — expected, Duitku activation pending (1-3 working days per Rieza) |
+| Bonus | Canonical vs hash drift | ✅ PASS (canonical = latest = v7.3) |
+| Bonus | HTML badges (LANDING/PRICING/APP/CLARITY) | ✅ PASS (all V7.3) |
+
+### v7.3 Invariants (locked, see `AI_DEV_HANDOFF.md`)
+1. `baseUrl` resolution: `env.PUBLIC_BASE_URL → CANONICAL_BASE_URL → request origin`
+2. ALL HTML routes call `noCacheHTML(c)` → `Cache-Control: no-cache, no-store, must-revalidate`
+3. Duitku POP `<script>` switches on `cfg.isProd` (verified `app-prod.duitku.com` on `/pricing`)
+4. `PRICING_PLANS` server-side (10 plans) — never client
+5. `/api/clarity/tools` MUST include `disclaimer` field on every tool
+6. **v7.3 NEW**: `/api/payment/callback` enforces ORDER: IP whitelist → merchant match → MD5 sig → idempotency. Fail-closed (403) at every layer.
+7. **v7.3 NEW**: NEVER trust `X-Forwarded-For` for security — only `CF-Connecting-IP`
 
 ## 🛡️ V7.2 PRODUCTION HARDENED (HTML reconciliation + handoff prompt)
 
