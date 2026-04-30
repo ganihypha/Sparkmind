@@ -22,9 +22,44 @@ app.use('/api/*', cors())
 const CANONICAL_BASE_URL = 'https://sparkmind-v2.pages.dev'
 
 // ============================================
-// DUITKU CONFIG (V7.2 PRODUCTION HARDENED)
+// DUITKU PRODUCTION CALLBACK IPs (V7.3 HARDENING)
+// Source of truth: Email Rieza Camelia (Duitku Customer Care, 2026-04)
+// Docs: https://docs.duitku.com/api/id/#callback
+// 9 production IPs — server MUST whitelist these for /api/payment/callback
+// Sandbox IPs (4) intentionally NOT included — production-only mode.
+// ============================================
+const DUITKU_PROD_CALLBACK_IPS = new Set<string>([
+  '182.23.85.8',   '182.23.85.9',   '182.23.85.10',
+  '182.23.85.13',  '182.23.85.14',     // 14 = Primary
+  '103.177.101.184','103.177.101.185','103.177.101.186',
+  '103.177.101.189','103.177.101.190',  // 190 = Primary
+])
+
+// IP guard helper — uses CF-Connecting-IP (Cloudflare-injected, can't be spoofed).
+// NEVER trust X-Forwarded-For for security decisions on Cloudflare.
+function isDuitkuCallbackIP(c: any): { ok: boolean; ip: string } {
+  const ip = c.req.header('CF-Connecting-IP') || c.req.header('cf-connecting-ip') || ''
+  return { ok: DUITKU_PROD_CALLBACK_IPS.has(ip), ip }
+}
+
+// In-memory idempotency cache (best-effort within a single Worker isolate).
+// For durable idempotency across isolates use KV/D1 — see Step 4.4 in HANDOFF v2.
+// This cache is sufficient to prevent double-processing within burst windows
+// (Duitku retries on timeout); persistent layer is roadmap (v7.4).
+const _SEEN_ORDERS = new Map<string, { ts: number; result: any }>()
+function _cacheOrder(id: string, result: any) {
+  _SEEN_ORDERS.set(id, { ts: Date.now(), result })
+  // soft TTL prune (keep <1000 entries)
+  if (_SEEN_ORDERS.size > 1000) {
+    const cutoff = Date.now() - 60 * 60 * 1000 // 1h
+    for (const [k, v] of _SEEN_ORDERS) if (v.ts < cutoff) _SEEN_ORDERS.delete(k)
+  }
+}
+
+// ============================================
+// DUITKU CONFIG (V7.3 PRODUCTION HARDENED — Callback Lockdown)
 // Migration: sandbox → production (Merchant Code DS30026 → D22457)
-// V7.2: All HTML constants reconciled with Worker (no stale templates), all
+// V7.3: All HTML constants reconciled with Worker (no stale templates), all
 // payment endpoints production-by-default, baseUrl canonical-locked.
 // Override via: wrangler pages secret put DUITKU_API_KEY / DUITKU_MERCHANT_CODE / DUITKU_ENV
 // Docs: https://docs.duitku.com/pop/en/  &  https://docs.duitku.com/api/en/
@@ -199,17 +234,24 @@ app.get('/api/health', (c) => {
   const cfg = getDuitkuConfig(c)
   return c.json({
     status: 'ok',
-    service: 'SparkMind V7.2 PRODUCTION HARDENED (Duitku Deep-Research)',
-    version: '7.2.0',
-    engine: 'Sovereign AI Engine V7.2 + Clarity & Recovery Coach + Duitku Production Hardened',
+    service: 'SparkMind V7.3 PRODUCTION HARDENED (Callback Lockdown — IP+Sig+Idempotent)',
+    version: '7.3.0',
+    engine: 'Sovereign AI Engine V7.3 + Clarity & Recovery Coach + Duitku Callback Hardened',
     categories: 19,
     payment: {
       provider: 'Duitku',
       mode: cfg.isProd ? 'production' : 'sandbox',
+      merchantCode: cfg.merchantCode,
       baseUrl: cfg.baseUrl,
       callbackUrl: `${cfg.baseUrl}/api/payment/callback`,
       returnUrl: `${cfg.baseUrl}/payment/return`,
       plans: Object.keys(PRICING_PLANS).length,
+      callbackHardening: {
+        ipWhitelist: true,
+        ipCount: DUITKU_PROD_CALLBACK_IPS.size,
+        signatureVerify: 'md5',
+        idempotent: true,
+      },
     },
     modules: {
       core: ['ai-coach','swot','pomodoro','journal','goals','habits','vision','review','resources'],
@@ -217,6 +259,7 @@ app.get('/api/health', (c) => {
     },
     features: [
       'duitku-payment-gateway','duitku-pop-js','sha256-signature','md5-callback-verify',
+      'callback-ip-whitelist-9-prod','callback-idempotent','callback-fail-closed',
       'server-side-pricing-catalog','payment-plans','payment-success-page','payment-failed-page',
       'canonical-base-url','no-cache-html','auto-resolve-callback-url',
       'clarity-recovery-coach','pain-killer-mode',
@@ -338,6 +381,64 @@ app.post('/api/clarity/relationship-swot', async (c) => {
 })
 
 // ============================================
+// CLARITY TOOLS CATALOG (V7.3) — 6 painkiller tools
+// Each tool MUST include `disclaimer` (ethical pain-killer mode invariant)
+// ============================================
+const CLARITY_TOOLS = [
+  {
+    id: 'situation-decoder',
+    name: 'Situation Decoder',
+    endpoint: '/api/clarity/decode',
+    description: 'Decode situasi rumit (ghosting / silent treatment / mixed signal) jadi probability framing yang bisa kamu pegang.',
+    disclaimer: 'Ini bukan diagnosis psikologi. Output berupa kemungkinan, bukan kepastian. Untuk krisis hubungi 119 ext 8 (Into the Light Indonesia).',
+  },
+  {
+    id: 'draft-tone-review',
+    name: 'Draft & Tone Review',
+    endpoint: '/api/clarity/draft-review',
+    description: 'Cek tone draft chat / WA sebelum dikirim — flag potensi escalation, manipulasi, atau over-apologizing.',
+    disclaimer: 'Tool ini menganalisa tone bahasa, bukan menggantikan empati & komunikasi langsung. Hormati batas pihak lain.',
+  },
+  {
+    id: 'boundary-checker',
+    name: 'Boundary Checker',
+    endpoint: '/api/clarity/boundary',
+    description: 'Validasi apakah situasi yang kamu hadapi adalah boundary sehat dari pihak lain — bukan ajakan untuk bypass.',
+    disclaimer: 'Kalau kamu diblokir / di-mute, itu boundary yang HARUS dihormati. Tool ini tidak akan kasih cara untuk bypass blokir.',
+  },
+  {
+    id: 'recovery-plan',
+    name: 'Recovery Plan (7 / 21 / 30 hari)',
+    endpoint: '/api/clarity/recovery-plan',
+    description: 'Rencana recovery harian setelah breakup / ghosting / closure paksa. Fokus ke diri sendiri, bukan stalking.',
+    disclaimer: 'Ini self-care framework, bukan terapi profesional. Kalau gejala depresi / cemas berat menetap >2 minggu, temui psikolog.',
+  },
+  {
+    id: 'decision-mode',
+    name: 'Decision Mode',
+    endpoint: '/api/clarity/decision',
+    description: 'Frame keputusan sulit dengan probability + cost-benefit, hindari decision dari panic / sunk-cost.',
+    disclaimer: 'Output berupa kerangka berpikir, bukan instruksi. Keputusan akhir tetap tanggung jawab kamu.',
+  },
+  {
+    id: 'relationship-swot',
+    name: 'Relationship SWOT',
+    endpoint: '/api/clarity/relationship-swot',
+    description: 'SWOT analysis untuk hubungan (romantic / family / kerja) — strengths, weaknesses, opportunities, threats.',
+    disclaimer: 'Tool reflektif, bukan alasan untuk menghakimi pihak lain. Gunakan untuk insight pribadi, bukan amunisi konflik.',
+  },
+] as const
+
+app.get('/api/clarity/tools', (c) => {
+  return c.json({
+    ok: true,
+    version: '7.3.0',
+    count: CLARITY_TOOLS.length,
+    tools: CLARITY_TOOLS,
+  })
+})
+
+// ============================================
 // DUITKU PAYMENT GATEWAY ENDPOINTS
 // Docs: https://docs.duitku.com/pop/en/
 // ============================================
@@ -441,9 +542,21 @@ app.post('/api/payment/create-invoice', async (c) => {
 
 // Callback — Duitku notifies merchant about payment status
 // POST /api/payment/callback (x-www-form-urlencoded)
+// V7.3 HARDENED: 3-layer defense — (1) IP whitelist (9 prod IPs from Duitku),
+// (2) MD5 signature verify, (3) idempotency. Fail-closed on every layer.
 app.post('/api/payment/callback', async (c) => {
   try {
     const cfg = getDuitkuConfig(c)
+
+    // LAYER 1 — IP Whitelist (only enforce in production mode)
+    if (cfg.isProd) {
+      const { ok: ipOk, ip } = isDuitkuCallbackIP(c)
+      if (!ipOk) {
+        console.warn(`[Duitku Callback] Reject non-whitelisted IP: ${ip || '(none)'}`)
+        return c.json({ ok: false, error: 'IP_NOT_WHITELISTED' }, 403)
+      }
+    }
+
     // Parse form data
     const form = await c.req.parseBody()
     const merchantCode = String(form.merchantCode || '')
@@ -454,25 +567,40 @@ app.post('/api/payment/callback', async (c) => {
     const reference = String(form.reference || '')
 
     if (!merchantCode || !amount || !merchantOrderId || !signature) {
-      return c.text('Bad Parameter', 400)
+      return c.json({ ok: false, error: 'BAD_PARAMETER' }, 400)
     }
 
-    // Verify signature: MD5(merchantCode + amount + merchantOrderId + apiKey)
+    // Sanity guard — merchant code must match our configured merchant
+    if (merchantCode !== cfg.merchantCode) {
+      console.warn(`[Duitku Callback] Merchant mismatch: got=${merchantCode} want=${cfg.merchantCode}`)
+      return c.json({ ok: false, error: 'MERCHANT_MISMATCH' }, 403)
+    }
+
+    // LAYER 2 — Signature: MD5(merchantCode + amount + merchantOrderId + apiKey)
     const expected = md5(merchantCode + amount + merchantOrderId + cfg.apiKey)
-    if (signature !== expected) {
-      console.log('[Duitku Callback] Bad signature for order', merchantOrderId)
-      return c.text('Bad Signature', 401)
+    if (signature.toLowerCase() !== expected.toLowerCase()) {
+      console.warn(`[Duitku Callback] Bad signature for order ${merchantOrderId}`)
+      return c.json({ ok: false, error: 'BAD_SIGNATURE' }, 403)
     }
 
-    // Signature valid → log + (in production: update DB)
-    console.log('[Duitku Callback] Verified', { merchantOrderId, amount, resultCode, reference })
+    // LAYER 3 — Idempotency: same merchantOrderId returns prior result, no re-processing
+    const seen = _SEEN_ORDERS.get(merchantOrderId)
+    if (seen) {
+      console.log(`[Duitku Callback] Idempotent replay order=${merchantOrderId}`)
+      return c.json({ ok: true, idempotent: true, ...seen.result })
+    }
+
+    // Signature valid + first time → log + (in production: update DB)
+    console.log('[Duitku Callback] OK', { merchantOrderId, amount, resultCode, reference })
 
     // resultCode: 00 = Success, 02 = Failed
-    // In a real app, update DB / activate Pro user here
+    // In a real app, update DB / activate Pro user here.
+    const result = { merchantOrderId, amount, resultCode, reference, ts: Date.now() }
+    _cacheOrder(merchantOrderId, result)
 
-    return c.text('OK', 200)
+    return c.json({ ok: true, ...result })
   } catch (e: any) {
-    return c.text('Error: ' + (e?.message || 'unknown'), 500)
+    return c.json({ ok: false, error: 'SERVER_ERROR', detail: e?.message || 'unknown' }, 500)
   }
 })
 
@@ -943,7 +1071,7 @@ self.addEventListener('fetch', e => {
 `
 
 // ============================================
-// LANDING PAGE — V7.2 PRODUCTION HARDENED
+// LANDING PAGE — V7.3 PRODUCTION HARDENED
 // ============================================
 const LANDING_HTML = `<!DOCTYPE html>
 <html lang="id">
@@ -951,18 +1079,18 @@ const LANDING_HTML = `<!DOCTYPE html>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <meta name="theme-color" content="#0a0a1a">
-  <title>SparkMind V7.2 — AI Strategic Guide + Clarity Coach (Duitku Live)</title>
+  <title>SparkMind V7.3 — AI Strategic Guide + Clarity Coach (Duitku Live)</title>
   <meta name="description" content="Platform AI strategic guide dengan 18+ kategori. Pomodoro, Journal, Goal Tracker, Habit, AI Coach. Privacy-first, offline-ready, gratis.">
   <meta name="keywords" content="AI assistant Indonesia, productivity, strategic guide, life coach, pomodoro, habit tracker, journaling">
   <meta name="author" content="SparkMind">
   <link rel="manifest" href="/manifest.webmanifest">
-  <meta property="og:title" content="SparkMind V7.2 — AI Strategic Guide + Clarity Coach">
+  <meta property="og:title" content="SparkMind V7.3 — AI Strategic Guide + Clarity Coach">
   <meta property="og:description" content="Platform AI dengan 18+ kategori untuk hidup berdaulat. Privacy-first, offline-ready.">
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://sparkmind-v2.pages.dev">
   <meta property="og:locale" content="id_ID">
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="SparkMind V7.2 — AI Strategic Guide + Clarity Coach">
+  <meta name="twitter:title" content="SparkMind V7.3 — AI Strategic Guide + Clarity Coach">
   <meta name="twitter:description" content="Platform AI strategic guide untuk hidup berdaulat.">
   <script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"SparkMind","applicationCategory":"ProductivityApplication","operatingSystem":"Any","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"}}</script>
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='%234f46e5'/%3E%3Ctext x='50' y='68' font-size='60' text-anchor='middle' fill='white' font-family='system-ui' font-weight='bold'%3ES%3C/text%3E%3C/svg%3E">
@@ -996,7 +1124,7 @@ const LANDING_HTML = `<!DOCTYPE html>
     <div class="max-w-6xl mx-auto px-4 sm:px-6 py-3.5 flex items-center justify-between">
       <a href="/" class="flex items-center gap-2.5 group">
         <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-indigo-500 to-violet-600 flex items-center justify-center font-bold text-white shadow-lg shadow-indigo-500/30">S</div>
-        <span class="text-base font-bold tracking-tight">SparkMind <span class="text-[10px] text-violet-400 font-mono ml-0.5">V7.2</span></span>
+        <span class="text-base font-bold tracking-tight">SparkMind <span class="text-[10px] text-violet-400 font-mono ml-0.5">V7.3</span></span>
       </a>
       <div class="flex items-center gap-2">
         <a href="/clarity" class="hidden sm:inline-block text-sm text-violet-300 hover:text-white px-3 py-1.5 transition"><i class="fas fa-heart-pulse mr-1"></i>Clarity</a>
@@ -1009,7 +1137,7 @@ const LANDING_HTML = `<!DOCTYPE html>
   <section class="relative pt-32 pb-20 px-4 sm:px-6 max-w-5xl mx-auto text-center">
     <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-indigo-500/10 border border-indigo-500/30 text-xs text-indigo-300 mb-6 fade-up">
       <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
-      V7.2 PRODUCTION HARDENED • Duitku Live (D22457) • Clarity Coach • 19 Categories
+      V7.3 PRODUCTION HARDENED • Duitku Live (D22457) • Clarity Coach • 19 Categories
     </div>
     <h1 class="text-4xl sm:text-6xl md:text-7xl font-black mb-6 leading-[1.05] tracking-tight fade-up">
       AI Strategic Guide<br>
@@ -1038,7 +1166,7 @@ const LANDING_HTML = `<!DOCTYPE html>
 
   <section class="py-16 px-4 sm:px-6 max-w-6xl mx-auto">
     <div class="text-center mb-12 fade-up">
-      <h2 class="text-3xl sm:text-4xl font-bold mb-3">Apa Baru di V7.2 <span class="gradient-text">PRODUCTION HARDENED</span></h2>
+      <h2 class="text-3xl sm:text-4xl font-bold mb-3">Apa Baru di V7.3 <span class="gradient-text">PRODUCTION HARDENED</span></h2>
       <p class="text-gray-400 text-sm">12 hardening + revenue-ready upgrades dari V5.0 SOVEREIGN</p>
     </div>
     <div class="grid sm:grid-cols-2 md:grid-cols-3 gap-4">
@@ -1091,7 +1219,7 @@ const LANDING_HTML = `<!DOCTYPE html>
   </section>
 
   <footer class="py-8 px-4 text-center border-t border-white/5">
-    <p class="text-xs text-gray-500">© 2026 SparkMind V7.2 PRODUCTION HARDENED — AI Strategic Guide + Clarity Coach 🇮🇩 · <a href="/clarity" class="text-violet-400 hover:text-violet-300">Clarity Coach</a> · <a href="/pricing" class="text-indigo-400 hover:text-indigo-300">Pricing</a></p>
+    <p class="text-xs text-gray-500">© 2026 SparkMind V7.3 PRODUCTION HARDENED — AI Strategic Guide + Clarity Coach 🇮🇩 · <a href="/clarity" class="text-violet-400 hover:text-violet-300">Clarity Coach</a> · <a href="/pricing" class="text-indigo-400 hover:text-indigo-300">Pricing</a></p>
   </footer>
 
   <script>
@@ -1118,14 +1246,14 @@ const PRICING_HTML = `<!DOCTYPE html>
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>Pricing — SparkMind V7.2 (Duitku Production Live)</title>
+  <title>Pricing — SparkMind V7.3 (Duitku Production Live)</title>
   <meta name="description" content="Pricing SparkMind. Free selamanya, Pro untuk power user, Team untuk organisasi. Pembayaran aman via Duitku — VA/QRIS/E-wallet/Credit Card.">
   <meta property="og:title" content="SparkMind Pricing — Sederhana, Adil, Powerful">
   <meta property="og:description" content="Mulai gratis. Pro Rp 49rb/bln. Bayar via Duitku — semua bank Indonesia, QRIS, OVO, DANA, ShopeePay didukung.">
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='%234f46e5'/%3E%3Ctext x='50' y='68' font-size='60' text-anchor='middle' fill='white' font-family='system-ui' font-weight='bold'%3ES%3C/text%3E%3C/svg%3E">
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css" rel="stylesheet">
-  <!-- Duitku Pop JS (PRODUCTION) — V7.1 migrated from sandbox
+  <!-- Duitku Pop JS (PRODUCTION) — V7.3 callback hardened (IP whitelist + MD5 sig + idempotent)
        Source: https://docs.duitku.com/pop/en/#duitku-js-module-location -->
   <script src="https://app-prod.duitku.com/lib/js/duitku.js"></script>
   <style>
@@ -1157,7 +1285,7 @@ const PRICING_HTML = `<!DOCTYPE html>
     <div class="max-w-6xl mx-auto px-4 sm:px-6 py-3.5 flex items-center justify-between">
       <a href="/" class="flex items-center gap-2.5">
         <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-indigo-500 to-violet-600 flex items-center justify-center font-bold text-white">S</div>
-        <span class="text-base font-bold">SparkMind <span class="text-[10px] text-violet-400 font-mono">V7.2</span></span>
+        <span class="text-base font-bold">SparkMind <span class="text-[10px] text-violet-400 font-mono">V7.3</span></span>
       </a>
       <div class="flex items-center gap-2">
         <span class="hidden sm:inline-block px-2 py-1 bg-emerald-500/10 text-emerald-400 text-[10px] font-bold rounded border border-emerald-500/20"><i class="fas fa-shield-alt mr-1"></i>Duitku Production</span>
@@ -1561,7 +1689,7 @@ const PAYMENT_RETURN_HTML = `<!DOCTYPE html>
 </html>`
 
 // ============================================
-// APP PAGE V7.2 — PRODUCTION HARDENED
+// APP PAGE V7.3 — PRODUCTION HARDENED
 // ============================================
 const APP_HTML = `<!DOCTYPE html>
 <html lang="id">
@@ -1569,7 +1697,7 @@ const APP_HTML = `<!DOCTYPE html>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <meta name="theme-color" content="#0a0a1a">
-  <title>SparkMind V7.2 PRODUCTION HARDENED — Dashboard</title>
+  <title>SparkMind V7.3 PRODUCTION HARDENED — Dashboard</title>
   <meta name="description" content="SparkMind dashboard — AI strategic guide & productivity OS dengan 12 tools all-in-one.">
   <link rel="manifest" href="/manifest.webmanifest">
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='%234f46e5'/%3E%3Ctext x='50' y='68' font-size='60' text-anchor='middle' fill='white' font-family='system-ui' font-weight='bold'%3ES%3C/text%3E%3C/svg%3E">
@@ -1620,7 +1748,7 @@ const APP_HTML = `<!DOCTYPE html>
       <button id="sidebar-toggle" aria-label="Menu" class="md:hidden p-2 hover:bg-white/5 rounded-lg"><i class="fas fa-bars"></i></button>
       <a href="/" class="flex items-center gap-2">
         <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-500 to-violet-600 flex items-center justify-center text-white font-bold shadow-lg shadow-indigo-500/30">S</div>
-        <span class="font-bold text-sm hidden sm:inline">SparkMind <span class="text-[10px] text-violet-400 font-mono">V7.2</span></span>
+        <span class="font-bold text-sm hidden sm:inline">SparkMind <span class="text-[10px] text-violet-400 font-mono">V7.3</span></span>
       </a>
     </div>
     <div class="flex items-center gap-1.5">
@@ -2640,7 +2768,7 @@ const APP_HTML = `<!DOCTYPE html>
           <button id="reset-btn" class="px-4 py-2 btn-danger text-white rounded-lg text-sm font-semibold"><i class="fas fa-trash mr-1"></i>Reset Semua Data</button>
         </div>
 
-        <p class="text-center text-[10px] text-gray-600">SparkMind V7.2 PRODUCTION HARDENED · 2026 · Made with ❤️ in Indonesia · <a href="/clarity" class="text-violet-400 hover:text-violet-300">Clarity Coach</a></p>
+        <p class="text-center text-[10px] text-gray-600">SparkMind V7.3 PRODUCTION HARDENED · 2026 · Made with ❤️ in Indonesia · <a href="/clarity" class="text-violet-400 hover:text-violet-300">Clarity Coach</a></p>
       </div>\`;
     $('export-btn').addEventListener('click', exportData);
     $('import-btn').addEventListener('click', () => $('import-file').click());
@@ -2996,11 +3124,11 @@ const CLARITY_HTML = `<!DOCTYPE html>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <meta name="theme-color" content="#0a0a1a">
-  <title>AI Clarity & Recovery Coach — SparkMind V7.0</title>
+  <title>AI Clarity & Recovery Coach — SparkMind V7.3</title>
   <meta name="description" content="Painkiller AI untuk hubungan & emosi: Situation Decoder, Draft Review, Boundary Checker, Recovery Plan. Privacy-first, etis, tidak manipulatif.">
   <meta name="keywords" content="ai clarity coach, recovery, breakup, ghosting, blokir, overthinking, indonesia">
   <link rel="manifest" href="/manifest.webmanifest">
-  <meta property="og:title" content="AI Clarity & Recovery Coach — SparkMind V7.0">
+  <meta property="og:title" content="AI Clarity & Recovery Coach — SparkMind V7.3">
   <meta property="og:description" content="Dari overthinking jadi strategi. Bukan bantu mengejar orang — bantu kamu mengambil keputusan yang elegan.">
   <meta property="og:type" content="website">
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='%237c3aed'/%3E%3Ctext x='50' y='68' font-size='60' text-anchor='middle' fill='white' font-family='system-ui' font-weight='bold'%3EC%3C/text%3E%3C/svg%3E">
@@ -3031,7 +3159,7 @@ const CLARITY_HTML = `<!DOCTYPE html>
       <a href="/" class="flex items-center gap-2.5">
         <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-violet-600 to-pink-600 flex items-center justify-center font-bold text-white shadow-lg">C</div>
         <div class="leading-tight">
-          <span class="block text-base font-bold tracking-tight">Clarity Coach <span class="text-[10px] text-violet-400 font-mono ml-0.5">V7.0</span></span>
+          <span class="block text-base font-bold tracking-tight">Clarity Coach <span class="text-[10px] text-violet-400 font-mono ml-0.5">V7.3</span></span>
           <span class="block text-[10px] text-gray-500">Painkiller AI · Privacy-first</span>
         </div>
       </a>
@@ -3045,7 +3173,7 @@ const CLARITY_HTML = `<!DOCTYPE html>
   <header class="relative pt-28 pb-8 px-4 sm:px-6 max-w-5xl mx-auto">
     <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-violet-500/10 border border-violet-500/30 text-xs text-violet-300 mb-5">
       <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
-      V7.0 CLARITY EDITION · Etis · Boundary-first · No Manipulation
+      V7.3 PRODUCTION HARDENED · Etis · Boundary-first · No Manipulation · Callback Lockdown
     </div>
     <h1 class="text-3xl sm:text-5xl font-black mb-3 leading-tight tracking-tight">
       Dari overthinking <br>jadi <span class="gradient-text">strategi.</span>
@@ -3153,7 +3281,7 @@ const CLARITY_HTML = `<!DOCTYPE html>
   </main>
 
   <footer class="py-8 px-4 text-center border-t border-white/5">
-    <p class="text-xs text-gray-500">© 2026 SparkMind V7.0 CLARITY EDITION — Painkiller AI Coach 🇮🇩</p>
+    <p class="text-xs text-gray-500">© 2026 SparkMind V7.3 PRODUCTION HARDENED — Painkiller AI Coach 🇮🇩</p>
   </footer>
 
   <script>
