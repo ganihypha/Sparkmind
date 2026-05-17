@@ -1,0 +1,16 @@
+# SparkMind Sovereign — Code Owners
+# Reference: https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-security/customizing-your-repository/about-code-owners
+
+# Default owner for everything in the repo
+*                       @ganihypha
+
+# Doctrine docs — canonical, owner-approval required
+/docs/                  @ganihypha
+/ledger/                @ganihypha
+
+# Root configuration — only Lane A may modify
+/package.json           @ganihypha
+/pnpm-workspace.yaml    @ganihypha
+/turbo.json             @ganihypha
+/tsconfig.base.json     @ganihypha
+/.github/               @ganihypha
